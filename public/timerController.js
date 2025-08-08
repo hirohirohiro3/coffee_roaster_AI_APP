@@ -80,6 +80,7 @@ function resetTimer() {
     eventBus.emit('graph:clear-inputs');
     eventBus.emit('log-table:clear');
     eventBus.emit('graph:clear-main-logs');
+    eventBus.emit('graph:initialize-realtime-chart');
 }
 
 // --- 公開関数 ---

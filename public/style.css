@@ -147,3 +147,44 @@ input:checked + .slider:before { transform: translateX(22px); }
 .log-event-btn.activated:hover {
     background-color: #15803d; /* Tailwindの hover:bg-green-700 の色 */
 }
+
+/* Roast Level Slider Color Feedback */
+input[type=range].roast-level-1::-webkit-slider-runnable-track { background: #fef3c7; }
+input[type=range].roast-level-1::-moz-range-track { background: #fef3c7; }
+input[type=range].roast-level-1::-webkit-slider-thumb { background: #fde68a; border: 1px solid #fcd34d; }
+input[type=range].roast-level-1::-moz-range-thumb { background: #fde68a; border: 1px solid #fcd34d; }
+
+input[type=range].roast-level-2::-webkit-slider-runnable-track { background: #fde68a; }
+input[type=range].roast-level-2::-moz-range-track { background: #fde68a; }
+input[type=range].roast-level-2::-webkit-slider-thumb { background: #fcd34d; border: 1px solid #fbbf24; }
+input[type=range].roast-level-2::-moz-range-thumb { background: #fcd34d; border: 1px solid #fbbf24; }
+
+input[type=range].roast-level-3::-webkit-slider-runnable-track { background: #fcd34d; }
+input[type=range].roast-level-3::-moz-range-track { background: #fcd34d; }
+input[type=range].roast-level-3::-webkit-slider-thumb { background: #fbbf24; border: 1px solid #f59e0b; }
+input[type=range].roast-level-3::-moz-range-thumb { background: #fbbf24; border: 1px solid #f59e0b; }
+
+input[type=range].roast-level-4::-webkit-slider-runnable-track { background: #fbbf24; }
+input[type=range].roast-level-4::-moz-range-track { background: #fbbf24; }
+input[type=range].roast-level-4::-webkit-slider-thumb { background: #f59e0b; border: 1px solid #d97706; }
+input[type=range].roast-level-4::-moz-range-thumb { background: #f59e0b; border: 1px solid #d97706; }
+
+input[type=range].roast-level-5::-webkit-slider-runnable-track { background: #f59e0b; }
+input[type=range].roast-level-5::-moz-range-track { background: #f59e0b; }
+input[type=range].roast-level-5::-webkit-slider-thumb { background: #d97706; border: 1px solid #b45309; }
+input[type=range].roast-level-5::-moz-range-thumb { background: #d97706; border: 1px solid #b45309; }
+
+input[type=range].roast-level-6::-webkit-slider-runnable-track { background: #d97706; }
+input[type=range].roast-level-6::-moz-range-track { background: #d97706; }
+input[type=range].roast-level-6::-webkit-slider-thumb { background: #b45309; border: 1px solid #92400e; }
+input[type=range].roast-level-6::-moz-range-thumb { background: #b45309; border: 1px solid #92400e; }
+
+input[type=range].roast-level-7::-webkit-slider-runnable-track { background: #b45309; }
+input[type=range].roast-level-7::-moz-range-track { background: #b45309; }
+input[type=range].roast-level-7::-webkit-slider-thumb { background: #92400e; border: 1px solid #78350f; }
+input[type=range].roast-level-7::-moz-range-thumb { background: #92400e; border: 1px solid #78350f; }
+
+input[type=range].roast-level-8::-webkit-slider-runnable-track { background: #92400e; }
+input[type=range].roast-level-8::-moz-range-track { background: #92400e; }
+input[type=range].roast-level-8::-webkit-slider-thumb { background: #78350f; border: 1px solid #451a03; }
+input[type=range].roast-level-8::-moz-range-thumb { background: #78350f; border: 1px solid #451a03; }

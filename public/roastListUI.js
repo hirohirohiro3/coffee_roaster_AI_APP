@@ -22,7 +22,7 @@ function renderRoastList({ roasts, keyword }) {
     const fragment = document.createDocumentFragment();
     roasts.forEach(roast => {
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-lg shadow-sm mb-4 flex justify-between items-start gap-4';
+        card.className = 'bg-white p-4 rounded-lg shadow-sm mb-4';
         card.dataset.id = roast.id; 
         
         // 1. メインの総合評価を決定
@@ -68,6 +68,10 @@ function renderRoastList({ roasts, keyword }) {
 
         // ▼▼▼ カード全体のHTML構造を修正 ▼▼▼
         card.innerHTML = `
+        <div class="flex justify-between items-start gap-4">
+            <div class="flex-shrink-0 flex items-center h-full pt-2">
+                <input type="checkbox" class="roast-compare-checkbox h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" data-id="${roast.id}">
+            </div>
             <div class="flex-grow cursor-pointer" onclick="eventBus.emit('ui:view-profile-clicked', '${roast.id}')">
                 <p class="text-sm text-gray-500">${roast.roastDate || '日付不明'}</p>
                 <h3 class="text-xl font-bold text-gray-800 truncate">${beanNameToDisplay}</h3>
@@ -88,6 +92,7 @@ function renderRoastList({ roasts, keyword }) {
                     <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" data-id="${roast.id}" data-name="${beanNameToDisplay}">削除</button>
                 </div>
             </div>
+        </div>
         `;
         // ▲▲▲ 修正完了 ▲▲▲
         
@@ -107,11 +112,42 @@ export function initializeRoastListUI() {
     exportCsvButton = document.getElementById('exportCsvButton');
     sortSelect = document.getElementById('sort-select');
     filterFavoritesCheckbox = document.getElementById('filter-favorites');
+    const compareRoastsButton = document.getElementById('compareRoastsButton');
 
-    if (!roastLogDiv || !searchButton || !sortSelect || !filterFavoritesCheckbox || !exportCsvButton) {
+    if (!roastLogDiv || !searchButton || !sortSelect || !filterFavoritesCheckbox || !exportCsvButton || !compareRoastsButton) {
         console.error("RoastListUI: One or more essential UI elements are missing from the DOM.");
         return;
     }
+
+    let selectedRoastIds = new Set();
+
+    const updateCompareButtonState = () => {
+        const count = selectedRoastIds.size;
+        compareRoastsButton.disabled = !(count >= 2 && count <= 3);
+        if (!compareRoastsButton.disabled) {
+            compareRoastsButton.textContent = `${count}件の焙煎を比較`;
+        } else {
+            compareRoastsButton.textContent = '選択した焙煎を比較';
+        }
+    };
+
+    roastLogDiv.addEventListener('change', (e) => {
+        if (e.target.classList.contains('roast-compare-checkbox')) {
+            const roastId = e.target.dataset.id;
+            if (e.target.checked) {
+                selectedRoastIds.add(roastId);
+            } else {
+                selectedRoastIds.delete(roastId);
+            }
+            updateCompareButtonState();
+        }
+    });
+
+    compareRoastsButton.addEventListener('click', () => {
+        if (selectedRoastIds.size >= 2 && selectedRoastIds.size <= 3) {
+            eventBus.emit('ui:compare-roasts-clicked', Array.from(selectedRoastIds));
+        }
+    });
 
     roastLogDiv.addEventListener('click', (e) => {
         const button = e.target.closest('button');
