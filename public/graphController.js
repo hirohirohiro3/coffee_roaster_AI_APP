@@ -54,27 +54,15 @@ function _finalizeLogFromArrayForSaving(logArray) {
 
 function handleInitialTempChange(event) {
     if (!realtimeChartInstance) return;
-    const newInitialTemp = parseFloat(event.target.value);
-    const beanTempDataset = realtimeChartInstance.data.datasets[0];
-    if (isNaN(newInitialTemp)) {
-        if (beanTempDataset.data.length > 0 && beanTempDataset.data[0].x === 0) {
-            beanTempDataset.data.shift();
-            if (realtimeBeanTemperaturesLog.length > 0 && realtimeBeanTemperaturesLog[0].time === 0) {
-                realtimeBeanTemperaturesLog.shift();
-            }
-        }
-    } else {
-        if (beanTempDataset.data.length > 0 && beanTempDataset.data[0].x === 0) {
-            beanTempDataset.data[0].y = newInitialTemp;
-            if (realtimeBeanTemperaturesLog.length > 0 && realtimeBeanTemperaturesLog[0].time === 0) {
-                realtimeBeanTemperaturesLog[0].temp = newInitialTemp;
-            }
-        } else {
-            beanTempDataset.data.unshift({ x: 0, y: newInitialTemp });
-            realtimeBeanTemperaturesLog.unshift({ time: 0, temp: newInitialTemp });
-        }
-    }
+    const newTemp = parseFloat(event.target.value);
+    if (isNaN(newTemp)) return;
+
+    _updateDatasetPoint(0, 0, newTemp, true);
     realtimeChartInstance.update('none');
+
+    const beanLogIndex = realtimeBeanTemperaturesLog.findIndex(p => p.time === 0);
+    if (beanLogIndex !== -1) realtimeBeanTemperaturesLog[beanLogIndex].temp = newTemp;
+    else realtimeBeanTemperaturesLog.push({ time: 0, temp: newTemp });
 }
 
 // --- 公開関数 ---
