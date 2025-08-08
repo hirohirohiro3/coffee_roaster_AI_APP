@@ -241,26 +241,40 @@ export function initializeRoastFormUI() {
             const temp = roastWeatherTempInput.value;
             const humidity = roastWeatherHumidityInput.value;
 
-            const prompt = `
-あなたは世界クラスの焙煎士です。以下の条件に基づき、最高のコーヒー焙煎プロファイルを提案してください。
-プロファイルは、1分ごとの目標温度を「(分)分: (温度)℃」の形式で、複数行にわたって提示してください。
+            const data = {
+                beanName: beanName,
+                roastLevel: roastLevel,
+                targetFlavor: targetFlavor || '指定なし',
+                roasterModel: roasterModel || '指定なし',
+                greenWeight: greenBeanWeight,
+                temp: temp,
+                humidity: humidity
+            };
 
-# 焙煎条件
-- **使用する豆:** ${beanName}
-- **目標焙煎度:** ${roastLevel}
-- **生豆重量:** ${greenBeanWeight} kg
-- **目標とする風味:** ${targetFlavor || '指定なし'}
-- **使用焙煎機:** ${roasterModel || '指定なし'}
-- **焙煎時の気候:** ${temp ? `気温 ${temp}°C` : ''} ${humidity ? `湿度 ${humidity}%` : ''}
+            const prompt = `あなたは、Webアプリケーションにデータを提供するための、高精度なテキスト解析・生成AIです。あなたのタスクは、ユーザーからの自然言語の要求を解釈し、指定された厳密なフォーマットでデータを出力することです。会話や説明は行いません。
 
-# 提出形式 (例)
-1分: 150.0℃
-2分: 165.5℃
-3分: 178.0℃
-4分: 189.0℃
-5分: 195.0℃
-...
-            `;
+# 依頼内容
+以下の条件に基づいて、コーヒー焙煎における理想的な投入温度と、その後の1分ごとの豆温度の推移を計算し、指定されたフォーマットで出力してください。
+
+# 条件
+- 使用する豆: ${data.beanName}
+- 目標の焙煎度: ${data.roastLevel}
+- 目標とする風味: ${data.targetFlavor}
+- 使用する焙煎機: ${data.roasterModel}
+- 投入する生豆重量: ${data.greenWeight ? data.greenWeight * 1000 + "g" : "（未入力）"}
+- 気温: ${data.temp ? data.temp + "℃" : "（未取得）"}
+- 湿度: ${data.humidity ? data.humidity + "%" : "（未取得）"}
+
+#【最重要】出力に関する厳密なルール
+- **以下のフォーマットのみを出力してください。**
+- **指定されたフォーマット以外の文字列（前置き、挨拶、解説、単位、言い訳など）は、絶対に含めないでください。**
+- あなたの応答は、プログラムによって自動的に解析されます。指定外のテキストが1文字でも含まれていると、システムがエラーを起こし、処理が失敗します。
+
+# 出力フォーマット
+投入温度: XXX.X℃
+1分: YYY.Y℃
+2分: ZZZ.Z℃
+(以下、焙煎終了まで続く)`;
 
             navigator.clipboard.writeText(prompt.trim())
                 .then(() => showToast("AIへの質問プロンプトをクリップボードにコピーしました。", "success"))
