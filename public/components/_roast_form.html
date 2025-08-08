@@ -122,8 +122,41 @@
                         <div id="overallRatingStars" class="flex items-center mt-2"></div>
                         <input type="hidden" name="overallRating" id="overallRatingInput">
                     </div>
-                    <h4 class="text-md font-medium text-gray-800">詳細評価</h4>
-                    <div id="ratingsContainer"></div>
+
+                    <details class="group">
+                        <summary class="text-blue-600 hover:underline cursor-pointer group-open:mb-4">
+                            + 詳細なカッピングログを追加
+                        </summary>
+                        <div class="space-y-4 pl-4 border-l-2 border-gray-200">
+                            <div>
+                                <h4 class="text-md font-medium text-gray-800">詳細評価</h4>
+                                <div id="ratingsContainer"></div>
+                            </div>
+                            <div>
+                                <label for="flavorProfiles" class="block text-sm font-medium text-gray-700">フレーバープロファイル (複数選択可)</label>
+                                <select id="flavorProfiles" name="flavorProfiles" multiple class="mt-1 block w-full h-32 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                                    <option>フルーティー</option>
+                                    <option>チョコレート</option>
+                                    <option>フローラル</option>
+                                    <option>ナッツ</option>
+                                    <option>スパイス</option>
+                                    <option>キャラメル</option>
+                                    <option>ベリー</option>
+                                    <option>シトラス</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="acidityQuality" class="block text-sm font-medium text-gray-700">酸味の質 (1-5)</label>
+                                <input type="range" id="acidityQuality" name="acidityQuality" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2">
+                                <div class="text-center text-sm text-gray-500 mt-1" id="acidityQualityLabel">3</div>
+                            </div>
+                            <div>
+                                <label for="body" class="block text-sm font-medium text-gray-700">ボディ (1-5)</label>
+                                <input type="range" id="body" name="body" min="1" max="5" value="3" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2">
+                                <div class="text-center text-sm text-gray-500 mt-1" id="bodyLabel">3</div>
+                            </div>
+                        </div>
+                    </details>
                 </div>
                 <div>
                     <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">メモ (任意)</label>

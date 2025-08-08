@@ -174,6 +174,11 @@ function _escapeCsvCell(cellData) {
     return cellString;
 }
 
+export function getRoastsByIds(ids) {
+    if (!localRoastsCache) return [];
+    return ids.map(id => localRoastsCache.find(roast => roast.id === id)).filter(Boolean);
+}
+
 export function handleExportCsv() {
     if (!localRoastsCache || localRoastsCache.length === 0) {
         eventBus.emit('ui:show-toast', { message: "エクスポートする記録がありません。", type: "warning" });

@@ -7,7 +7,7 @@ import { initializePageNavigation, registerPage } from './pageViewManager.js';
 import { eventBus } from './EventBus.js';
 import { fetchCurrentWeatherForRoast } from './weatherService.js';
 import { initializeAuthController } from './authController.js';
-import { initializeRoastWorkflowController, handleAddNewRoast } from './roastWorkflowController.js';
+import { initializeRoastWorkflowController, handleAddNewRoast, getRoastsByIds } from './roastWorkflowController.js';
 import { initializeBeanStockController } from './beanStockController.js';
 import { initializeTimerController, getCurrentElapsedTimeInSeconds, getIsTimerRunning, recordCrackTime } from './timerController.js';
 import { initializeGraphController } from './graphController.js';
@@ -20,6 +20,7 @@ import { initializeTimerDisplayUI } from './timerDisplayUI.js';
 import { initializeConfirmModal } from './confirmModalUI.js';
 import { initializeProfileModalUI } from './profileModalUI.js';
 import { initializeBeanStockModalUI } from './beanStockModalUI.js';
+import { initializeComparisonModalUI } from './comparisonModalUI.js';
 import { initializeRealtimeGraphUI } from './realtimeGraphUI.js';
 import { initializeRealtimeLogTableUI } from './RealtimeLogTableUI.js';
 import { formatTime } from './roastUtils.js';
@@ -67,6 +68,7 @@ export default class App {
             // IDが重複する古い_modals.htmlではなく、
             // すべてのモーダル定義を含む新しい_bean_stock_modal.htmlを読み込みます
             { url: '_bean_stock_modal.html', containerId: 'modals-container' },
+            { url: '_comparison_modal.html', containerId: 'modals-container', append: true },
             { url: '_statistics.html', containerId: 'statistics-page' },
         ];
         
@@ -104,6 +106,7 @@ export default class App {
         initializeConfirmModal();
         initializeProfileModalUI();
         initializeBeanStockModalUI();
+        initializeComparisonModalUI(getRoastsByIds);
         initializeRealtimeGraphUI();
         initializeRealtimeLogTableUI();
 

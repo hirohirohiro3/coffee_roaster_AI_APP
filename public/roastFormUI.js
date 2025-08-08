@@ -10,6 +10,7 @@ let roastWeatherTempInput, roastWeatherHumidityInput, fetchWeatherButton;
 let overallRatingStars, overallRatingInput;
 let roastLevelSlider, roastLevelLabel, roastLevelHiddenInput;
 let generateAiPromptButton, aiProfileInput, applyAiProfileButton;
+let flavorProfilesSelect, acidityQualitySlider, acidityQualityLabel, bodySlider, bodyLabel;
 let isFormDirty = false;
 
 const RATING_DEFINITIONS = { flavor: 'フレーバー', bitterness: '苦味', acidity: '酸味', sweetness: '甘味', body: 'ボディ' };
@@ -26,6 +27,10 @@ function getFormData() {
         }
         delete data[`ratings[${key}]`];
     });
+
+    if (flavorProfilesSelect) {
+        data.flavorProfiles = Array.from(flavorProfilesSelect.selectedOptions).map(option => option.value);
+    }
     
     return data;
 }
@@ -67,6 +72,27 @@ function showRoastForm({ isEdit, data }) {
             updateStarDisplay(data.overallRating);
             if (overallRatingInput) overallRatingInput.value = data.overallRating;
         }
+
+        // Set detailed cupping log values
+        if (data.flavorProfiles && flavorProfilesSelect) {
+            Array.from(flavorProfilesSelect.options).forEach(option => {
+                option.selected = data.flavorProfiles.includes(option.value);
+            });
+        }
+        if (data.acidityQuality && acidityQualitySlider) {
+            acidityQualitySlider.value = data.acidityQuality;
+            if(acidityQualityLabel) acidityQualityLabel.textContent = data.acidityQuality;
+        }
+        if (data.body && bodySlider) {
+            bodySlider.value = data.body;
+            if(bodyLabel) bodyLabel.textContent = data.body;
+        }
+
+        // Open the details section if it contains data
+        const detailsElement = form.querySelector('details');
+        if (detailsElement && (data.flavorProfiles?.length > 0 || data.acidityQuality || data.body)) {
+            detailsElement.open = true;
+        }
     }
     _updateRoastLevelSlider();
     updateWeightLoss();
@@ -83,6 +109,13 @@ function hideRoastForm() {
     form.reset();
     updateStarDisplay(0);
     if (roastLevelSlider) roastLevelSlider.value = 5;
+    if (acidityQualitySlider) acidityQualitySlider.value = 3;
+    if (bodySlider) bodySlider.value = 3;
+    if (acidityQualityLabel) acidityQualityLabel.textContent = '3';
+    if (bodyLabel) bodyLabel.textContent = '3';
+    const detailsElement = form.querySelector('details');
+    if (detailsElement) detailsElement.open = false;
+
     _updateRoastLevelSlider();
     editRoastIdInput.value = '';
     formSection.classList.add('hidden');
@@ -179,11 +212,21 @@ function updateStarDisplay(value) {
 
 function _updateRoastLevelSlider() {
     if (!roastLevelSlider || !roastLevelLabel || !roastLevelHiddenInput) return;
-    const roastLevels = ["ライト", "シナモン", "ミディアム", "ハイ", "シティ", "フルシティ", "フレンチ", "イタリアン"];
+
+    const roastLevels = ["ライト", "シナモン", "ミディアM", "ハイ", "シティ", "フルシティ", "フレンチ", "イタリアン"];
     const value = roastLevelSlider.value;
     const levelName = roastLevels[value - 1] + "ロースト";
+
     roastLevelLabel.textContent = levelName;
     roastLevelHiddenInput.value = levelName;
+
+    // Remove all existing roast-level-* classes
+    for (let i = 1; i <= 8; i++) {
+        roastLevelSlider.classList.remove(`roast-level-${i}`);
+    }
+
+    // Add the new class
+    roastLevelSlider.classList.add(`roast-level-${value}`);
 }
 
 export function initializeRoastFormUI() {
@@ -209,11 +252,27 @@ export function initializeRoastFormUI() {
     roastWeatherTempInput = document.getElementById('roastWeatherTemp');
     roastWeatherHumidityInput = document.getElementById('roastWeatherHumidity');
     fetchWeatherButton = document.getElementById('fetchWeatherButton');
+    flavorProfilesSelect = document.getElementById('flavorProfiles');
+    acidityQualitySlider = document.getElementById('acidityQuality');
+    acidityQualityLabel = document.getElementById('acidityQualityLabel');
+    bodySlider = document.getElementById('body');
+    bodyLabel = document.getElementById('bodyLabel');
     
     if (!formSection || !form) return;
 
     _createRatingsInputs();
     _createOverallRatingStars();
+
+    if (acidityQualitySlider && acidityQualityLabel) {
+        acidityQualitySlider.addEventListener('input', (e) => {
+            acidityQualityLabel.textContent = e.target.value;
+        });
+    }
+    if (bodySlider && bodyLabel) {
+        bodySlider.addEventListener('input', (e) => {
+            bodyLabel.textContent = e.target.value;
+        });
+    }
 
     const submitRoastData = () => {
         if (saveButton) {

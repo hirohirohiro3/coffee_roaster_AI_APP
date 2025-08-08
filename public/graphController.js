@@ -52,6 +52,31 @@ function _finalizeLogFromArrayForSaving(logArray) {
     return tempByMinute.map(t => t === null ? '' : t).join(',');
 }
 
+function handleInitialTempChange(event) {
+    if (!realtimeChartInstance) return;
+    const newInitialTemp = parseFloat(event.target.value);
+    const beanTempDataset = realtimeChartInstance.data.datasets[0];
+    if (isNaN(newInitialTemp)) {
+        if (beanTempDataset.data.length > 0 && beanTempDataset.data[0].x === 0) {
+            beanTempDataset.data.shift();
+            if (realtimeBeanTemperaturesLog.length > 0 && realtimeBeanTemperaturesLog[0].time === 0) {
+                realtimeBeanTemperaturesLog.shift();
+            }
+        }
+    } else {
+        if (beanTempDataset.data.length > 0 && beanTempDataset.data[0].x === 0) {
+            beanTempDataset.data[0].y = newInitialTemp;
+            if (realtimeBeanTemperaturesLog.length > 0 && realtimeBeanTemperaturesLog[0].time === 0) {
+                realtimeBeanTemperaturesLog[0].temp = newInitialTemp;
+            }
+        } else {
+            beanTempDataset.data.unshift({ x: 0, y: newInitialTemp });
+            realtimeBeanTemperaturesLog.unshift({ time: 0, temp: newInitialTemp });
+        }
+    }
+    realtimeChartInstance.update('none');
+}
+
 // --- 公開関数 ---
 export function initializeGraphController() {
     chartCanvasElement = document.getElementById('realtimeRoastChart');
@@ -80,6 +105,11 @@ export function initializeRealtimeChart() {
     if (!isNaN(initialTemp)) {
         initialBeanData.push({ x: 0, y: initialTemp });
         realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
+    }
+
+    if (chargingTempInputElement) {
+        chargingTempInputElement.removeEventListener('input', handleInitialTempChange);
+        chargingTempInputElement.addEventListener('input', handleInitialTempChange);
     }
 
     const ctx = chartCanvasElement.getContext('2d');
