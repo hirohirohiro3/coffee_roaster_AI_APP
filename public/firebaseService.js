@@ -1,246 +1,213 @@
-// firebaseService.js (各認証関数の先頭でauthオブジェクトの状態をログ出力する版)
-
-// 1. 必要なFirebaseモジュールをインポート
+import { firebaseConfig, recaptchaSiteKey } from './firebaseConfig.js'; 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
 import {
-    getAuth,
-    onAuthStateChanged,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    sendPasswordResetEmail,
-    signOut
+    getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
+    signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
+    connectAuthEmulator
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import {
-    getFirestore,
-    collection,
-    addDoc,
-    doc,
-    updateDoc,
-    deleteDoc,
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp
+    getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
+    onSnapshot, query, orderBy, serverTimestamp, connectFirestoreEmulator
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
+import { eventBus } from './EventBus.js';
 
-// 2. Firebase設定情報
-const firebaseConfig = {
-    apiKey: "AIzaSyDQiGrfF00jke9TDa1U_upnH5ucpBmK0dw",
-    authDomain: "coffee-roast-log.firebaseapp.com",
-    projectId: "coffee-roast-log",
-    storageBucket: "coffee-roast-log.firebasestorage.app",
-    messagingSenderId: "434122863622",
-    appId: "1:434122863622:web:0582ac8061ae5bcd2fbf87",
-    measurementId: "G-DEXHN4KC9J"
-};
-
-// 3. Firebaseアプリ、Auth、Firestoreインスタンスのグローバル変数
 let app;
-let auth; // ★ この変数の状態が問題
-let db;
+let auth;
+export let db;
+export let functions;
 let currentUserIdInternal = null;
-let unsubscribeRoasts = null;
+let unsubscribes = [];
+let beansCache = new Map();
 
-// 4. main.js から渡されるコールバック関数を保持する変数
-let mainOnAuthStateChangedCallback;
-let mainOnDataUpdateCallback;
-let mainShowToastCallback;
+export function getCurrentUser() { return auth ? auth.currentUser : null; }
+export function currentUserId() { return currentUserIdInternal; }
 
-// 5. 現在のユーザーIDをエクスポートする関数
-export function currentUserId() {
-    return currentUserIdInternal;
-}
-
-// 6. 焙煎記録のリアルタイムリスナー関数
-function listenToRoasts(userId) {
-    console.log(`firebaseService: listenToRoasts for userId: ${userId}`);
-    if (!db) {
-        console.error("firebaseService: Firestore is not initialized in listenToRoasts.");
-        if (mainShowToastCallback) mainShowToastCallback("データベースに接続できません。", "error");
-        return;
-    }
-    if (unsubscribeRoasts) {
-        unsubscribeRoasts();
-    }
+function listenToAllData(userId) {
+    unsubscribes.forEach(unsub => unsub());
+    unsubscribes = [];
+    beansCache.clear();
+    const beansRef = collection(db, `users/${userId}/beans`);
     const roastsRef = collection(db, `users/${userId}/roasts`);
-    const q = query(roastsRef, orderBy("roastDate", "desc"));
-    unsubscribeRoasts = onSnapshot(q, (querySnapshot) => {
-        const roasts = [];
-        querySnapshot.forEach((doc) => {
-            roasts.push({ id: doc.id, ...doc.data() });
+    const unsubBeans = onSnapshot(beansRef, (beanSnapshot) => {
+        beansCache.clear();
+        beanSnapshot.forEach(doc => {
+            beansCache.set(doc.id, { ...doc.data(), id: doc.id });
         });
-        if (mainOnDataUpdateCallback) {
-            mainOnDataUpdateCallback(roasts);
+        eventBus.emit('beans:updated-for-roast-form', Array.from(beansCache.values()));
+
+        if (unsubscribes.length < 2) {
+            const roastsQuery = query(roastsRef, orderBy("roastDate", "desc"), orderBy("createdAt", "desc"));
+            const unsubRoasts = onSnapshot(roastsQuery, (roastSnapshot) => {
+                const roasts = roastSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const joinedData = roasts.map(roast => {
+                    const beanData = beansCache.get(roast.beanId) || {};
+                    return { ...roast, beanName: beanData.beanName || '紐付けられた豆がありません' };
+                });
+                eventBus.emit('data:roasts-updated', joinedData);
+            });
+            unsubscribes.push(unsubRoasts);
         }
     }, (error) => {
-        console.error("firebaseService: Error listening to roast data:", error);
-        if (mainShowToastCallback) mainShowToastCallback("焙煎記録の取得に失敗しました。", "error");
-        if (mainOnDataUpdateCallback) {
-            mainOnDataUpdateCallback([]);
-        }
+        console.error("Bean data listening error:", error);
     });
+    unsubscribes.push(unsubBeans);
 }
 
-// 7. Firebase初期化関数
-export function initializeFirebase(onAuthStateChangedCb, onDataUpdateCb, showToastCb) {
-    console.log("firebaseService: initializeFirebase function called.");
+export function initializeFirebase() {
     try {
-        if (!app) {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app); // ★ ここで auth が初期化される
-            db = getFirestore(app);
-            console.log("firebaseService: Firebase App, Auth, Firestore INSTANCES CREATED. Auth object:", auth); // ★ 初期化直後のauthもログ出力
+        if (app) return;
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        functions = getFunctions(app);
 
-            mainOnAuthStateChangedCallback = onAuthStateChangedCb;
-            mainOnDataUpdateCallback = onDataUpdateCb;
-            mainShowToastCallback = showToastCb;
-
-            if (auth && mainOnAuthStateChangedCallback) {
-                onAuthStateChanged(auth, (user) => {
-                    console.log("firebaseService: onAuthStateChanged TRIGGERED. User UID:", user ? user.uid : 'null', "Email:", user ? user.email : 'N/A');
-                    currentUserIdInternal = user ? user.uid : null;
-                    
-                    console.log("firebaseService: Checking mainOnAuthStateChangedCallback. Type is:", typeof mainOnAuthStateChangedCallback);
-                    if (typeof mainOnAuthStateChangedCallback === 'function') {
-                        console.log("firebaseService: Attempting to call mainOnAuthStateChangedCallback.");
-                        try {
-                            mainOnAuthStateChangedCallback(user);
-                            console.log("firebaseService: Successfully called mainOnAuthStateChangedCallback.");
-                        } catch (e) {
-                            console.error("firebaseService: Error DURING mainOnAuthStateChangedCallback execution:", e);
-                        }
-                    } else {
-                        console.error("firebaseService: mainOnAuthStateChangedCallback is NOT a function or undefined!");
-                    }
-
-                    if (user) {
-                        listenToRoasts(user.uid);
-                    } else {
-                        if (unsubscribeRoasts) {
-                            unsubscribeRoasts();
-                            unsubscribeRoasts = null;
-                        }
-                        if (mainOnDataUpdateCallback) {
-                             mainOnDataUpdateCallback([]);
-                        }
-                    }
+        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            try {
+                const appCheck = initializeAppCheck(app, {
+                    provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+                    isTokenAutoRefreshEnabled: true
                 });
-            } else {
-                console.error("firebaseService: Auth instance or onAuthStateChangedCb (mainOnAuthStateChangedCallback) is missing. Cannot register onAuthStateChanged listener.");
+                console.log("✅ Firebase App Check initialization SUCCESSFUL.", appCheck);
+            } catch (error) {
+                console.error("❌ Firebase App Check initialization FAILED:", error);
             }
         }
-    } catch (error) {
-        console.error("firebaseService: CRITICAL error during Firebase initialization:", error);
-        if (mainShowToastCallback) {
-            mainShowToastCallback(`Firebase初期化中に重大なエラー: ${error.message}`, "error");
+        
+        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+            connectFirestoreEmulator(db, 'localhost', 8080);
         }
+
+        onAuthStateChanged(auth, (user) => {
+            currentUserIdInternal = user ? user.uid : null;
+            eventBus.emit('auth:state-changed', user);
+            if (user) {
+                listenToAllData(user.uid);
+            } else {
+                unsubscribes.forEach(unsub => unsub());
+                unsubscribes = [];
+                beansCache.clear();
+                eventBus.emit('data:roasts-updated', []);
+                eventBus.emit('beans:updated-for-roast-form', []);
+            }
+        });
+    } catch (error) {
+        console.error("Firebase initialization error:", error);
     }
 }
 
-// --- 認証関連の関数 ---
-
-export async function signUpWithEmailPassword(email, password) {
-    // ★★★ authオブジェクトの状態を確認するログを追加 ★★★
-    console.log(`firebaseService: signUpWithEmailPassword called for email: ${email}. Current auth object:`, auth);
-    if (!auth) {
-        console.error("firebaseService: Firebase Auth is not initialized in signUpWithEmailPassword.");
-        if (mainShowToastCallback) mainShowToastCallback("認証システムエラー。", "error");
-        return { user: null, error: { message: "認証システムが初期化されていません。" } };
-    }
+// --- Auth ---
+export async function signUpWithEmailAndPassword(email, password) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        console.log("firebaseService: signUpWithEmailPassword successful. User UID:", user.uid, "Email:", user.email);
-        if (mainShowToastCallback) mainShowToastCallback("アカウントを登録しました！", "success");
-        
-        console.log("firebaseService: Sign up successful. Expecting onAuthStateChanged to fire soon with this new user.");
-        setTimeout(() => {
-            if (auth.currentUser) {
-                console.log("firebaseService: DEBUG - auth.currentUser after 100ms in signUp success:", auth.currentUser.uid, auth.currentUser.email);
-            } else {
-                console.log("firebaseService: DEBUG - auth.currentUser is NULL after 100ms in signUp success.");
-            }
-        }, 100);
-
-        return { user: user, error: null };
+        return { user: userCredential.user, error: null };
     } catch (error) {
-        console.error("firebaseService: signUpWithEmailPassword error:", error.code, error.message);
-        if (mainShowToastCallback) mainShowToastCallback(`登録エラー: ${error.message}`, "error");
         return { user: null, error: error };
     }
 }
 
 export async function signInUserWithEmailPassword(email, password) {
-    // ★★★ authオブジェクトの状態を確認するログを追加 ★★★
-    console.log(`firebaseService: signInUserWithEmailPassword called for email: ${email}. Current auth object:`, auth);
-    if (!auth) {
-        console.error("firebaseService: Firebase Auth is not initialized in signInUserWithEmailPassword.");
-        if (mainShowToastCallback) mainShowToastCallback("認証システムエラー。", "error");
-        return { user: null, error: { message: "認証システムが初期化されていません。" } };
-    }
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        console.log("firebaseService: signInUserWithEmailPassword successful. User UID from credential:", user.uid, "Email:", user.email);
-        if (mainShowToastCallback) mainShowToastCallback("ログインしました！", "success");
-
-        console.log("firebaseService: Login successful. Expecting onAuthStateChanged to fire soon with this user.");
-        setTimeout(() => {
-            if (auth.currentUser) {
-                console.log("firebaseService: DEBUG - auth.currentUser after 100ms in signIn success:", auth.currentUser.uid, auth.currentUser.email);
-            } else {
-                console.log("firebaseService: DEBUG - auth.currentUser is NULL after 100ms in signIn success.");
-            }
-        }, 100);
-
-        return { user: user, error: null };
+        return { user: userCredential.user, error: null };
     } catch (error) {
-        console.error("firebaseService: signInUserWithEmailPassword error:", error.code, error.message);
-        if (mainShowToastCallback) mainShowToastCallback(`ログインエラー: ${error.message}`, "error");
         return { user: null, error: error };
     }
 }
 
-export async function sendPasswordReset(email) {
-    // ★★★ authオブジェクトの状態を確認するログを追加 ★★★
-    console.log(`firebaseService: sendPasswordReset called for email: ${email}. Current auth object:`, auth);
-    if (!auth) {
-        console.error("firebaseService: Firebase Auth is not initialized in sendPasswordReset.");
-        if (mainShowToastCallback) mainShowToastCallback("認証システムエラー。", "error");
+export function firebaseSignOut() {
+    return signOut(auth);
+}
+
+// --- Roasts ---
+export function addRoastRecord(data) {
+    if (!currentUserIdInternal) return Promise.reject(new Error("User not logged in."));
+    const dataToSave = { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+    return addDoc(collection(db, `users/${currentUserIdInternal}/roasts`), dataToSave);
+}
+
+export function updateRoastRecord(docId, data) {
+    if (!currentUserIdInternal) return Promise.reject(new Error("User not logged in."));
+    const roastDocRef = doc(db, `users/${currentUserIdInternal}/roasts`, docId);
+    return updateDoc(roastDocRef, { ...data, updatedAt: serverTimestamp() });
+}
+
+export async function deleteRoastRecord(docId) {
+    if (!currentUserIdInternal) {
+        console.error("deleteRoastRecord: User not logged in.");
         return false;
     }
     try {
-        await sendPasswordResetEmail(auth, email);
-        console.log("firebaseService: Password reset email sent successfully.");
-        if (mainShowToastCallback) mainShowToastCallback("パスワードリセットメールを送信しました。メールボックスを確認してください。", "success");
+        const roastDocRef = doc(db, `users/${currentUserIdInternal}/roasts`, docId);
+        await deleteDoc(roastDocRef);
         return true;
     } catch (error) {
-        console.error("firebaseService: sendPasswordResetEmail error:", error.code, error.message);
-        if (mainShowToastCallback) mainShowToastCallback(`パスワードリセットメール送信エラー: ${error.message}`, "error");
+        console.error("FirebaseService: Error deleting roast record:", error);
         return false;
     }
 }
 
-export function firebaseSignOut(onSuccess, onError) {
-    // ★★★ authオブジェクトの状態を確認するログを追加 ★★★
-    console.log("firebaseService: firebaseSignOut function called. Current auth object:", auth);
-    if (!auth) {
-        console.error("firebaseService: Firebase Auth is not initialized in firebaseSignOut.");
-        if (onError) onError({ message: "認証システムが初期化されていません。" });
-        return;
+export async function updateFavoriteStatus(docId, isFavorite) {
+    if (!currentUserIdInternal) return Promise.reject(new Error("User not logged in."));
+    const roastDocRef = doc(db, `users/${currentUserIdInternal}/roasts`, docId);
+    try {
+        await updateDoc(roastDocRef, { isFavorite: isFavorite });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating favorite status:", error);
+        return { success: false, error: error };
     }
-    signOut(auth).then(() => {
-        console.log("firebaseService: signOut(auth) successful.");
-        if (mainShowToastCallback) mainShowToastCallback("ログアウトしました。", "info");
-        if (onSuccess) onSuccess();
-    }).catch((error) => {
-        console.error("firebaseService: signOut(auth) error:", error);
-        if (mainShowToastCallback) mainShowToastCallback(`ログアウトエラー: ${error.message}`, "error");
-        if (onError) onError(error);
-    });
 }
 
-// --- Firestore CRUD操作の関数 (変更なし) ---
-export async function addRoastRecord(data, showToastCallback) { /* ... (No.105と同様) ... */ }
-export async function updateRoastRecord(docId, data, showToastCallback) { /* ... (No.105と同様) ... */ }
-export async function deleteRoastRecord(docId, showToastCallback) { /* ... (No.105と同様) ... */ }
+// --- Beans ---
+export async function addBean(beanData) {
+    if (!currentUserIdInternal) return null;
+    try {
+        const docRef = await addDoc(collection(db, `users/${currentUserIdInternal}/beans`), { ...beanData, createdAt: serverTimestamp() });
+        return docRef.id;
+    } catch (e) {
+        console.error("FirebaseService: Error adding bean:", e);
+        return null;
+    }
+}
+
+export async function updateBean(beanId, beanData) {
+    if (!currentUserIdInternal) return null;
+    try {
+        const beanDocRef = doc(db, `users/${currentUserIdInternal}/beans`, beanId);
+        await updateDoc(beanDocRef, { ...beanData, updatedAt: serverTimestamp() });
+        return true;
+    } catch (e) {
+        console.error("FirebaseService: Error updating bean:", e);
+        return false;
+    }
+}
+
+export async function deleteBean(beanId) {
+    if (!currentUserIdInternal) return null;
+    try {
+        const beanDocRef = doc(db, `users/${currentUserIdInternal}/beans`, beanId);
+        await deleteDoc(beanDocRef);
+        return true;
+    } catch (e) {
+        console.error("FirebaseService: Error deleting bean:", e);
+        return false;
+    }
+}
+
+// --- Gemini API ---
+export async function getRoastAnalysisFromAI(roastPlan) {
+    if (!auth.currentUser) {
+        throw new Error("認証が必要です。");
+    }
+    const getAnalysis = httpsCallable(functions, 'getRoastAnalysis');
+    try {
+        const result = await getAnalysis(roastPlan);
+        return result.data;
+    } catch (error) {
+        console.error("Function call failed:", error);
+        throw new Error(error.message || "AIとの通信中に不明なエラーが発生しました。");
+    }
+}

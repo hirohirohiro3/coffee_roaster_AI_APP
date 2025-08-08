@@ -1,23 +1,32 @@
-// firebase.json
 {
+  "functions": {
+    "source": "functions"
+  },
   "hosting": {
-    "public": "public", // あなたの公開ディレクトリ
-    "ignore": [ /* ... */ ],
-    "rewrites": [ /* ... */ ],
-    "headers": [
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
       {
-        "source": "**", 
-        "headers": [
-          {
-            "key": "Cross-Origin-Opener-Policy",
-            "value": "unsafe-none" // ★★★ 最も緩い設定 ★★★
-          },
-          { 
-            "key": "Cross-Origin-Embedder-Policy",
-            "value": "unsafe-none" // ★★★ 最も緩い設定 ★★★
-          }
-        ]
+        "source": "**",
+        "destination": "/index.html"
       }
     ]
+  },
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
   }
 }

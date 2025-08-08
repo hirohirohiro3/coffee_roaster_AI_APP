@@ -1,0 +1,32 @@
+<section class="p-4 bg-white rounded-lg shadow-md mb-6">
+    <div class="flex flex-col md:flex-row md:items-end md:space-x-4 space-y-4 md:space-y-0">
+        
+        <div class="flex-grow">
+            <label for="searchInput" class="block text-sm font-medium text-gray-700">豆の名前で検索</label>
+            <div class="mt-1 flex rounded-md shadow-sm">
+                <input type="text" id="searchInput" class="block w-full px-3 py-2 border border-gray-300 rounded-l-md focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="エチオピア、など">
+                <button id="searchButton" type="button" class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-700 rounded-r-md hover:bg-gray-100 font-medium">
+                    検索
+                </button>
+            </div>
+        </div>
+
+        <div class="flex items-end space-x-4 flex-shrink-0">
+            <div>
+                <label for="sort-select" class="block text-sm font-medium text-gray-700">並び替え</label>
+                <select id="sort-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
+                    <option value="date-desc">焙煎日が新しい順</option>
+                    <option value="date-asc">焙煎日が古い順</option>
+                    <option value="name-asc">豆の名前順</option>
+                    <option value="rating-desc">総合評価が高い順</option>
+                    <option value="rating-asc">総合評価が低い順</option>
+                </select>
+            </div>
+            <div class="flex items-center pb-1">
+                <input id="filter-favorites" type="checkbox" class="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
+                <label for="filter-favorites" class="ml-2 block text-sm text-gray-900 whitespace-nowrap">お気に入りのみ表示</label>
+            </div>
+        </div>
+
+    </div>
+    </section>

@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "coffee-roast-log"
-  }
+    "default": "coffee-roast-log",
+    "dev2": "coffee-roast-log2"
+  },
+  "targets": {},
+  "etags": {}
 }

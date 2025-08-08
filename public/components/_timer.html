@@ -1,0 +1,74 @@
+<section id="roastTimerSection" class="mb-8 p-6 bg-white rounded-lg shadow-md">
+    <h2 class="text-2xl font-semibold mb-4 text-amber-600 text-center">焙煎タイマー</h2>
+    <div class="mb-4">
+        <label for="timerChargingTemperature" class="block text-sm font-medium text-gray-700 text-center">予定投入温度 (°C)</label>
+        <input type="number" id="timerChargingTemperature" name="timerChargingTemperature" step="0.1" class="mt-1 block w-1/2 mx-auto px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="例: 180.0">
+    </div>
+    <div class="text-center">
+        <div id="timerDisplay" class="text-6xl font-mono text-amber-700 mb-2 tracking-wider">00:00</div>
+        
+        <div id="developmentTimeContainer" class="h-6 mb-4 text-gray-600 font-mono text-lg">
+            <span>1C: </span><span id="firstCrackDevTime" class="w-16 inline-block">--:--</span>
+            <span class="mx-2">|</span>
+            <span>2C: </span><span id="secondCrackDevTime" class="w-16 inline-block">--:--</span>
+        </div>
+
+        <div id="predictionContainer" class="h-8 mb-4" style="display: none;">
+            <p class="text-base text-gray-600">
+                <span class="font-bold text-teal-600">200℃</span> 到達予測: 
+                <span id="predictionDisplay" class="font-semibold text-teal-600">-</span>
+            </p>
+        </div>
+
+        <div class="space-x-2 sm:space-x-4">
+            <button id="startPauseTimerButton" class="px-6 py-3 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition-colors w-28 sm:w-32">開始</button>
+            <button id="resetTimerButton" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition-colors w-28 sm:w-32">リセット</button>
+        </div>
+        <div class="mt-4 text-sm text-gray-600">
+            <label for="enableVoiceNotification" class="inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="enableVoiceNotification" class="rounded border-gray-300 text-amber-600 shadow-sm focus:border-amber-300 focus:ring focus:ring-amber-200 focus:ring-opacity-50" checked>
+                <span class="ml-2">音声通知を有効にする</span>
+            </label>
+        </div>
+    </div>
+    
+    <div id="tempInputForm" class="mt-6 pt-6 border-t border-gray-200 space-y-4 md:space-y-0 md:flex md:space-x-4 md:items-end" style="display: none;">
+        <div class="flex-1">
+            <label for="realtimeBeanTemp" class="block text-sm font-medium text-gray-700">豆温度 (°C)</label>
+            <input type="number" id="realtimeBeanTemp" name="realtimeBeanTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="例: 150.5">
+        </div>
+        <div class="flex-1">
+            <label for="realtimeChamberTemp" class="block text-sm font-medium text-gray-700">庫内温度 (°C)</label>
+            <input type="number" id="realtimeChamberTemp" name="realtimeChamberTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="例: 200.0">
+        </div>
+        <div class="flex items-end space-x-2">
+            <button id="logRealtimeTempButton" class="w-full md:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors">温度を記録</button>
+            <button id="fixLastTempButton" class="px-2 py-2 bg-gray-400 hover:bg-gray-500 text-white rounded-lg shadow-md transition-colors hidden" title="直前の記録を修正">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+            </button>
+        </div>
+    </div>
+    
+    <p class="text-xs text-gray-500 mt-2 text-center md:text-left">タイマー作動中に現在の温度を入力し、「温度を記録」ボタンでグラフとログに反映します。</p>
+    <div class="text-center">
+        <div id="eventLoggerContainer" class="mt-8 pt-4 border-t border-gray-200" style="display: none;">
+            <h3 class="text-lg font-medium text-gray-700 text-center">イベント記録</h3>
+            <p class="text-xs text-gray-500 text-center mb-4">イベント発生時にボタンを押して、時間をフォームに記録します。</p>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <button data-event-type="turningPointTime" class="log-event-btn px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors">TP</button>
+                <button data-event-type="firstCrackTime" class="log-event-btn px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition-colors">1ハゼ</button>
+                <button data-event-type="secondCrackTime" class="log-event-btn px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition-colors">2ハゼ</button>
+                <button data-event-type="totalRoastTime" class="log-event-btn px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-colors">煎り止め</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="realtimeLogTableContainer" class="mt-6 pt-6 border-t border-gray-200 w-full overflow-x-auto" style="display: none;">
+        <h3 class="text-xl font-semibold text-amber-600 mb-4 text-center">リアルタイムログ</h3>
+    </div>
+
+    <div id="realtimeGraphContainer" class="mt-8 pt-6 border-t border-gray-200" style="display: none;">
+        <h3 class="text-xl font-semibold text-amber-600 mb-4 text-center">リアルタイムプロファイル</h3>
+        <div class="h-64 md:h-80 mb-6 bg-gray-50 p-2 rounded-md shadow-inner"><canvas id="realtimeRoastChart"></canvas></div>
+    </div>
+</section>
