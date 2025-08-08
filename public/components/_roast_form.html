@@ -46,10 +46,24 @@
                     </div>
                     <button type="button" id="fetchWeatherButton" class="mt-2 px-3 py-1.5 border border-blue-500 rounded-md shadow-sm text-sm font-medium text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">現在地の気候情報を取得</button>
                 </div>
-                <div class="space-y-2 pt-4 border-t border-gray-200">
-                    <button type="button" id="getAiPlanButton" class="w-full px-4 py-2 bg-indigo-600 text-white font-medium rounded-md hover:bg-indigo-700">
-                        🤖 AIに焙煎プランを提案してもらう
-                    </button>
+                <div class="space-y-4 pt-4 border-t border-gray-200">
+                    <h3 class="text-md font-medium text-gray-900">AI 連携</h3>
+                    <div class="tooltip">
+                        <button type="button" id="generateAiPromptButton" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
+                            🤖 外部AIへの質問を作成 (コピー)
+                        </button>
+                        <span class="tooltiptext">現在のフォーム入力からAIへの質問プロンプトを生成し、クリップボードにコピーします。</span>
+                    </div>
+                    <div>
+                        <label for="aiProfileInput" class="block text-sm font-medium text-gray-700">AIからの提案をペースト</label>
+                        <textarea id="aiProfileInput" rows="5" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="例:\n1分: 150.0℃\n2分: 165.5℃\n..."></textarea>
+                    </div>
+                    <div class="tooltip">
+                        <button type="button" id="applyAiProfileButton" class="w-full px-4 py-2 bg-teal-600 text-white font-medium rounded-md hover:bg-teal-700">
+                            AIの提案を貼り付けてグラフ表示
+                        </button>
+                        <span class="tooltiptext">テキストエリアのデータを解析し、目標プロファイルとしてグラフに点線で表示します。</span>
+                    </div>
                 </div>
             </div>
         </fieldset>

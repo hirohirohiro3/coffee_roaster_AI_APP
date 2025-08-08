@@ -1,7 +1,6 @@
 import { eventBus } from './EventBus.js';
 import * as RoastUtils from './roastUtils.js';
 import { showToast } from './ui.js';
-import { getRoastAnalysisFromAI } from './firebaseService.js';
 
 // DOM Elements
 let formSection, form, formTitle, editRoastIdInput, saveButton, cancelButton;
@@ -10,7 +9,7 @@ let beanSelect, ratingsContainer;
 let roastWeatherTempInput, roastWeatherHumidityInput, fetchWeatherButton;
 let overallRatingStars, overallRatingInput;
 let roastLevelSlider, roastLevelLabel, roastLevelHiddenInput;
-let getAiPlanButton;
+let generateAiPromptButton, aiProfileInput, applyAiProfileButton;
 let isFormDirty = false;
 
 const RATING_DEFINITIONS = { flavor: 'フレーバー', bitterness: '苦味', acidity: '酸味', sweetness: '甘味', body: 'ボディ' };
@@ -202,9 +201,11 @@ export function initializeRoastFormUI() {
     roastLevelSlider = document.getElementById('roastLevelSlider');
     roastLevelLabel = document.getElementById('roastLevelLabel');
     roastLevelHiddenInput = document.getElementById('roastLevel');
-    getAiPlanButton = document.getElementById('getAiPlanButton');
     overallRatingInput = document.getElementById('overallRatingInput');
     overallRatingStars = document.getElementById('overallRatingStars');
+    generateAiPromptButton = document.getElementById('generateAiPromptButton');
+    aiProfileInput = document.getElementById('aiProfileInput');
+    applyAiProfileButton = document.getElementById('applyAiProfileButton');
     roastWeatherTempInput = document.getElementById('roastWeatherTemp');
     roastWeatherHumidityInput = document.getElementById('roastWeatherHumidity');
     fetchWeatherButton = document.getElementById('fetchWeatherButton');
@@ -229,40 +230,69 @@ export function initializeRoastFormUI() {
         _updateRoastLevelSlider();
     }
 
-    if (getAiPlanButton) {
-        getAiPlanButton.addEventListener('click', async () => {
-            const planData = {
-                beanName: document.getElementById('beanIdSelect').options[document.getElementById('beanIdSelect').selectedIndex].text.split(' (')[0],
-                roastLevel: document.getElementById('roastLevel').value,
-                greenWeight: document.getElementById('greenBeanWeight').value,
-                targetFlavor: document.getElementById('targetFlavor').value,
-                roasterModel: document.getElementById('roasterModel').value,
-                temp: document.getElementById('roastWeatherTemp').value,
-                humidity: document.getElementById('roastWeatherHumidity').value
-            };
+    if (generateAiPromptButton) {
+        generateAiPromptButton.addEventListener('click', () => {
+            const selectedBeanOption = beanSelect.options[beanSelect.selectedIndex];
+            const beanName = selectedBeanOption ? selectedBeanOption.text.split(' (')[0] : 'N/A';
+            const roastLevel = roastLevelHiddenInput.value;
+            const greenBeanWeight = greenBeanWeightInput.value;
+            const targetFlavor = document.getElementById('targetFlavor').value;
+            const roasterModel = document.getElementById('roasterModel').value;
+            const temp = roastWeatherTempInput.value;
+            const humidity = roastWeatherHumidityInput.value;
 
-            getAiPlanButton.disabled = true;
-            getAiPlanButton.textContent = '🤖 AIがプランを考えています...';
-            showToast("AIに焙煎プランをリクエストしました...", "info");
+            const prompt = `
+あなたは世界クラスの焙煎士です。以下の条件に基づき、最高のコーヒー焙煎プロファイルを提案してください。
+プロファイルは、1分ごとの目標温度を「(分)分: (温度)℃」の形式で、複数行にわたって提示してください。
 
-            try {
-                const result = await getRoastAnalysisFromAI(planData);
-                
-                if (result.chargeTemperature) {
-                    const chargeTempInput = document.getElementById('chargingTemperature');
-                    if (chargeTempInput) chargeTempInput.value = result.chargeTemperature;
-                }
-                if (result.temperatureProfile && result.temperatureProfile.length > 0) {
-                    eventBus.emit('graph:set-target-profile', result.temperatureProfile);
-                }
-                showToast("AIの焙煎プランを受け取りました！", "success");
+# 焙煎条件
+- **使用する豆:** ${beanName}
+- **目標焙煎度:** ${roastLevel}
+- **生豆重量:** ${greenBeanWeight} kg
+- **目標とする風味:** ${targetFlavor || '指定なし'}
+- **使用焙煎機:** ${roasterModel || '指定なし'}
+- **焙煎時の気候:** ${temp ? `気温 ${temp}°C` : ''} ${humidity ? `湿度 ${humidity}%` : ''}
 
-            } catch (error) {
-                showToast(`エラー: ${error.message}`, "error", 5000);
-            } finally {
-                getAiPlanButton.disabled = false;
-                getAiPlanButton.textContent = '🤖 AIに焙煎プランを提案してもらう';
+# 提出形式 (例)
+1分: 150.0℃
+2分: 165.5℃
+3分: 178.0℃
+4分: 189.0℃
+5分: 195.0℃
+...
+            `;
+
+            navigator.clipboard.writeText(prompt.trim())
+                .then(() => showToast("AIへの質問プロンプトをクリップボードにコピーしました。", "success"))
+                .catch(err => showToast("クリップボードへのコピーに失敗しました: " + err, "error"));
+        });
+    }
+
+    if (applyAiProfileButton) {
+        applyAiProfileButton.addEventListener('click', () => {
+            const text = aiProfileInput.value;
+            if (!text.trim()) {
+                showToast("AIからの提案を先にテキストエリアに貼り付けてください。", "warning");
+                return;
             }
+
+            const regex = /(\d+(?:\.\d+)?)\s*分\s*:\s*(\d+(?:\.\d+)?)\s*℃/g;
+            const parsedData = [];
+            let match;
+            while ((match = regex.exec(text)) !== null) {
+                parsedData.push({
+                    x: parseFloat(match[1]),
+                    y: parseFloat(match[2])
+                });
+            }
+
+            if (parsedData.length === 0) {
+                showToast("有効な形式「(数値)分: (数値)℃」のデータが見つかりませんでした。", "error");
+                return;
+            }
+
+            eventBus.emit('graph:set-target-profile', parsedData);
+            showToast(`AIの目標プロファイルをグラフに適用しました (${parsedData.length}点)。`, "success");
         });
     }
 
