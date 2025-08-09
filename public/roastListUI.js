@@ -123,13 +123,18 @@ export function initializeRoastListUI() {
 
     const updateCompareButtonState = () => {
         const count = selectedRoastIds.size;
-        const shouldShow = count >= 2 && count <= 3;
+        const isEnabled = count >= 2 && count <= 3;
 
-        if (shouldShow) {
-            compareRoastsButton.style.display = 'inline-block';
+        compareRoastsButton.disabled = !isEnabled;
+
+        if (isEnabled) {
             compareRoastsButton.textContent = `${count}件の焙煎を比較`;
+            compareRoastsButton.classList.remove('bg-gray-300', 'cursor-not-allowed');
+            compareRoastsButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
         } else {
-            compareRoastsButton.style.display = 'none';
+            compareRoastsButton.textContent = '比較する (2-3件選択)';
+            compareRoastsButton.classList.add('bg-gray-300', 'cursor-not-allowed');
+            compareRoastsButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
         }
     };
 
@@ -179,5 +184,9 @@ export function initializeRoastListUI() {
     exportCsvButton.addEventListener('click', () => eventBus.emit('ui:export-csv-clicked'));
     
     eventBus.on('roasts:render-list', renderRoastList);
+
+    // 初期状態を設定
+    updateCompareButtonState();
+
     console.log("✅ RoastListUI initialized.");
 }
