@@ -11,14 +11,106 @@ let generateAiPromptButton, aiProfileInput, applyAiProfileButton;
 let roastWeatherTempInput, roastWeatherHumidityInput, fetchWeatherButton;
 let isFormDirty = false;
 
-// Map slider IDs to their label and text values
-const sliderLabelMap = {
-    acidityIntensity: { label: 'acidityIntensityLabel', map: ['とても弱い', '弱い', '普通', '強い', 'とても強い'] },
-    bodyWeight: { label: 'bodyWeightLabel', map: ['軽い', 'やや軽い', '普通', 'やや重い', '重い'] },
-    aftertasteLength: { label: 'aftertasteLengthLabel', map: ['短い', 'やや短い', '普通', 'やや長い', '長い'] },
-    aftertasteQuality: { label: 'aftertasteQualityLabel', map: ['不快', 'やや不快', '普通', 'きれい', 'とてもきれい'] },
-    balance: { label: 'balanceLabel', map: ['まとまりがない', 'ややまとまりがない', '調和が取れている', '良い調和', '素晴らしい調和'] }
-};
+// --- Constants for Tag Selectors ---
+const FLAVOR_TAGS = [
+    "ベリー", "シトラス", "リンゴ", "ブドウ", "トロピカルフルーツ", "ストーンフルーツ",
+    "チョコレート", "キャラメル", "ナッツ", "スパイス", "フローラル", "ハーバル", "ワイン", "スモーキー"
+];
+const ACIDITY_QUALITY_TAGS = ["爽やか", "ジューシー", "複雑", "シャープ", "刺激的", "マイルド", "平坦"];
+const BODY_TEXTURE_TAGS = ["シルキー", "クリーミー", "リッチ", "薄い", "ザラザラ", "水っぽい"];
+
+// --- Helper Functions ---
+
+/**
+ * Creates a star rating component.
+ * @param {string} containerId - The ID of the container element for the stars.
+ * @param {string} hiddenInputId - The ID of the hidden input to store the rating.
+ */
+function _createStarRating(containerId, hiddenInputId) {
+    const container = document.getElementById(containerId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    if (!container || !hiddenInput) return;
+
+    container.innerHTML = ''; // Clear existing content
+
+    for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('span');
+        star.classList.add('star', 'text-3xl', 'cursor-pointer', 'text-gray-300');
+        star.dataset.value = i;
+        star.innerHTML = '&#9733;';
+        container.appendChild(star);
+    }
+
+    const stars = container.querySelectorAll('.star');
+
+    const setRating = (value) => {
+        hiddenInput.value = value;
+        stars.forEach(star => {
+            star.classList.toggle('text-yellow-400', star.dataset.value <= value);
+            star.classList.toggle('text-gray-300', star.dataset.value > value);
+        });
+        form.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+
+    container.addEventListener('click', e => {
+        if (e.target.classList.contains('star')) {
+            const value = e.target.dataset.value;
+            // Allow un-setting the rating by clicking the same star again
+            if (hiddenInput.value === value) {
+                setRating(0);
+            } else {
+                setRating(value);
+            }
+        }
+    });
+
+    // Needed for form reset and initial load
+    container.setRating = setRating;
+}
+
+
+/**
+ * Creates a tag selector component.
+ * @param {string} containerId - The ID of the container for the tags.
+ * @param {string} hiddenInputId - The ID of the hidden input to store selected tags.
+ * @param {string[]} tags - An array of available tags.
+ */
+function _createTagSelector(containerId, hiddenInputId, tags) {
+    const container = document.getElementById(containerId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    if (!container || !hiddenInput) return;
+
+    container.innerHTML = ''; // Clear existing content
+
+    tags.forEach(tag => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.classList.add('tag-button');
+        button.dataset.value = tag;
+        button.textContent = tag;
+        container.appendChild(button);
+    });
+
+    container.addEventListener('click', e => {
+        if (e.target.classList.contains('tag-button')) {
+            e.target.classList.toggle('selected');
+            const selectedValues = Array.from(container.querySelectorAll('.tag-button.selected'))
+                .map(btn => btn.dataset.value);
+            hiddenInput.value = selectedValues.join(',');
+            form.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    });
+
+    // Attach methods to container for external manipulation (loading/resetting)
+    container.setSelectedTags = (tagString) => {
+        const selected = tagString ? tagString.split(',') : [];
+        hiddenInput.value = tagString || '';
+        container.querySelectorAll('.tag-button').forEach(button => {
+            button.classList.toggle('selected', selected.includes(button.dataset.value));
+        });
+    };
+}
+
 
 // --- Core Functions ---
 
@@ -29,13 +121,14 @@ function getFormData() {
     // Convert numeric fields from strings to numbers
     const numericFields = [
         'greenBeanWeight', 'roastedBeanWeight', 'chargingTemperature', 'turningPointTemp', 'endOfRoastTemp',
-        'bitterness', 'sweetness', 'acidityIntensity', 'bodyWeight', 'aftertasteLength', 'aftertasteQuality', 'balance'
+        'overallRating', 'acidityIntensity', 'bodyWeight', 'aftertasteLength', 'aftertasteQuality', 'balance'
     ];
     numericFields.forEach(field => {
         if (data[field] && data[field].trim() !== '') {
             data[field] = parseFloat(data[field]);
         } else {
-            delete data[field]; // Remove empty fields
+            // Use null for empty optional numbers to distinguish from 0
+            data[field] = null;
         }
     });
 
@@ -63,10 +156,7 @@ function showRoastForm({ isEdit, data }) {
         Object.keys(data).forEach(key => {
             const input = form.elements[key];
             if (input && data[key] !== null && data[key] !== undefined) {
-                // For radio buttons, we handle them separately below
-                if (input.type !== 'radio') {
-                    input.value = data[key];
-                }
+                input.value = data[key];
             }
         });
 
@@ -79,44 +169,20 @@ function showRoastForm({ isEdit, data }) {
             roastLevelSlider.value = levelIndex + 1;
         }
 
-        // Populate Quick Ratings
-        if (data.bitterness) {
-            const radio = form.querySelector(`input[name="bitterness"][value="${data.bitterness}"]`);
-            if (radio) radio.checked = true;
-        }
-        if (data.sweetness) {
-            const radio = form.querySelector(`input[name="sweetness"][value="${data.sweetness}"]`);
-            if (radio) radio.checked = true;
-        }
+        // --- Populate New Evaluation UI ---
+        document.getElementById('overallRatingStars').setRating(data.overallRating || 0);
 
-        // Populate Detailed Cupping Log Sliders
-        Object.entries(sliderLabelMap).forEach(([sliderId, { label: labelId, map }]) => {
-            const slider = document.getElementById(sliderId);
-            const label = document.getElementById(labelId);
-            if (slider && data[sliderId]) {
-                slider.value = data[sliderId];
-                if (label) {
-                    label.textContent = map[slider.value - 1];
-                }
-            }
-        });
-
-        // Populate Detailed Cupping Log Tag Buttons
-        ['flavorProfile', 'acidityQuality', 'bodyTexture'].forEach(fieldName => {
-            const container = form.querySelector(`[data-input-target="${fieldName}"]`);
-            const hiddenInput = document.getElementById(fieldName);
-            if (container && hiddenInput && data[fieldName]) {
-                hiddenInput.value = data[fieldName]; // Set hidden input value
-                const selectedValues = data[fieldName].split(',');
-                container.querySelectorAll('.tag-button').forEach(button => {
-                    button.classList.toggle('selected', selectedValues.includes(button.dataset.value));
-                });
-            }
-        });
+        document.getElementById('flavorTagsContainer').setSelectedTags(data.flavorProfile || '');
+        document.getElementById('acidityQualityTags').setSelectedTags(data.acidityQuality || '');
+        document.getElementById('bodyTextureTags').setSelectedTags(data.bodyTexture || '');
 
         // Open the details section if it contains detailed data
-        const detailsElement = form.querySelector('details');
-        if (detailsElement && (data.flavorProfile || data.acidityQuality || data.bodyTexture || data.balance)) {
+        const detailsElement = document.getElementById('cuppingLogDetails');
+        const hasDetailedData = data.flavorProfile || data.acidityQuality || data.bodyTexture ||
+                                data.acidityIntensity > 0 || data.bodyWeight > 0 || data.aftertasteLength > 0 ||
+                                data.aftertasteQuality > 0 || data.balance > 0;
+
+        if (detailsElement && hasDetailedData) {
             detailsElement.open = true;
         }
     }
@@ -142,30 +208,26 @@ function hideRoastForm() {
 }
 
 function _resetFormUI() {
-    // Reset sliders and their labels
-    Object.entries(sliderLabelMap).forEach(([sliderId, { label: labelId, map }]) => {
-        const slider = document.getElementById(sliderId);
-        const label = document.getElementById(labelId);
-        if (slider) slider.value = 3; // Default to middle value
-        if (label) label.textContent = map[2]; // Default to middle text
+    // Reset sliders to default
+    ['acidityIntensity', 'bodyWeight', 'aftertasteLength', 'aftertasteQuality', 'balance'].forEach(id => {
+        const slider = document.getElementById(id);
+        if (slider) slider.value = 3;
     });
+
     if (roastLevelSlider) roastLevelSlider.value = 5; // Default roast level
     _updateRoastLevelSlider();
 
-    // Reset tag buttons and hidden fields
-    ['flavorProfile', 'acidityQuality', 'bodyTexture'].forEach(fieldName => {
-        const container = form.querySelector(`[data-input-target="${fieldName}"]`);
-        const hiddenInput = document.getElementById(fieldName);
-        if (hiddenInput) hiddenInput.value = '';
-        if (container) {
-            container.querySelectorAll('.tag-button.selected').forEach(btn => btn.classList.remove('selected'));
-        }
-    });
+    // Reset new evaluation UI
+    document.getElementById('overallRatingStars').setRating(0);
+    document.getElementById('flavorTagsContainer').setSelectedTags('');
+    document.getElementById('acidityQualityTags').setSelectedTags('');
+    document.getElementById('bodyTextureTags').setSelectedTags('');
 
     // Close details section
-    const detailsElement = form.querySelector('details');
+    const detailsElement = document.getElementById('cuppingLogDetails');
     if (detailsElement) detailsElement.open = false;
 }
+
 
 // --- UI Update Functions ---
 
@@ -213,38 +275,6 @@ function _updateRoastLevelSlider() {
     roastLevelSlider.classList.add(`roast-level-${value}`);
 }
 
-// --- Event Handler Setup ---
-
-function _setupTagButtons() {
-    form.querySelectorAll('[data-input-target]').forEach(container => {
-        const targetInput = form.querySelector(`#${container.dataset.inputTarget}`);
-        if (!targetInput) return;
-
-        container.addEventListener('click', e => {
-            if (e.target.classList.contains('tag-button')) {
-                e.target.classList.toggle('selected');
-                const selectedValues = Array.from(container.querySelectorAll('.tag-button.selected'))
-                    .map(btn => btn.dataset.value);
-                targetInput.value = selectedValues.join(',');
-                form.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        });
-    });
-}
-
-function _setupSliders() {
-    Object.entries(sliderLabelMap).forEach(([sliderId, { label: labelId, map }]) => {
-        const slider = document.getElementById(sliderId);
-        const label = document.getElementById(labelId);
-        if (slider && label) {
-            slider.addEventListener('input', () => {
-                label.textContent = map[slider.value - 1];
-                form.dispatchEvent(new Event('input', { bubbles: true }));
-            });
-        }
-    });
-}
-
 // --- Initialization ---
 
 export function initializeRoastFormUI() {
@@ -271,9 +301,13 @@ export function initializeRoastFormUI() {
     roastWeatherHumidityInput = document.getElementById('roastWeatherHumidity');
     fetchWeatherButton = document.getElementById('fetchWeatherButton');
 
-    // Setup interactive elements
-    _setupTagButtons();
-    _setupSliders();
+    // --- Setup New Evaluation UI ---
+    _createStarRating('overallRatingStars', 'overallRatingInput');
+    _createTagSelector('flavorTagsContainer', 'flavorProfile', FLAVOR_TAGS);
+    _createTagSelector('acidityQualityTags', 'acidityQuality', ACIDITY_QUALITY_TAGS);
+    _createTagSelector('bodyTextureTags', 'bodyTexture', BODY_TEXTURE_TAGS);
+    // --- End New UI Setup ---
+
     if (roastLevelSlider) {
         roastLevelSlider.addEventListener('input', _updateRoastLevelSlider);
         _updateRoastLevelSlider();

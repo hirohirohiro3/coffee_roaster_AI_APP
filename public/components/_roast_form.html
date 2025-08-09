@@ -117,101 +117,91 @@
                     <div id="weightLossDisplay" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm sm:text-sm">- %</div>
                 </div>
 
-                <!-- New Review Section -->
                 <div class="pt-4 border-t border-gray-200">
-                    <h3 class="text-md font-medium text-gray-900 mb-4">クイック評価</h3>
-                    <div class="space-y-4" id="ratingsContainer">
-                        <!-- Bitterness -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">苦味 (Bitterness)</label>
-                            <div class="flex items-center space-x-4 mt-1" data-rating-group="bitterness">
-                                <span class="text-xs text-gray-500">弱い</span>
-                                <div class="flex items-center space-x-3">
-                                    <input type="radio" id="bitterness1" name="bitterness" value="1" class="form-radio h-4 w-4 text-amber-600"><label for="bitterness1" class="text-sm">1</label>
-                                    <input type="radio" id="bitterness2" name="bitterness" value="2" class="form-radio h-4 w-4 text-amber-600"><label for="bitterness2" class="text-sm">2</label>
-                                    <input type="radio" id="bitterness3" name="bitterness" value="3" class="form-radio h-4 w-4 text-amber-600"><label for="bitterness3" class="text-sm">3</label>
-                                    <input type="radio" id="bitterness4" name="bitterness" value="4" class="form-radio h-4 w-4 text-amber-600"><label for="bitterness4" class="text-sm">4</label>
-                                    <input type="radio" id="bitterness5" name="bitterness" value="5" class="form-radio h-4 w-4 text-amber-600"><label for="bitterness5" class="text-sm">5</label>
-                                </div>
-                                <span class="text-xs text-gray-500">強い</span>
-                            </div>
-                        </div>
-                        <!-- Sweetness -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">甘味 (Sweetness)</label>
-                            <div class="flex items-center space-x-4 mt-1" data-rating-group="sweetness">
-                                <span class="text-xs text-gray-500">弱い</span>
-                                <div class="flex items-center space-x-3">
-                                    <input type="radio" id="sweetness1" name="sweetness" value="1" class="form-radio h-4 w-4 text-amber-600"><label for="sweetness1" class="text-sm">1</label>
-                                    <input type="radio" id="sweetness2" name="sweetness" value="2" class="form-radio h-4 w-4 text-amber-600"><label for="sweetness2" class="text-sm">2</label>
-                                    <input type="radio" id="sweetness3" name="sweetness" value="3" class="form-radio h-4 w-4 text-amber-600"><label for="sweetness3" class="text-sm">3</label>
-                                    <input type="radio" id="sweetness4" name="sweetness" value="4" class="form-radio h-4 w-4 text-amber-600"><label for="sweetness4" class="text-sm">4</...
-                                    <input type="radio" id="sweetness5" name="sweetness" value="5" class="form-radio h-4 w-4 text-amber-600"><label for="sweetness5" class="text-sm">5</label>
-                                </div>
-                                <span class="text-xs text-gray-500">強い</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                    <h3 class="text-md font-medium text-gray-900">評価 (任意)</h3>
 
-                <details class="group pt-4 border-t border-gray-200">
-                    <summary class="text-blue-600 hover:underline cursor-pointer group-open:mb-4 text-md font-medium">
-                        + 詳細なカッピングログを記録する
-                    </summary>
-                    <div class="space-y-8 pl-4 border-l-2 border-gray-200">
-                        <!-- Flavor Profile -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-800 mb-2">フレーバープロファイル</h4>
-                            <input type="hidden" id="flavorProfile" name="flavorProfile">
-                            <div class="flex flex-wrap gap-2" data-input-target="flavorProfile">
-                                <div class="w-full text-xs text-gray-500 mb-1">フルーティー:</div>
-                                <button type="button" class="tag-button" data-value="Berry">Berry</button>
-                                <button type="button" class="tag-button" data-value="Citrus">Citrus</button>
-                                <div class="w-full text-xs text-gray-500 mt-2 mb-1">甘い:</div>
-                                <button type="button" class="tag-button" data-value="Chocolate">Chocolate</button>
-                                <button type="button" class="tag-button" data-value="Caramel">Caramel</button>
-                            </div>
-                        </div>
-                        <!-- Acidity -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-800 mb-2">酸味 (Acidity)</h4>
-                            <label class="block text-xs text-gray-600">強さ (Intensity): <span id="acidityIntensityLabel" class="font-bold">普通</span></label>
-                            <input type="range" id="acidityIntensity" min="1" max="5" value="3" class="w-full slider">
-                            <input type="hidden" id="acidityQuality" name="acidityQuality">
-                            <label class="block text-xs text-gray-600 mt-2">質 (Quality):</label>
-                            <div class="flex flex-wrap gap-2 mt-1" data-input-target="acidityQuality">
-                                <button type="button" class="tag-button" data-value="爽やか">爽やか</button>
-                                <button type="button" class="tag-button" data-value="ジューシー">ジューシー</button>
-                            </div>
-                        </div>
-                        <!-- Body -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-800 mb-2">ボディ (Body)</h4>
-                            <label class="block text-xs text-gray-600">重さ (Weight): <span id="bodyWeightLabel" class="font-bold">普通</span></label>
-                            <input type="range" id="bodyWeight" min="1" max="5" value="3" class="w-full slider">
-                            <input type="hidden" id="bodyTexture" name="bodyTexture">
-                            <label class="block text-xs text-gray-600 mt-2">舌触り (Texture):</label>
-                            <div class="flex flex-wrap gap-2 mt-1" data-input-target="bodyTexture">
-                                <button type="button" class="tag-button" data-value="シルキー">シルキー</button>
-                                <button type="button" class="tag-button" data-value="クリーミー">クリーミー</button>
-                            </div>
-                        </div>
-                        <!-- Aftertaste -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-800 mb-2">後味 (Aftertaste)</h4>
-                            <label class="block text-xs text-gray-600">長さ (Length): <span id="aftertasteLengthLabel" class="font-bold">普通</span></label>
-                            <input type="range" id="aftertasteLength" name="aftertasteLength" min="1" max="5" value="3" class="w-full slider">
-                            <label class="block text-xs text-gray-600 mt-2">質 (Quality): <span id="aftertasteQualityLabel" class="font-bold">普通</span></label>
-                            <input type="range" id="aftertasteQuality" name="aftertasteQuality" min="1" max="5" value="3" class="w-full slider">
-                        </div>
-                        <!-- Balance -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-800 mb-2">バランス (Balance)</h4>
-                            <label class="block text-xs text-gray-600"><span id="balanceLabel" class="font-bold">普通</span></label>
-                            <input type="range" id="balance" name="balance" min="1" max="5" value="3" class="w-full slider">
-                        </div>
+                    <div class="mb-6 pb-4">
+                        <label class="block text-sm font-bold text-gray-700">総合評価 (主観)</label>
+                        <div id="overallRatingStars" class="flex items-center mt-2"></div>
+                        <input type="hidden" name="overallRating" id="overallRatingInput">
                     </div>
-                </details>
+
+                    <details id="cuppingLogDetails">
+                        <summary class="cursor-pointer text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                            + 詳細なカッピングログを記録する
+                        </summary>
+                        <div class="mt-4 border-t pt-4 space-y-6">
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">フレーバープロファイル (複数選択可)</label>
+                                <div id="flavorTagsContainer" class="flex flex-wrap gap-2">
+                                    </div>
+                                <input type="hidden" id="flavorProfile" name="flavorProfile">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700">酸味 (Acidity)</label>
+                                <div class="mt-2 space-y-2">
+                                    <label class="block text-xs font-medium text-gray-600">強さ:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                        <span>弱い</span>
+                                        <input type="range" id="acidityIntensity" name="acidityIntensity" min="1" max="5" value="3" class="w-full">
+                                        <span>強い</span>
+                                    </div>
+                                    <label class="block text-xs font-medium text-gray-600 mt-2">質:</label>
+                                    <div id="acidityQualityTags" class="flex flex-wrap gap-2">
+                                         </div>
+                                    <input type="hidden" id="acidityQuality" name="acidityQuality">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700">ボディ (Body)</label>
+                                <div class="mt-2 space-y-2">
+                                    <label class="block text-xs font-medium text-gray-600">重さ:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                        <span>軽い</span>
+                                        <input type="range" id="bodyWeight" name="bodyWeight" min="1" max="5" value="3" class="w-full">
+                                        <span>重い</span>
+                                    </div>
+                                    <label class="block text-xs font-medium text-gray-600 mt-2">質感:</label>
+                                    <div id="bodyTextureTags" class="flex flex-wrap gap-2">
+                                         </div>
+                                    <input type="hidden" id="bodyTexture" name="bodyTexture">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700">後味 (Aftertaste)</label>
+                                <div class="mt-2 space-y-2">
+                                    <label class="block text-xs font-medium text-gray-600">長さ:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                        <span>短い</span>
+                                        <input type="range" id="aftertasteLength" name="aftertasteLength" min="1" max="5" value="3" class="w-full">
+                                        <span>長い</span>
+                                    </div>
+                                    <label class="block text-xs font-medium text-gray-600 mt-2">質:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                        <span>不快</span>
+                                        <input type="range" id="aftertasteQuality" name="aftertasteQuality" min="1" max="5" value="3" class="w-full">
+                                        <span>きれい</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700">バランス (Balance)</label>
+                                <div class="mt-2 space-y-2">
+                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                        <span>まとまりがない</span>
+                                        <input type="range" id="balance" name="balance" min="1" max="5" value="3" class="w-full">
+                                        <span>調和が取れている</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </details>
+                </div>
 
                 <!-- Notes -->
                 <div>
