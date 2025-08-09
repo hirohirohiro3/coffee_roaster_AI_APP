@@ -188,3 +188,25 @@ input[type=range].roast-level-8::-webkit-slider-runnable-track { background: #92
 input[type=range].roast-level-8::-moz-range-track { background: #92400e; }
 input[type=range].roast-level-8::-webkit-slider-thumb { background: #78350f; border: 1px solid #451a03; }
 input[type=range].roast-level-8::-moz-range-thumb { background: #78350f; border: 1px solid #451a03; }
+
+/* -- Cupping Log Tag Buttons -- */
+.tag-button {
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    border: 1px solid #d1d5db; /* gray-300 */
+    background-color: #ffffff;
+    color: #374151; /* gray-700 */
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.tag-button:hover {
+    background-color: #f3f4f6; /* gray-100 */
+}
+
+.tag-button.selected {
+    background-color: #3b82f6; /* blue-500 */
+    color: #ffffff;
+    border-color: #3b82f6; /* blue-500 */
+}

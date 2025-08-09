@@ -123,11 +123,13 @@ export function initializeRoastListUI() {
 
     const updateCompareButtonState = () => {
         const count = selectedRoastIds.size;
-        compareRoastsButton.disabled = !(count >= 2 && count <= 3);
-        if (!compareRoastsButton.disabled) {
+        const shouldShow = count >= 2 && count <= 3;
+
+        if (shouldShow) {
+            compareRoastsButton.style.display = 'inline-block';
             compareRoastsButton.textContent = `${count}件の焙煎を比較`;
         } else {
-            compareRoastsButton.textContent = '選択した焙煎を比較';
+            compareRoastsButton.style.display = 'none';
         }
     };
 
@@ -144,8 +146,9 @@ export function initializeRoastListUI() {
     });
 
     compareRoastsButton.addEventListener('click', () => {
-        if (selectedRoastIds.size >= 2 && selectedRoastIds.size <= 3) {
-            eventBus.emit('ui:compare-roasts-clicked', Array.from(selectedRoastIds));
+        const selectedIds = Array.from(selectedRoastIds);
+        if (selectedIds.length >= 2 && selectedIds.length <= 3) {
+            eventBus.emit('ui:show-comparison', selectedIds);
         }
     });
 

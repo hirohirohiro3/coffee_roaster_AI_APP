@@ -113,7 +113,7 @@ export function initializeComparisonModalUI(roastDataProvider) {
         }
     });
 
-    eventBus.on('ui:compare-roasts-clicked', showComparisonModal);
+    eventBus.on('ui:show-comparison', showComparisonModal);
 
     console.log("✅ ComparisonModalUI initialized.");
 }
