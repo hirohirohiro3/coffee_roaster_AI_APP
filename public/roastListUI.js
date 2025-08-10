@@ -76,7 +76,7 @@ function renderRoastList({ roasts, keyword }) {
                 <p class="text-sm text-gray-500">${roast.roastDate || '日付不明'}</p>
                 <h3 class="text-xl font-bold text-gray-800 truncate">${beanNameToDisplay}</h3>
                 <p class="text-sm text-gray-600">${roast.roastLevel || '焙煎度未設定'} | 総時間: ${roast.totalRoastTime || '--:--'}</p>
-                <p class="text-xs text-gray-400 mt-1 truncate">記録ID: ${roast.customRoastId || 'N/A'}</p>
+                <p class="text-xs text-gray-400 mt-1 truncate">記録ID: ${roast.id || 'N/A'}</p>
             </div>
             <div class="flex-shrink-0 flex flex-col items-end justify-between">
                 <div class="flex items-start space-x-2">
