@@ -160,6 +160,13 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
             realtimeRorValuesLog.push({ time: plotMinute, ror: calculatedROR });
             _updateDatasetPoint(2, plotIntegerMinute, calculatedROR, true);
         }
+
+        eventBus.emit('log-table:add-entry', {
+            time: formatTime(elapsedTimeSeconds),
+            beanTemp: beanTemp,
+            chamberTemp: chamberTemp,
+            ror: calculatedROR
+        });
     }
 
     // --- Chamber Temp ---
@@ -188,6 +195,7 @@ export function removeLastLog() {
         _removeDatasetPoint(1, lastLogEntry.time);
     }
     
+    eventBus.emit('log-table:remove-last-entry');
     realtimeChartInstance.update('none');
     lastLogEntry = { time: null, beanTemp: null, chamberTemp: null };
 }
