@@ -84,17 +84,27 @@ export function initializeGraphController() {
 }
 
 export function initializeRealtimeChart() {
+    // --- チャートが既に存在する場合 ---
     if (realtimeChartInstance) {
-        realtimeChartInstance.destroy();
-    }
-    resetGraphAndLogs();
+        // destroy()を呼ばずにデータをクリアし、更新する
+        resetGraphAndLogs();
 
-    // ★★★ 念の為、一度処理を遅延させてみる ★★★
-    setTimeout(() => {
-        if (!chartCanvasElement) {
-            console.error("GraphController: Canvas element is not available for re-initialization.");
-            return;
+        realtimeChartInstance.data.datasets.forEach(dataset => {
+            dataset.data = [];
+        });
+
+        const initialTemp = chargingTempInputElement ? parseFloat(chargingTempInputElement.value) : NaN;
+        if (!isNaN(initialTemp)) {
+            realtimeChartInstance.data.datasets[0].data.push({ x: 0, y: initialTemp });
+            realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
         }
+
+        realtimeChartInstance.update();
+        console.log("Chart data reset.");
+
+    // --- チャートが存在しない場合（初回読み込み時）---
+    } else {
+        resetGraphAndLogs();
 
         const initialTemp = chargingTempInputElement ? parseFloat(chargingTempInputElement.value) : NaN;
 
@@ -110,9 +120,6 @@ export function initializeRealtimeChart() {
         }
 
         const ctx = chartCanvasElement.getContext('2d');
-        // 前のチャートインスタンスがクリアされるのを確実にするため、一度キャンバスをクリア
-        ctx.clearRect(0, 0, chartCanvasElement.width, chartCanvasElement.height);
-
         realtimeChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
@@ -139,12 +146,13 @@ export function initializeRealtimeChart() {
                 scales: {
                     x: { type: 'linear', position: 'bottom', title: { display: true, text: '時間 (分)' }, min: 0 },
                     yTemp: { type: 'linear', position: 'left', title: { display: true, text: '温度 (°C)' } },
-                    yROR: { type: 'linear', position: 'right', title: { display: 'auto', text: 'ROR (°C/分)' }, grid: { drawOnChartArea: false } }
+                    yROR: { type: 'linear', position: 'right', title: { display: true, text: 'ROR (°C/分)' }, grid: { drawOnChartArea: false } }
                 },
                 plugins: { legend: { position: 'top' } }
             }
         });
-    }, 10); // 10ミリ秒の遅延
+        console.log("Chart initialized for the first time.");
+    }
 }
 
 export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
