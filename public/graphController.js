@@ -63,6 +63,14 @@ function handleInitialTempChange(event) {
     const beanLogIndex = realtimeBeanTemperaturesLog.findIndex(p => p.time === 0);
     if (beanLogIndex !== -1) realtimeBeanTemperaturesLog[beanLogIndex].temp = newTemp;
     else realtimeBeanTemperaturesLog.push({ time: 0, temp: newTemp });
+
+    // ★★★ 初期温度が変更されるたびに、ログテーブルに反映させる ★★★
+    eventBus.emit('log-table:add-entry', {
+        time: "00:00",
+        beanTemp: newTemp,
+        chamberTemp: null,
+        ror: null
+    });
 }
 
 // --- 公開関数 ---
