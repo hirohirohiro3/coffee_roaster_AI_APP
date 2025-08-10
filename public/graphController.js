@@ -84,10 +84,22 @@ export function initializeGraphController() {
 }
 
 export function initializeRealtimeChart() {
-    if (realtimeChartInstance) realtimeChartInstance.destroy();
+    if (realtimeChartInstance) {
+        realtimeChartInstance.destroy();
+    }
     resetGraphAndLogs();
 
-    const initialTemp = chargingTempInputElement ? parseFloat(chargingTempInputElement.value) : NaN;
+    // ★★★ StaleなDOM參照を避けるために、要素を再取得する ★★★
+    const currentChartCanvas = document.getElementById('realtimeRoastChart');
+    const currentChargingTempInput = document.getElementById('timerChargingTemperature');
+
+    // キャンバス要素がなければ処理を中断
+    if (!currentChartCanvas) {
+        console.error("GraphController: Cannot initialize chart. Canvas element 'realtimeRoastChart' not found in DOM.");
+        return;
+    }
+
+    const initialTemp = currentChargingTempInput ? parseFloat(currentChargingTempInput.value) : NaN;
     
     const initialBeanData = [];
     if (!isNaN(initialTemp)) {
@@ -95,12 +107,19 @@ export function initializeRealtimeChart() {
         realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
     }
 
+    // イベントリスナーを付け替える
     if (chargingTempInputElement) {
         chargingTempInputElement.removeEventListener('input', handleInitialTempChange);
-        chargingTempInputElement.addEventListener('input', handleInitialTempChange);
     }
+    if (currentChargingTempInput) {
+        currentChargingTempInput.addEventListener('input', handleInitialTempChange);
+    }
+    // モジュールスコープの変数を更新しておく
+    chargingTempInputElement = currentChargingTempInput;
+    chartCanvasElement = currentChartCanvas;
 
-    const ctx = chartCanvasElement.getContext('2d');
+
+    const ctx = currentChartCanvas.getContext('2d');
     realtimeChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
