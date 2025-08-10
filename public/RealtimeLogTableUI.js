@@ -106,12 +106,27 @@ function addLogEntry(logData) {
         
         const timeHeaderCell = headRow.insertCell(insertIndex);
         timeHeaderCell.scope = 'col';
-        timeHeaderCell.className = 'px-3 py-2 text-center font-medium text-gray-500 border border-gray-300';
+        // text-center を text-left に変更
+        timeHeaderCell.className = 'px-3 py-2 text-left font-medium text-gray-500 border border-gray-300';
         timeHeaderCell.textContent = plotMinute;
 
-        if (beanRow) beanRow.insertCell(insertIndex).textContent = formatCellValue(logData.beanTemp);
-        if (chamberRow) chamberRow.insertCell(insertIndex).textContent = formatCellValue(logData.chamberTemp);
-        if (rorRow) rorRow.insertCell(insertIndex).textContent = formatCellValue(logData.ror);
+        const dataCellClassName = 'px-3 py-2 text-left border border-gray-300';
+
+        if (beanRow) {
+            const cell = beanRow.insertCell(insertIndex);
+            cell.className = dataCellClassName;
+            cell.textContent = formatCellValue(logData.beanTemp);
+        }
+        if (chamberRow) {
+            const cell = chamberRow.insertCell(insertIndex);
+            cell.className = dataCellClassName;
+            cell.textContent = formatCellValue(logData.chamberTemp);
+        }
+        if (rorRow) {
+            const cell = rorRow.insertCell(insertIndex);
+            cell.className = dataCellClassName;
+            cell.textContent = formatCellValue(logData.ror);
+        }
     }
     
     if (tableContainerElement) {
