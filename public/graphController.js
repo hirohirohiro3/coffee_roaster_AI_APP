@@ -97,6 +97,14 @@ export function initializeRealtimeChart() {
         if (!isNaN(initialTemp)) {
             realtimeChartInstance.data.datasets[0].data.push({ x: 0, y: initialTemp });
             realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
+
+            // ★★★ リセット後、初期温度をログテーブルに再送信 ★★★
+            eventBus.emit('log-table:add-entry', {
+                time: "00:00",
+                beanTemp: initialTemp,
+                chamberTemp: null,
+                ror: null
+            });
         }
 
         realtimeChartInstance.update();
@@ -112,6 +120,14 @@ export function initializeRealtimeChart() {
         if (!isNaN(initialTemp)) {
             initialBeanData.push({ x: 0, y: initialTemp });
             realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
+
+            // ★★★ 初期温度をログテーブルに送信 ★★★
+            eventBus.emit('log-table:add-entry', {
+                time: "00:00",
+                beanTemp: initialTemp,
+                chamberTemp: null,
+                ror: null
+            });
         }
 
         if (chargingTempInputElement) {
