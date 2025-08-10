@@ -55,7 +55,10 @@
             <h3 class="text-lg font-medium text-gray-700 text-center">イベント記録</h3>
             <p class="text-xs text-gray-500 text-center mb-4">イベント発生時にボタンを押して、時間をフォームに記録します。</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <button data-event-type="turningPointTime" class="log-event-btn px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors">TP</button>
+                <div class="flex items-center justify-center">
+                    <button data-event-type="turningPointTime" class="log-event-btn px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors">TP</button>
+                    <input type="number" id="turningPointTempInput" placeholder="TP温度" class="w-20 text-sm p-1 border rounded">
+                </div>
                 <button data-event-type="firstCrackTime" class="log-event-btn px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition-colors">1ハゼ</button>
                 <button data-event-type="secondCrackTime" class="log-event-btn px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition-colors">2ハゼ</button>
                 <button data-event-type="totalRoastTime" class="log-event-btn px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-colors">煎り止め</button>

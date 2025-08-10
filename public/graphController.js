@@ -68,7 +68,7 @@ function handleInitialTempChange(event) {
 // --- 公開関数 ---
 export function initializeGraphController() {
     chartCanvasElement = document.getElementById('realtimeRoastChart');
-    chargingTempInputElement = document.getElementById('chargingTemperature'); // フォーム内の投入温度を参照
+    chargingTempInputElement = document.getElementById('timerChargingTemperature');
 
     eventBus.on('graph:initialize-realtime-chart', initializeRealtimeChart);
     eventBus.on('graph:log-temp', logRealtimeTemperatures);
@@ -137,34 +137,40 @@ export function initializeRealtimeChart() {
 export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
     if (!realtimeChartInstance) return;
     const elapsedTimeSeconds = getCurrentElapsedTimeInSeconds();
+    const plotIntegerMinute = Math.floor(elapsedTimeSeconds / 60);
     const plotMinute = parseFloat((elapsedTimeSeconds / 60).toFixed(2));
+
     const beanTemp = beanTempStr ? parseFloat(beanTempStr) : null;
     const chamberTemp = chamberTempStr ? parseFloat(chamberTempStr) : null;
     if (beanTemp === null && chamberTemp === null) return;
 
-    let calculatedROR = null;
-    if (beanTemp !== null && realtimeBeanTemperaturesLog.length > 0) {
-        const prevPoint = realtimeBeanTemperaturesLog[realtimeBeanTemperaturesLog.length - 1];
-        const timeDiffSeconds = (plotMinute - prevPoint.time) * 60;
-        calculatedROR = calculateBeanROR(prevPoint.temp, beanTemp, timeDiffSeconds);
-    }
-    
-    if (calculatedROR !== null) {
-        _updateDatasetPoint(2, plotMinute, calculatedROR);
-        realtimeRorValuesLog.push({ time: plotMinute, ror: calculatedROR });
-    }
-    
+    // --- Bean Temp and ROR ---
     if (beanTemp !== null) {
+        let calculatedROR = null;
+        if (realtimeBeanTemperaturesLog.length > 0) {
+            const prevPoint = realtimeBeanTemperaturesLog[realtimeBeanTemperaturesLog.length - 1];
+            const timeDiffSeconds = Math.max(0.1, (plotMinute - prevPoint.time) * 60);
+            calculatedROR = calculateBeanROR(prevPoint.temp, beanTemp, timeDiffSeconds);
+        }
+
         realtimeBeanTemperaturesLog.push({ time: plotMinute, temp: beanTemp });
-        _updateDatasetPoint(0, plotMinute, beanTemp);
+        _updateDatasetPoint(0, plotIntegerMinute, beanTemp, true);
+
+        if (calculatedROR !== null) {
+            realtimeRorValuesLog.push({ time: plotMinute, ror: calculatedROR });
+            _updateDatasetPoint(2, plotIntegerMinute, calculatedROR, true);
+        }
     }
+
+    // --- Chamber Temp ---
     if (chamberTemp !== null) {
         realtimeChamberTemperaturesLog.push({ time: plotMinute, temp: chamberTemp });
-        _updateDatasetPoint(1, plotMinute, chamberTemp);
+        _updateDatasetPoint(1, plotIntegerMinute, chamberTemp, true);
     }
 
     realtimeChartInstance.update('none');
-    lastLogEntry = { time: plotMinute, beanTemp, chamberTemp };
+
+    lastLogEntry = { time: plotIntegerMinute, beanTemp, chamberTemp };
     eventBus.emit('graph:clear-inputs');
 }
 
