@@ -191,6 +191,14 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
 
     realtimeChartInstance.update('none');
 
+    // テーブルUIに新しいログエントリを通知
+    eventBus.emit('log-table:add-entry', {
+        time: formatTime(elapsedTimeSeconds),
+        beanTemp: beanTemp,
+        chamberTemp: chamberTemp,
+        ror: realtimeRorValuesLog.length > 0 ? realtimeRorValuesLog[realtimeRorValuesLog.length - 1].ror : null
+    });
+
     lastLogEntry = { time: plotIntegerMinute, beanTemp, chamberTemp };
     eventBus.emit('graph:clear-inputs');
 }
