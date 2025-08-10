@@ -186,8 +186,16 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
         let calculatedROR = null;
         if (realtimeBeanTemperaturesLog.length > 0) {
             const prevPoint = realtimeBeanTemperaturesLog[realtimeBeanTemperaturesLog.length - 1];
-            const timeDiffSeconds = Math.max(0.1, (plotMinute - prevPoint.time) * 60);
-            calculatedROR = calculateBeanROR(prevPoint.temp, beanTemp, timeDiffSeconds);
+            const prevPlotIntegerMinute = Math.floor(prevPoint.time);
+
+            // グラフのX軸（整数分）を基準に時間差を計算
+            const timeDiffMinutes = plotIntegerMinute - prevPlotIntegerMinute;
+
+            if (timeDiffMinutes > 0) {
+                const timeDiffSeconds = timeDiffMinutes * 60;
+                // RORを計算。前のポイントの温度は、その分ブロックの最後の記録された温度となる。
+                calculatedROR = calculateBeanROR(prevPoint.temp, beanTemp, timeDiffSeconds);
+            }
         }
 
         realtimeBeanTemperaturesLog.push({ time: plotMinute, temp: beanTemp });
