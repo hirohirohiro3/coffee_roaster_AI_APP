@@ -89,68 +89,62 @@ export function initializeRealtimeChart() {
     }
     resetGraphAndLogs();
 
-    // ★★★ StaleなDOM參照を避けるために、要素を再取得する ★★★
-    const currentChartCanvas = document.getElementById('realtimeRoastChart');
-    const currentChargingTempInput = document.getElementById('timerChargingTemperature');
-
-    // キャンバス要素がなければ処理を中断
-    if (!currentChartCanvas) {
-        console.error("GraphController: Cannot initialize chart. Canvas element 'realtimeRoastChart' not found in DOM.");
-        return;
-    }
-
-    const initialTemp = currentChargingTempInput ? parseFloat(currentChargingTempInput.value) : NaN;
-    
-    const initialBeanData = [];
-    if (!isNaN(initialTemp)) {
-        initialBeanData.push({ x: 0, y: initialTemp });
-        realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
-    }
-
-    // イベントリスナーを付け替える
-    if (chargingTempInputElement) {
-        chargingTempInputElement.removeEventListener('input', handleInitialTempChange);
-    }
-    if (currentChargingTempInput) {
-        currentChargingTempInput.addEventListener('input', handleInitialTempChange);
-    }
-    // モジュールスコープの変数を更新しておく
-    chargingTempInputElement = currentChargingTempInput;
-    chartCanvasElement = currentChartCanvas;
-
-
-    const ctx = currentChartCanvas.getContext('2d');
-    realtimeChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-            datasets: [
-                { label: '豆温度 (°C)', data: initialBeanData, borderColor: '#d97706', backgroundColor: '#d97706', yAxisID: 'yTemp', tension: 0.1, pointRadius: 4, pointHoverRadius: 6 },
-                { label: '庫内温度 (°C)', data: [], borderColor: '#3b82f6', backgroundColor: '#3b82f6', yAxisID: 'yTemp', tension: 0.1, pointRadius: 4, pointHoverRadius: 6 },
-                { label: 'ROR (°C/分)', data: [], borderColor: '#16a34a', backgroundColor: '#16a34a', yAxisID: 'yROR', tension: 0.1, borderDash: [5, 5], pointRadius: 2, pointHoverRadius: 4 },
-                {
-                    label: 'AI目標プロファイル',
-                    data: [],
-                    borderColor: 'rgba(150, 150, 150, 0.7)',
-                    borderDash: [5, 5],
-                    yAxisID: 'yTemp',
-                    pointRadius: 2,
-                    backgroundColor: 'rgba(150, 150, 150, 0.3)',
-                    tension: 0.1
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-                x: { type: 'linear', position: 'bottom', title: { display: true, text: '時間 (分)' }, min: 0 },
-                yTemp: { type: 'linear', position: 'left', title: { display: true, text: '温度 (°C)' } },
-                yROR: { type: 'linear', position: 'right', title: { display: true, text: 'ROR (°C/分)' }, grid: { drawOnChartArea: false } }
-            },
-            plugins: { legend: { position: 'top' } }
+    // ★★★ 念の為、一度処理を遅延させてみる ★★★
+    setTimeout(() => {
+        if (!chartCanvasElement) {
+            console.error("GraphController: Canvas element is not available for re-initialization.");
+            return;
         }
-    });
+
+        const initialTemp = chargingTempInputElement ? parseFloat(chargingTempInputElement.value) : NaN;
+
+        const initialBeanData = [];
+        if (!isNaN(initialTemp)) {
+            initialBeanData.push({ x: 0, y: initialTemp });
+            realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
+        }
+
+        if (chargingTempInputElement) {
+            chargingTempInputElement.removeEventListener('input', handleInitialTempChange);
+            chargingTempInputElement.addEventListener('input', handleInitialTempChange);
+        }
+
+        const ctx = chartCanvasElement.getContext('2d');
+        // 前のチャートインスタンスがクリアされるのを確実にするため、一度キャンバスをクリア
+        ctx.clearRect(0, 0, chartCanvasElement.width, chartCanvasElement.height);
+
+        realtimeChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [
+                    { label: '豆温度 (°C)', data: initialBeanData, borderColor: '#d97706', backgroundColor: '#d97706', yAxisID: 'yTemp', tension: 0.1, pointRadius: 4, pointHoverRadius: 6 },
+                    { label: '庫内温度 (°C)', data: [], borderColor: '#3b82f6', backgroundColor: '#3b82f6', yAxisID: 'yTemp', tension: 0.1, pointRadius: 4, pointHoverRadius: 6 },
+                    { label: 'ROR (°C/分)', data: [], borderColor: '#16a34a', backgroundColor: '#16a34a', yAxisID: 'yROR', tension: 0.1, borderDash: [5, 5], pointRadius: 2, pointHoverRadius: 4 },
+                    {
+                        label: 'AI目標プロファイル',
+                        data: [],
+                        borderColor: 'rgba(150, 150, 150, 0.7)',
+                        borderDash: [5, 5],
+                        yAxisID: 'yTemp',
+                        pointRadius: 2,
+                        backgroundColor: 'rgba(150, 150, 150, 0.3)',
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { type: 'linear', position: 'bottom', title: { display: true, text: '時間 (分)' }, min: 0 },
+                    yTemp: { type: 'linear', position: 'left', title: { display: true, text: '温度 (°C)' } },
+                    yROR: { type: 'linear', position: 'right', title: { display: 'auto', text: 'ROR (°C/分)' }, grid: { drawOnChartArea: false } }
+                },
+                plugins: { legend: { position: 'top' } }
+            }
+        });
+    }, 10); // 10ミリ秒の遅延
 }
 
 export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
