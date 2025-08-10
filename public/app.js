@@ -195,6 +195,14 @@ export default class App {
             setFormFieldValue(targetFieldId, f);
             speak(`${eventName} の時間を ${f} で記録しました。`);
 
+            // turningPointTimeが記録された場合、温度も一緒に記録する
+            if (targetFieldId === 'turningPointTime') {
+                const turningPointTemp = document.getElementById('turningPointTempInput').value;
+                if (turningPointTemp) {
+                    setFormFieldValue('turningPointTemp', turningPointTemp);
+                }
+            }
+
             eventBus.emit('ui:update-event-button-state', {
                 eventType: targetFieldId,
                 time: f
