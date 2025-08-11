@@ -462,20 +462,19 @@ function renderFlavorRadarChart() {
     const selectedParamKey = flavorAnalysisParamSelect.value;
     const allRoasts = getJoinedRoasts();
 
+    const canvas = document.getElementById('flavorRadarChart');
+    const messageEl = document.getElementById('flavorRadarChartMessage');
+
     if (!selectedBeanName) {
         if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'none';
         return;
     }
 
-    // 選択された豆の焙煎記録のみにフィルタリング
     const targetRoasts = allRoasts.filter(r => r.beanName === selectedBeanName && r.flavorProfile);
-
-    // フレーバーごとに、選択された指標の平均値を計算
     const flavorStats = {};
     targetRoasts.forEach(roast => {
         const paramValue = scatterAxesOptions[selectedParamKey]?.getter(roast);
         if (paramValue === null || typeof paramValue === 'undefined' || isNaN(paramValue)) return;
-
         const flavors = roast.flavorProfile.split(',');
         flavors.forEach(flavor => {
             const trimmedFlavor = flavor.trim();
@@ -490,21 +489,25 @@ function renderFlavorRadarChart() {
     });
 
     const labels = Object.keys(flavorStats);
+    if (flavorRadarChartInstance) {
+        flavorRadarChartInstance.destroy();
+        flavorRadarChartInstance = null;
+    }
+
     if (labels.length < 3) {
-        if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'none';
+        if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'block';
+        if (canvas) canvas.style.display = 'none';
+        if (messageEl) messageEl.classList.remove('hidden');
         return;
     }
 
-    const data = labels.map(label => (flavorStats[label].total / flavorStats[label].count));
-
-    // チャートの描画処理
     if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'block';
-    const ctx = document.getElementById('flavorRadarChart')?.getContext('2d');
-    if (!ctx) return;
+    if (canvas) canvas.style.display = 'block';
+    if (messageEl) messageEl.classList.add('hidden');
 
-    if (flavorRadarChartInstance) {
-        flavorRadarChartInstance.destroy();
-    }
+    const data = labels.map(label => (flavorStats[label].total / flavorStats[label].count));
+    const ctx = canvas?.getContext('2d');
+    if (!ctx) return;
 
     flavorRadarChartInstance = new Chart(ctx, {
         type: 'radar',
