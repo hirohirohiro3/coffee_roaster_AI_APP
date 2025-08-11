@@ -31,11 +31,16 @@ function _prepareRoastDataForSave(rawFormData) {
     }
     const numericFields = ['greenBeanWeight', 'roastedBeanWeight', 'chargingTemperature', 'turningPointTemp', 'endOfRoastTemp', 'roastWeatherTemp', 'roastWeatherHumidity'];
     numericFields.forEach(field => {
-        if (roastData[field] !== undefined && roastData[field] !== null && typeof roastData[field] === 'string' && roastData[field].trim() !== '') {
-            const numVal = parseFloat(roastData[field]);
-            roastData[field] = !isNaN(numVal) ? numVal : null;
-        } else if (roastData[field] === '') {
-            roastData[field] = null;
+        const value = roastData[field];
+        if (value !== undefined && value !== null && typeof value === 'string' && value.trim() !== '') {
+            const numVal = parseFloat(value);
+            if (!isNaN(numVal)) {
+                roastData[field] = numVal;
+            } else {
+                delete roastData[field];
+            }
+        } else if (value === '' || value === null || value === undefined) {
+            delete roastData[field];
         }
     });
     
@@ -54,7 +59,15 @@ function _prepareRoastDataForSave(rawFormData) {
     });
     if (hasAnyRating) roastData.ratings = ratings;
     
-    if (!roastData.aiNotes || roastData.aiNotes.trim() === '') delete roastData.aiNotes;
+    const optionalStringFields = [
+        'targetFlavor', 'roasterModel', 'turningPointTime', 'firstCrackTime',
+        'secondCrackTime', 'notes', 'aiNotes', 'flavorProfile', 'acidityQuality', 'bodyTexture', 'overallRating'
+    ];
+    optionalStringFields.forEach(field => {
+        if (roastData.hasOwnProperty(field) && (roastData[field] === null || roastData[field] === undefined || (typeof roastData[field] === 'string' && roastData[field].trim() === ''))) {
+            delete roastData[field];
+        }
+    });
     
     const graphLogs = getGraphLogsForSaving();
     if (graphLogs && graphLogs.beanTempLog) {
