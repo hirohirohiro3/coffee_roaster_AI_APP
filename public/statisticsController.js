@@ -8,6 +8,8 @@ let monthlyChartInstance = null;
 let scatterPlotInstance = null;
 let beanRankingTableBody, scatterXAxisSelect, scatterYAxisSelect;
 let updateNotificationBar, runUpdateButton, closeUpdateBarButton;
+let flavorRadarChartInstance = null;
+let flavorAnalysisBeanSelect, flavorAnalysisParamSelect, flavorRadarChartContainer;
 
 // --- 表示期間を管理 ---
 // type: 'relative'(過去Nヶ月) or 'absolute'(西暦年)
@@ -155,13 +157,28 @@ function renderBeanRankingTable(roasts) {
 
 // 相関分析で利用可能な指標の定義
 const scatterAxesOptions = {
+    // 焙煎プロセス
     dtr: { label: 'DTR (%)', getter: r => r.dtr },
-    developmentTime: { label: '現像時間 (秒)', getter: r => timeToSeconds(r.totalRoastTime) - timeToSeconds(r.firstCrackTime) },
+    developmentTime: { label: '現像時間 (秒)', getter: r => {
+        const totalSeconds = timeToSeconds(r.totalRoastTime);
+        const crackSeconds = timeToSeconds(r.firstCrackTime);
+        // どちらかの値が無効な場合はnullを返し、計算エラーを防ぐ
+        return (totalSeconds && crackSeconds) ? totalSeconds - crackSeconds : null;
+    }},
     totalRoastTime: { label: '合計時間 (秒)', getter: r => timeToSeconds(r.totalRoastTime) },
     chargeTemp: { label: '投入温度 (°C)', getter: r => r.chargeTemp },
     turningPointTemp: { label: 'TP温度 (°C)', getter: r => r.turningPointTemp },
     firstCrackTime: { label: '1ハゼ時間 (秒)', getter: r => timeToSeconds(r.firstCrackTime) },
-    overallRating: { label: '総合評価 (点)', getter: r => r.overallRating }
+    // 物理的な結果
+    weightLoss: { label: '重量減少率 (%)', getter: r => r.weightLoss },
+    greenBeanWeight: { label: '生豆重量 (kg)', getter: r => r.greenBeanWeight },
+    // 感覚的な評価
+    overallRating: { label: '総合評価 (点)', getter: r => r.overallRating },
+    acidityIntensity: { label: '酸味の強さ (1-5)', getter: r => r.acidityIntensity },
+    bodyWeight: { label: 'ボディの重さ (1-5)', getter: r => r.bodyWeight },
+    aftertasteLength: { label: '後味の長さ (1-5)', getter: r => r.aftertasteLength },
+    aftertasteQuality: { label: '後味の質 (1-5)', getter: r => r.aftertasteQuality },
+    balance: { label: 'バランス (1-5)', getter: r => r.balance }
 };
 
 /**
@@ -169,11 +186,46 @@ const scatterAxesOptions = {
  */
 function populateScatterAxisSelects() {
     if (!scatterXAxisSelect || !scatterYAxisSelect || scatterXAxisSelect.options.length > 0) return;
-    const optionsHtml = Object.entries(scatterAxesOptions)
-        .map(([key, { label }]) => `<option value="${key}">${label}</option>`)
-        .join('');
+
+    // グループ分けされた選択肢の定義
+    const axisGroups = {
+        "焙煎プロセス": {
+            dtr: { label: 'DTR (%)' },
+            developmentTime: { label: '現像時間 (秒)' },
+            totalRoastTime: { label: '合計時間 (秒)' },
+            chargeTemp: { label: '投入温度 (°C)' },
+            turningPointTemp: { label: 'TP温度 (°C)' },
+            firstCrackTime: { label: '1ハゼ時間 (秒)' }
+        },
+        "物理的な結果": {
+            weightLoss: { label: '重量減少率 (%)' },
+            greenBeanWeight: { label: '生豆重量 (kg)' }
+        },
+        "感覚的な評価": {
+            overallRating: { label: '総合評価 (点)' },
+            acidityIntensity: { label: '酸味の強さ (1-5)' },
+            bodyWeight: { label: 'ボディの重さ (1-5)' },
+            aftertasteLength: { label: '後味の長さ (1-5)' },
+            aftertasteQuality: { label: '後味の質 (1-5)' },
+            balance: { label: 'バランス (1-5)' }
+        }
+    };
+
+    // <optgroup> を使ったHTMLを生成
+    let optionsHtml = '';
+    for (const groupLabel in axisGroups) {
+        optionsHtml += `<optgroup label="--- ${groupLabel} ---">`;
+        for (const key in axisGroups[groupLabel]) {
+            optionsHtml += `<option value="${key}">${axisGroups[groupLabel][key].label}</option>`;
+        }
+        optionsHtml += `</optgroup>`;
+    }
+
+    // 両方のプルダウンに生成したHTMLを適用
     scatterXAxisSelect.innerHTML = optionsHtml;
     scatterYAxisSelect.innerHTML = optionsHtml;
+
+    // 最も有益な組み合わせをデフォルトに設定
     scatterXAxisSelect.value = 'dtr';
     scatterYAxisSelect.value = 'overallRating';
 }
@@ -290,6 +342,17 @@ export function initializeStatisticsController() {
     const periodSelector = document.getElementById('period-selector');
     const yearSelector = document.getElementById('year-selector');
 
+    // 新機能「フレーバー分析」のUI要素を取得
+    flavorAnalysisBeanSelect = document.getElementById('flavorAnalysisBeanSelect');
+    flavorAnalysisParamSelect = document.getElementById('flavorAnalysisParamSelect');
+    flavorRadarChartContainer = document.getElementById('flavorRadarChartContainer');
+
+    // プルダウンが変更されたらチャートを再描画するイベントリスナーを設定
+    if (flavorAnalysisBeanSelect && flavorAnalysisParamSelect) {
+        flavorAnalysisBeanSelect.addEventListener('change', renderFlavorRadarChart);
+        flavorAnalysisParamSelect.addEventListener('change', renderFlavorRadarChart);
+    }
+
     if (runUpdateButton) runUpdateButton.addEventListener('click', handleBatchUpdate);
     if (closeUpdateBarButton) closeUpdateBarButton.addEventListener('click', () => updateNotificationBar.classList.add('hidden'));
 
@@ -327,6 +390,7 @@ export function initializeStatisticsController() {
         checkForOldDataAndShowPrompt(); 
         if (document.getElementById('statistics-page')?.style.display !== 'none') {
            renderAllStatistics();
+           populateFlavorAnalysisSelects();
         }
     });
 
@@ -336,4 +400,113 @@ export function initializeStatisticsController() {
     }
 
     console.log("✅ Statistics Controller Initialized!");
+}
+
+/**
+ * 生豆別フレーバー分析のプルダウンを初期化・生成する関数
+ */
+function populateFlavorAnalysisSelects() {
+    if (!flavorAnalysisBeanSelect || !flavorAnalysisParamSelect) return;
+
+    const allRoasts = getJoinedRoasts();
+
+    // ユニークな豆の名前リストを作成して、豆選択プルダウンを生成
+    const uniqueBeanNames = [...new Set(allRoasts.map(r => r.beanName).filter(Boolean))];
+    uniqueBeanNames.sort((a, b) => a.localeCompare(b, 'ja'));
+    flavorAnalysisBeanSelect.innerHTML = '<option value="">まず豆を選んでください</option>' +
+        uniqueBeanNames.map(name => `<option value="${name}">${name}</option>`).join('');
+
+    // 分析対象とする焙煎指標のプルダウンを生成
+    const params = {
+        dtr: { label: 'DTR (%)' },
+        developmentTime: { label: '現像時間 (秒)' },
+        totalRoastTime: { label: '合計時間 (秒)' },
+        weightLoss: { label: '重量減少率 (%)' },
+        chargeTemp: { label: '投入温度 (°C)' }
+    };
+    flavorAnalysisParamSelect.innerHTML = Object.entries(params)
+        .map(([key, { label }]) => `<option value="${key}">${label}</option>`)
+        .join('');
+}
+
+/**
+ * 選択された豆と指標に基づいてレーダーチャートを描画する関数
+ */
+function renderFlavorRadarChart() {
+    if (!flavorAnalysisBeanSelect || !flavorAnalysisParamSelect) return;
+
+    const selectedBeanName = flavorAnalysisBeanSelect.value;
+    const selectedParamKey = flavorAnalysisParamSelect.value;
+    const allRoasts = getJoinedRoasts();
+
+    if (!selectedBeanName) {
+        if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'none';
+        return;
+    }
+
+    // 選択された豆の焙煎記録のみにフィルタリング
+    const targetRoasts = allRoasts.filter(r => r.beanName === selectedBeanName && r.flavorProfile);
+
+    // フレーバーごとに、選択された指標の平均値を計算
+    const flavorStats = {};
+    targetRoasts.forEach(roast => {
+        const paramValue = scatterAxesOptions[selectedParamKey]?.getter(roast);
+        if (paramValue === null || typeof paramValue === 'undefined' || isNaN(paramValue)) return;
+
+        const flavors = roast.flavorProfile.split(',');
+        flavors.forEach(flavor => {
+            const trimmedFlavor = flavor.trim();
+            if (trimmedFlavor) {
+                if (!flavorStats[trimmedFlavor]) {
+                    flavorStats[trimmedFlavor] = { total: 0, count: 0 };
+                }
+                flavorStats[trimmedFlavor].total += paramValue;
+                flavorStats[trimmedFlavor].count++;
+            }
+        });
+    });
+
+    const labels = Object.keys(flavorStats);
+    if (labels.length < 3) {
+        if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'none';
+        return;
+    }
+
+    const data = labels.map(label => (flavorStats[label].total / flavorStats[label].count));
+
+    // チャートの描画処理
+    if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'block';
+    const ctx = document.getElementById('flavorRadarChart')?.getContext('2d');
+    if (!ctx) return;
+
+    if (flavorRadarChartInstance) {
+        flavorRadarChartInstance.destroy();
+    }
+
+    flavorRadarChartInstance = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `${selectedBeanName}の${flavorAnalysisParamSelect.options[flavorAnalysisParamSelect.selectedIndex].text}`,
+                data: data,
+                fill: true,
+                backgroundColor: 'rgba(217, 119, 6, 0.2)',
+                borderColor: 'rgb(217, 119, 6)',
+                pointBackgroundColor: 'rgb(217, 119, 6)',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    pointLabels: { font: { size: 14 } }
+                }
+            },
+            plugins: {
+                legend: { labels: { font: { size: 14 } } }
+            }
+        }
+    });
 }
