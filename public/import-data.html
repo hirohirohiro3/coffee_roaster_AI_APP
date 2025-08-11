@@ -29,16 +29,17 @@
     <h3>Log:</h3>
     <pre id="log">Awaiting import...</pre>
 
-    <!-- The main app should include /__/firebase/init.js, which initializes Firebase -->
     <script type="module">
+        // Import the initialized app object from the Firebase Hosting reserved URL
+        import { app } from "/__/firebase/init.js";
+
         // Firebase SDK imports from CDN
-        // No initializeApp needed, relying on the default app instance
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
         import { getFirestore, writeBatch, doc, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-        // Use the default Firebase app instance initialized by the main app
-        const auth = getAuth();
-        const db = getFirestore();
+        // Initialize Firebase services using the imported app
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         const importButton = document.getElementById('importButton');
         const jsonDataEl = document.getElementById('jsonData');
