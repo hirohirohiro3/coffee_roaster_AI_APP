@@ -24,29 +24,16 @@
     </p>
 
     <textarea id="jsonData" placeholder="Paste your JSON data here..."></textarea>
-    <button id="importButton">Import Data</button>
+    <button id="importButton" disabled>Waiting for Firebase...</button>
 
     <h3>Log:</h3>
     <pre id="log">Awaiting import...</pre>
 
-    <!--
-      This page relies on the global Firebase initialization from a script like /__/firebase/init.js
-      which should be loaded by the hosting environment.
-    -->
     <script type="module">
-        // Import getApp to retrieve the default initialized app instance.
-        import { getApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
-
         // Firebase SDK imports from CDN
+        import { getApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
         import { getFirestore, writeBatch, doc, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
-
-        // Retrieve the already initialized app instance.
-        const app = getApp();
-
-        // Initialize Firebase services using the retrieved app
-        const auth = getAuth(app);
-        const db = getFirestore(app);
 
         const importButton = document.getElementById('importButton');
         const jsonDataEl = document.getElementById('jsonData');
@@ -57,92 +44,113 @@
             logEl.textContent += `\n${message}`;
         }
 
-        importButton.addEventListener('click', async () => {
-            logEl.textContent = 'Starting import...';
+        function initializeImporter(app) {
+            const auth = getAuth(app);
+            const db = getFirestore(app);
 
-            // 1. Check Authentication
-            const user = auth.currentUser;
-            if (!user) {
-                log('ERROR: No user is logged in. Please log in to the main app and try again.');
-                alert('Error: You must be logged in to import data.');
-                return;
-            }
-            log(`Authenticated as user: ${user.uid}`);
+            importButton.disabled = false;
+            importButton.textContent = 'Import Data';
+            log('Firebase connection ready. You can now import data.');
 
-            // 2. Get JSON data
-            const jsonText = jsonDataEl.value;
-            if (!jsonText) {
-                log('ERROR: JSON data cannot be empty.');
-                alert('Error: Please paste the JSON data into the text area.');
-                return;
-            }
+            importButton.addEventListener('click', async () => {
+                logEl.textContent = 'Starting import...';
 
-            let data;
-            // 3. Parse JSON
-            try {
-                data = JSON.parse(jsonText);
-            } catch (error) {
-                log(`ERROR: Invalid JSON data. Please check the format. Details: ${error.message}`);
-                alert('Error: The provided data is not valid JSON.');
-                return;
-            }
+                // 1. Check Authentication
+                const user = auth.currentUser;
+                if (!user) {
+                    log('ERROR: No user is logged in. Please log in to the main app and try again.');
+                    alert('Error: You must be logged in to import data.');
+                    return;
+                }
+                log(`Authenticated as user: ${user.uid}`);
 
-            if (!data.beans || !data.roasts) {
-                log('ERROR: JSON object must contain "beans" and "roasts" keys.');
-                alert('Error: Invalid data structure in JSON.');
-                return;
-            }
+                // 2. Get JSON data
+                const jsonText = jsonDataEl.value;
+                if (!jsonText) {
+                    log('ERROR: JSON data cannot be empty.');
+                    alert('Error: Please paste the JSON data into the text area.');
+                    return;
+                }
 
-            log('JSON data parsed successfully.');
+                let data;
+                // 3. Parse JSON
+                try {
+                    data = JSON.parse(jsonText);
+                } catch (error) {
+                    log(`ERROR: Invalid JSON data. Please check the format. Details: ${error.message}`);
+                    alert('Error: The provided data is not valid JSON.');
+                    return;
+                }
 
-            try {
-                // 4. Create a new write batch
-                const batch = writeBatch(db);
-                log('Write batch created.');
+                if (!data.beans || !data.roasts) {
+                    log('ERROR: JSON object must contain "beans" and "roasts" keys.');
+                    alert('Error: Invalid data structure in JSON.');
+                    return;
+                }
 
-                const processAndAddToBatch = (item, collectionName) => {
-                    if (!item.id) {
-                        throw new Error(`An object in "${collectionName}" is missing an "id" property.`);
-                    }
-                    const docId = item.id;
-                    const dataToWrite = { ...item };
+                log('JSON data parsed successfully.');
 
-                    // Convert all potential timestamp fields
-                    const timestampFields = ['createdAt', 'updatedAt', 'roastDate', 'firstCrackTime'];
-                    for (const field of timestampFields) {
-                        if (dataToWrite[field] && typeof dataToWrite[field] === 'object' && dataToWrite[field].seconds !== undefined) {
-                            dataToWrite[field] = new Timestamp(dataToWrite[field].seconds, dataToWrite[field].nanoseconds || 0);
+                try {
+                    // 4. Create a new write batch
+                    const batch = writeBatch(db);
+                    log('Write batch created.');
+
+                    const processAndAddToBatch = (item, collectionName) => {
+                        if (!item.id) {
+                            throw new Error(`An object in "${collectionName}" is missing an "id" property.`);
                         }
-                    }
+                        const docId = item.id;
+                        const dataToWrite = { ...item };
 
-                    // Remove redundant ID before writing
-                    delete dataToWrite.id;
+                        // Convert all potential timestamp fields
+                        const timestampFields = ['createdAt', 'updatedAt', 'roastDate', 'firstCrackTime'];
+                        for (const field of timestampFields) {
+                            if (dataToWrite[field] && typeof dataToWrite[field] === 'object' && dataToWrite[field].seconds !== undefined) {
+                                dataToWrite[field] = new Timestamp(dataToWrite[field].seconds, dataToWrite[field].nanoseconds || 0);
+                            }
+                        }
 
-                    const itemRef = doc(db, `users/${user.uid}/${collectionName}`, docId);
-                    batch.set(itemRef, dataToWrite);
-                };
+                        delete dataToWrite.id;
 
-                // 5. Process Data
-                data.beans.forEach(bean => processAndAddToBatch(bean, 'beans'));
-                log(`Added ${data.beans.length} beans to the batch.`);
+                        const itemRef = doc(db, `users/${user.uid}/${collectionName}`, docId);
+                        batch.set(itemRef, dataToWrite);
+                    };
 
-                data.roasts.forEach(roast => processAndAddToBatch(roast, 'roasts'));
-                log(`Added ${data.roasts.length} roasts to the batch.`);
+                    // 5. Process Data
+                    data.beans.forEach(bean => processAndAddToBatch(bean, 'beans'));
+                    log(`Added ${data.beans.length} beans to the batch.`);
 
-                // 6. Commit the batch
-                log('Committing batch to Firestore...');
-                await batch.commit();
+                    data.roasts.forEach(roast => processAndAddToBatch(roast, 'roasts'));
+                    log(`Added ${data.roasts.length} roasts to the batch.`);
 
-                // 7. Provide Feedback
-                log('SUCCESS: Data import completed successfully!');
-                alert('Data import successful!');
+                    // 6. Commit the batch
+                    log('Committing batch to Firestore...');
+                    await batch.commit();
 
-            } catch (error) {
-                log(`FATAL ERROR during Firestore operation: ${error.message}`);
-                console.error(error);
-                alert(`An error occurred during the import. Check the log for details. Error: ${error.message}`);
+                    // 7. Provide Feedback
+                    log('SUCCESS: Data import completed successfully!');
+                    alert('Data import successful!');
+
+                } catch (error) {
+                    log(`FATAL ERROR during Firestore operation: ${error.message}`);
+                    console.error(error);
+                    alert(`An error occurred during the import. Check the log for details. Error: ${error.message}`);
+                }
+            });
+        }
+
+        // Poll for the default Firebase app to be initialized by the main app's scripts.
+        // This solves the race condition where this script runs before the main init script.
+        const checkFirebaseInterval = setInterval(() => {
+            try {
+                const app = getApp();
+                // If getApp() succeeds, the app is initialized.
+                clearInterval(checkFirebaseInterval);
+                initializeImporter(app);
+            } catch (e) {
+                console.log("Waiting for Firebase initialization...");
             }
-        });
+        }, 100); // Check every 100ms
     </script>
 </body>
 </html>
