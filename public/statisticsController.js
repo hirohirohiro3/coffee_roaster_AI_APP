@@ -434,7 +434,7 @@ function populateFlavorAnalysisSelects() {
     const allRoasts = getJoinedRoasts();
 
     // ユニークな豆の名前リストを作成して、豆選択プルダウンを生成
-    const uniqueBeanNames = [...new Set(allRoasts.map(r => r.beanName).filter(Boolean))];
+    const uniqueBeanNames = [...new Set(allRoasts.map(r => r.beanName).filter(name => name && name !== '（削除された豆）'))];
     uniqueBeanNames.sort((a, b) => a.localeCompare(b, 'ja'));
     flavorAnalysisBeanSelect.innerHTML = '<option value="">まず豆を選んでください</option>' +
         uniqueBeanNames.map(name => `<option value="${name}">${name}</option>`).join('');
