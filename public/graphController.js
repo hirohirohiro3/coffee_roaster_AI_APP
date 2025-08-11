@@ -1,6 +1,6 @@
 import { eventBus } from './EventBus.js';
-import { calculateBeanROR, formatTime, predictTimeToTarget } from './roastUtils.js';
-import { getCurrentElapsedTimeInSeconds } from './timerController.js';
+import { calculateBeanROR, formatTime } from './roastUtils.js';
+import { getCurrentElapsedTimeInSeconds, updatePrediction } from './timerController.js';
 
 // --- モジュールスコープの変数 ---
 let chartCanvasElement, chargingTempInputElement;
@@ -62,7 +62,7 @@ function handleInitialTempChange(event) {
 
     const beanLogIndex = realtimeBeanTemperaturesLog.findIndex(p => p.time === 0);
     if (beanLogIndex !== -1) realtimeBeanTemperaturesLog[beanLogIndex].temp = newTemp;
-    else realtimeBeanTemperaturesLog.push({ time: 0, temp: newTemp });
+    else realtimeBeanTemperaturesLog.push({ time: 0, temp: newTemp, timeInSeconds: 0 });
 
     // ★★★ 初期温度が変更されるたびに、ログテーブルに反映させる ★★★
     eventBus.emit('log-table:add-entry', {
@@ -104,7 +104,7 @@ export function initializeRealtimeChart() {
         const initialTemp = chargingTempInputElement ? parseFloat(chargingTempInputElement.value) : NaN;
         if (!isNaN(initialTemp)) {
             realtimeChartInstance.data.datasets[0].data.push({ x: 0, y: initialTemp });
-            realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
+            realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp, timeInSeconds: 0 });
 
             // ★★★ リセット後、初期温度をログテーブルに再送信 ★★★
             eventBus.emit('log-table:add-entry', {
@@ -127,7 +127,7 @@ export function initializeRealtimeChart() {
         const initialBeanData = [];
         if (!isNaN(initialTemp)) {
             initialBeanData.push({ x: 0, y: initialTemp });
-            realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp });
+            realtimeBeanTemperaturesLog.push({ time: 0, temp: initialTemp, timeInSeconds: 0 });
 
             // ★★★ 初期温度をログテーブルに送信 ★★★
             eventBus.emit('log-table:add-entry', {
@@ -194,25 +194,22 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
         let calculatedROR = null;
         if (realtimeBeanTemperaturesLog.length > 0) {
             const prevPoint = realtimeBeanTemperaturesLog[realtimeBeanTemperaturesLog.length - 1];
-            const prevPlotIntegerMinute = Math.floor(prevPoint.time);
+            const timeDiffSeconds = elapsedTimeSeconds - prevPoint.timeInSeconds;
 
-            // グラフのX軸（整数分）を基準に時間差を計算
-            const timeDiffMinutes = plotIntegerMinute - prevPlotIntegerMinute;
-
-            if (timeDiffMinutes > 0) {
-                const timeDiffSeconds = timeDiffMinutes * 60;
-                // RORを計算。前のポイントの温度は、その分ブロックの最後の記録された温度となる。
+            if (timeDiffSeconds > 0) {
                 calculatedROR = calculateBeanROR(prevPoint.temp, beanTemp, timeDiffSeconds);
             }
         }
 
-        realtimeBeanTemperaturesLog.push({ time: plotMinute, temp: beanTemp });
+        realtimeBeanTemperaturesLog.push({ time: plotMinute, temp: beanTemp, timeInSeconds: elapsedTimeSeconds });
         _updateDatasetPoint(0, plotIntegerMinute, beanTemp, true);
 
         if (calculatedROR !== null) {
             realtimeRorValuesLog.push({ time: plotMinute, ror: calculatedROR });
             _updateDatasetPoint(2, plotIntegerMinute, calculatedROR, true);
         }
+
+        updatePrediction(beanTemp, calculatedROR);
 
         eventBus.emit('log-table:add-entry', {
             time: formatTime(elapsedTimeSeconds),
