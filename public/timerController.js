@@ -1,4 +1,5 @@
 import { eventBus } from './EventBus.js';
+import { predictTimeToTarget } from './roastUtils.js';
 
 // --- モジュールスコープの変数 ---
 let timerInterval = null;
@@ -75,6 +76,7 @@ function resetTimer() {
     eventBus.emit('timer:state-changed', { isRunning: false, buttonText: "開始" });
     eventBus.emit('timer:tick', { elapsedSeconds: 0 });
     eventBus.emit('timer:development-time-updated', { firstCrackDevSeconds: null, secondCrackDevSeconds: null });
+    eventBus.emit('prediction:update', { predictedTime: null });
     eventBus.emit('audio:speak', "タイマーリセット");
     eventBus.emit('ui:toggle-event-logger', false);
     eventBus.emit('graph:clear-inputs');
@@ -122,4 +124,23 @@ export function recordCrackTime(crackType) {
     } else if (crackType === 'secondCrackTime') {
         secondCrackStartTime = crackTimeInSeconds;
     }
+}
+
+export function updatePrediction(currentTemp, ror) {
+    if (currentTemp === null || ror === null || ror <= 0 || currentTemp >= 200) {
+        eventBus.emit('prediction:update', { predictedTime: null });
+        return;
+    }
+
+    const remainingSeconds = predictTimeToTarget(currentTemp, 200, ror);
+
+    if (remainingSeconds === null) {
+        eventBus.emit('prediction:update', { predictedTime: null });
+        return;
+    }
+
+    const elapsedSeconds = getCurrentElapsedTimeInSeconds();
+    const predictedTotalSeconds = elapsedSeconds + remainingSeconds;
+
+    eventBus.emit('prediction:update', { predictedTime: predictedTotalSeconds });
 }

@@ -84,7 +84,14 @@ export function initializeTimerDisplayUI() {
     eventBus.on('timer:tick', (data) => updateTimerDisplay(data.elapsedSeconds));
     eventBus.on('timer:state-changed', (data) => updateStartPauseButton(data));
     eventBus.on('timer:development-time-updated', (data) => updateDevelopmentTimeDisplay(data));
-    eventBus.on('graph:prediction-update', togglePredictionDisplay);
+    eventBus.on('prediction:update', ({ predictedTime }) => {
+        if (predictedTime === null) {
+            togglePredictionDisplay(null);
+        } else {
+            const formattedTime = formatTime(predictedTime);
+            togglePredictionDisplay(formattedTime);
+        }
+    });
     eventBus.on('ui:toggle-event-logger', toggleEventLogger);
     eventBus.on('ui:update-event-button-state', ({ eventType, time }) => {
         const button = document.querySelector(`.log-event-btn[data-event-type="${eventType}"]`);
