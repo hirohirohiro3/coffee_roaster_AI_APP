@@ -29,15 +29,22 @@
     <h3>Log:</h3>
     <pre id="log">Awaiting import...</pre>
 
+    <!--
+      This page relies on the global Firebase initialization from a script like /__/firebase/init.js
+      which should be loaded by the hosting environment.
+    -->
     <script type="module">
-        // Import the initialized app object from the Firebase Hosting reserved URL
-        import { app } from "/__/firebase/init.js";
+        // Import getApp to retrieve the default initialized app instance.
+        import { getApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
 
         // Firebase SDK imports from CDN
         import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
         import { getFirestore, writeBatch, doc, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-        // Initialize Firebase services using the imported app
+        // Retrieve the already initialized app instance.
+        const app = getApp();
+
+        // Initialize Firebase services using the retrieved app
         const auth = getAuth(app);
         const db = getFirestore(app);
 
