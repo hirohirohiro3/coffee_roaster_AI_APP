@@ -289,6 +289,7 @@ function checkForOldDataAndShowPrompt() {
     }
 }
 
+// public/statisticsController.js 内の handleBatchUpdate 関数をこれに置き換える
 async function handleBatchUpdate() {
     if (!runUpdateButton) return;
     runUpdateButton.disabled = true;
@@ -296,6 +297,10 @@ async function handleBatchUpdate() {
     const allRoasts = getJoinedRoasts();
     let updatedCount = 0;
     const updatePromises = allRoasts.map(roast => {
+        const dataToUpdate = {};
+        let needsUpdate = false;
+
+        // overallRatingの計算とチェック
         let averageRating = roast.overallRating;
         if (roast.ratings && typeof roast.ratings === 'object' && (roast.overallRating === undefined || roast.overallRating === null)) {
             const ratingValues = Object.values(roast.ratings).map(v => Number(v)).filter(v => !isNaN(v));
@@ -303,15 +308,30 @@ async function handleBatchUpdate() {
                 averageRating = parseFloat((ratingValues.reduce((s, v) => s + v, 0) / ratingValues.length).toFixed(2));
             }
         }
+        // undfinedの代わりにnullを使用する
+        if (averageRating === undefined) {
+            averageRating = null;
+        }
+        if (roast.overallRating !== averageRating) {
+            dataToUpdate.overallRating = averageRating;
+            needsUpdate = true;
+        }
+
+        // dtrの計算とチェック
         let dtrValue = roast.dtr;
         if (typeof roast.dtr === 'undefined' || roast.dtr === null) {
             const dtr = calculateDTR(roast.firstCrackTime, roast.totalRoastTime);
+            // undfinedの代わりにnullを使用する
             dtrValue = dtr ? parseFloat(dtr.toFixed(2)) : null;
         }
-        const needsUpdate = roast.overallRating !== averageRating || roast.dtr !== dtrValue;
+        if (roast.dtr !== dtrValue) {
+            dataToUpdate.dtr = dtrValue;
+            needsUpdate = true;
+        }
+
         if (needsUpdate) {
             updatedCount++;
-            return updateRoastRecord(roast.id, { overallRating: averageRating, dtr: dtrValue });
+            return updateRoastRecord(roast.id, dataToUpdate);
         }
         return Promise.resolve();
     });
@@ -383,6 +403,7 @@ export function initializeStatisticsController() {
     eventBus.on('nav:page-shown', ({ pageName }) => {
         if (pageName === 'stats') {
             renderAllStatistics();
+            populateFlavorAnalysisSelects();
         }
     });
     
@@ -390,7 +411,6 @@ export function initializeStatisticsController() {
         checkForOldDataAndShowPrompt(); 
         if (document.getElementById('statistics-page')?.style.display !== 'none') {
            renderAllStatistics();
-           populateFlavorAnalysisSelects();
         }
     });
 
@@ -406,6 +426,9 @@ export function initializeStatisticsController() {
  * 生豆別フレーバー分析のプルダウンを初期化・生成する関数
  */
 function populateFlavorAnalysisSelects() {
+    // ▼▼▼ この2行を追加 ▼▼▼
+    if (flavorAnalysisBeanSelect && flavorAnalysisBeanSelect.options.length > 1) return;
+    // ▲▲▲ 追加ここまで ▲▲▲
     if (!flavorAnalysisBeanSelect || !flavorAnalysisParamSelect) return;
 
     const allRoasts = getJoinedRoasts();
