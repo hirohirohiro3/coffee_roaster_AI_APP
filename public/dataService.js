@@ -11,21 +11,26 @@ function joinRoastAndBeanData() {
         joinedRoastsCache = roastsCache.map(roast => {
             const beanData = beansMap.get(roast.beanId) || {};
             
-            // 焙煎記録にcostがなければ、生豆の価格(price)をcostとして引き継ぐ
-            const finalCost = roast.cost !== undefined ? roast.cost : beanData.price;
+            let calculatedCost = null;
+            // 生豆の単価データがあり、焙煎時の豆重量があればコストを計算
+            if (beanData.price && beanData.purchaseAmount > 0 && roast.greenBeanWeight) {
+                const unitPrice = beanData.price / beanData.purchaseAmount; // 1kgあたりの価格
+                calculatedCost = Math.round(unitPrice * roast.greenBeanWeight);
+            }
+
+            // 焙煎記録にcostが保存されていればそれを優先、なければ計算した値を使用
+            const finalCost = roast.cost !== undefined ? roast.cost : calculatedCost;
 
             return { 
                 ...roast, 
                 beanName: beanData.beanName || '（削除された豆）',
                 origin: beanData.origin || '',
-                cost: finalCost // ★★★ この行を修正 ★★★
+                cost: finalCost
             };
         });
     } else {
-        // beansCacheがない場合も、roastデータだけは保持する
         joinedRoastsCache = roastsCache.map(roast => ({ ...roast })); 
     }
-    // データが結合されたことを通知
     eventBus.emit('data:joined-data-ready', joinedRoastsCache);
 }
 
