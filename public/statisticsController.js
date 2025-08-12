@@ -10,6 +10,7 @@ let beanRankingTableBody, scatterXAxisSelect, scatterYAxisSelect;
 let updateNotificationBar, runUpdateButton, closeUpdateBarButton;
 let flavorRadarChartInstance = null;
 let flavorAnalysisBeanSelect, flavorAnalysisParamSelect, flavorRadarChartContainer;
+let flavorRadarMessage;
 
 // --- 表示期間を管理 ---
 // type: 'relative'(過去Nヶ月) or 'absolute'(西暦年)
@@ -366,6 +367,7 @@ export function initializeStatisticsController() {
     flavorAnalysisBeanSelect = document.getElementById('flavorAnalysisBeanSelect');
     flavorAnalysisParamSelect = document.getElementById('flavorAnalysisParamSelect');
     flavorRadarChartContainer = document.getElementById('flavorRadarChartContainer');
+    flavorRadarMessage = document.getElementById('flavorRadarMessage');
 
     // プルダウンが変更されたらチャートを再描画するイベントリスナーを設定
     if (flavorAnalysisBeanSelect && flavorAnalysisParamSelect) {
@@ -452,21 +454,16 @@ function populateFlavorAnalysisSelects() {
         .join('');
 }
 
-/**
- * 選択された豆と指標に基づいてレーダーチャートを描画する関数
- */
 function renderFlavorRadarChart() {
-    if (!flavorAnalysisBeanSelect || !flavorAnalysisParamSelect) return;
+    if (!flavorAnalysisBeanSelect || !flavorAnalysisParamSelect || !flavorRadarChartContainer || !flavorRadarMessage) return;
 
     const selectedBeanName = flavorAnalysisBeanSelect.value;
     const selectedParamKey = flavorAnalysisParamSelect.value;
     const allRoasts = getJoinedRoasts();
-
-    const canvas = document.getElementById('flavorRadarChart');
-    const messageEl = document.getElementById('flavorRadarChartMessage');
+    const chartCanvas = document.getElementById('flavorRadarChart');
 
     if (!selectedBeanName) {
-        if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'none';
+        flavorRadarChartContainer.style.display = 'none';
         return;
     }
 
@@ -489,25 +486,31 @@ function renderFlavorRadarChart() {
     });
 
     const labels = Object.keys(flavorStats);
-    if (flavorRadarChartInstance) {
-        flavorRadarChartInstance.destroy();
-        flavorRadarChartInstance = null;
-    }
+    flavorRadarChartContainer.style.display = 'flex'; // コンテナは常に表示
 
     if (labels.length < 3) {
-        if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'block';
-        if (canvas) canvas.style.display = 'none';
-        if (messageEl) messageEl.classList.remove('hidden');
+        // データが不足している場合：メッセージを表示
+        if (chartCanvas) chartCanvas.style.display = 'none';
+        flavorRadarMessage.style.display = 'block';
+        flavorRadarMessage.textContent = `「${selectedBeanName}」には、分析に必要な3種類以上のフレーバー記録がまだありません。`;
+        if (flavorRadarChartInstance) {
+            flavorRadarChartInstance.destroy();
+            flavorRadarChartInstance = null;
+        }
         return;
     }
 
-    if (flavorRadarChartContainer) flavorRadarChartContainer.style.display = 'block';
-    if (canvas) canvas.style.display = 'block';
-    if (messageEl) messageEl.classList.add('hidden');
+    // データが十分な場合：チャートを表示
+    if (chartCanvas) chartCanvas.style.display = 'block';
+    flavorRadarMessage.style.display = 'none';
 
     const data = labels.map(label => (flavorStats[label].total / flavorStats[label].count));
-    const ctx = canvas?.getContext('2d');
+    const ctx = chartCanvas?.getContext('2d');
     if (!ctx) return;
+
+    if (flavorRadarChartInstance) {
+        flavorRadarChartInstance.destroy();
+    }
 
     flavorRadarChartInstance = new Chart(ctx, {
         type: 'radar',
@@ -525,14 +528,8 @@ function renderFlavorRadarChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: {
-                r: {
-                    pointLabels: { font: { size: 14 } }
-                }
-            },
-            plugins: {
-                legend: { labels: { font: { size: 14 } } }
-            }
+            scales: { r: { pointLabels: { font: { size: 14 } } } },
+            plugins: { legend: { labels: { font: { size: 14 } } } }
         }
     });
 }
