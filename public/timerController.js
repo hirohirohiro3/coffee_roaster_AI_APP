@@ -15,12 +15,8 @@ function startTimer() {
     if (isTimerRunningInternal) return;
     isTimerRunningInternal = true;
     
-    // ★★★ この行を追加 ★★★
-    // フォームがもし開いていなければ、開くように要求するイベントを発行
     eventBus.emit('ui:ensure-roast-form-open');
-    // ★★★★★★★★★★★★★★★★
 
-    // UIや他のモジュールにタイマーの開始を通知
     eventBus.emit('timer:state-changed', { isRunning: true, buttonText: "一時停止" });
     eventBus.emit('audio:speak', "タイマー開始");
     eventBus.emit('ui:toggle-event-logger', true);
@@ -32,6 +28,10 @@ function startTimer() {
     const startTime = Date.now() - elapsedTimeInSeconds * 1000;
     if (timerInterval) clearInterval(timerInterval);
     
+    // oneMinuteIntervalは削除
+    if (oneMinuteInterval) clearInterval(oneMinuteInterval);
+    oneMinuteInterval = null;
+
     timerInterval = setInterval(() => {
         elapsedTimeInSeconds = Math.floor((Date.now() - startTime) / 1000);
         eventBus.emit('timer:tick', { elapsedSeconds: elapsedTimeInSeconds });
@@ -40,17 +40,13 @@ function startTimer() {
         let secondCrackDevSeconds = (secondCrackStartTime !== null) ? elapsedTimeInSeconds - secondCrackStartTime : null;
         eventBus.emit('timer:development-time-updated', { firstCrackDevSeconds, secondCrackDevSeconds });
 
-    }, 1000);
-
-    if (oneMinuteInterval) clearInterval(oneMinuteInterval);
-    oneMinuteInterval = setInterval(() => {
-        if (isTimerRunningInternal) {
-            const minutes = Math.floor((elapsedTimeInSeconds + 1) / 60);
-            if (minutes > 0) {
-                eventBus.emit('audio:speak', `${minutes}分経過`);
-            }
+        // 1分ごとの音声通知をここに統合
+        if (elapsedTimeInSeconds > 0 && elapsedTimeInSeconds % 60 === 0) {
+            const minutes = elapsedTimeInSeconds / 60;
+            eventBus.emit('audio:speak', `${minutes}分経過`);
         }
-    }, 60000);
+
+    }, 1000);
 }
 
 function pauseTimer() {
