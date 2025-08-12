@@ -55,9 +55,9 @@
             <h3 class="text-lg font-medium text-gray-700 text-center">イベント記録</h3>
             <p class="text-xs text-gray-500 text-center mb-4">イベント発生時にボタンを押して、時間をフォームに記録します。</p>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="flex items-center justify-center">
-                    <button data-event-type="turningPointTime" class="log-event-btn px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors">TP</button>
-                    <input type="number" id="turningPointTempInput" placeholder="TP温度" class="w-20 text-sm p-1 border rounded">
+                <div data-event-type="turningPointTime" class="log-event-btn flex items-center justify-between w-full px-4 py-2 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 transition-colors cursor-pointer">
+                    <label for="turningPointTempInput" class="cursor-pointer">TP 温度</label>
+                    <input type="number" id="turningPointTempInput" placeholder="---" class="w-20 text-right bg-transparent border-none text-white placeholder-gray-300 focus:ring-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
                 </div>
                 <button data-event-type="firstCrackTime" class="log-event-btn px-4 py-2 bg-yellow-500 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-600 transition-colors">1ハゼ</button>
                 <button data-event-type="secondCrackTime" class="log-event-btn px-4 py-2 bg-orange-500 text-white font-semibold rounded-lg shadow-md hover:bg-orange-600 transition-colors">2ハゼ</button>
