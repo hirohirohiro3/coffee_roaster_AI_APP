@@ -95,9 +95,20 @@ export function initializeTimerDisplayUI() {
     eventBus.on('ui:toggle-event-logger', toggleEventLogger);
     eventBus.on('ui:update-event-button-state', ({ eventType, time }) => {
         const button = document.querySelector(`.log-event-btn[data-event-type="${eventType}"]`);
-        if (button) {
-            button.classList.add('activated');
-            const baseText = button.textContent.split(' ')[0];
+        if (!button) return;
+
+        button.classList.add('activated');
+
+        // TPボタンは特別な処理を行う
+        if (eventType === 'turningPointTime') {
+            const label = button.querySelector('label');
+            if (label) {
+                // ラベルのテキストだけを変更し、入力欄はそのまま維持する
+                label.textContent = `TP (${time})`;
+            }
+        } else {
+            // 他の単純なボタンはinnerHTMLを更新する
+            const baseText = button.textContent.trim().split(' ')[0];
             button.innerHTML = `${baseText} <span class="text-xs font-mono">(${time})</span>`;
         }
     });
@@ -108,15 +119,19 @@ export function initializeTimerDisplayUI() {
             button.classList.remove('activated');
             const eventType = button.dataset.eventType;
 
-            // TPコンポーネントは特別な処理
+            // TPボタンは特別なリセット処理
             if (eventType === 'turningPointTime') {
+                const label = button.querySelector('label');
+                if (label) {
+                    label.textContent = 'TP 温度';
+                }
                 const tpInput = button.querySelector('#turningPointTempInput');
                 if (tpInput) {
                     tpInput.value = '';
                 }
             } else {
                 // 他の単純なボタンはテキストを元に戻す
-                const baseText = button.textContent.trim().split(' ')[0];
+                const baseText = button.innerHTML.split(' ')[0];
                 button.innerHTML = baseText;
             }
         });
