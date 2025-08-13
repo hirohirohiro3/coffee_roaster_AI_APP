@@ -106,22 +106,29 @@ export function initializeTimerDisplayUI() {
         const buttons = document.querySelectorAll('.log-event-btn');
         buttons.forEach(button => {
             button.classList.remove('activated');
-            const baseText = button.textContent.split(' ')[0]; // "TP 温度" のような場合も "TP" だけ取得
-            if (button.dataset.eventType === 'turningPointTime') {
-                // TPボタンは特殊な構造なので個別に対応
-                const label = button.querySelector('label');
-                if (label) {
-                    label.textContent = 'TP 温度';
+            const eventType = button.dataset.eventType;
+
+            // TPコンポーネントは特別な処理
+            if (eventType === 'turningPointTime') {
+                const tpInput = button.querySelector('#turningPointTempInput');
+                if (tpInput) {
+                    tpInput.value = '';
                 }
             } else {
-                 button.innerHTML = baseText;
+                // 他の単純なボタンはテキストを元に戻す
+                const baseText = button.textContent.trim().split(' ')[0];
+                button.innerHTML = baseText;
             }
         });
-        const tpTempInput = document.getElementById('turningPointTempInput');
-        if (tpTempInput) {
-            tpTempInput.value = '';
-        }
     });
+
+    const tpTempInput = document.getElementById('turningPointTempInput');
+    if (tpTempInput) {
+        tpTempInput.addEventListener('click', (e) => {
+            // 親要素へのクリックイベントの伝播を停止する
+            e.stopPropagation();
+        });
+    }
 
     console.log("✅ TimerDisplayUI initialized.");
 }
