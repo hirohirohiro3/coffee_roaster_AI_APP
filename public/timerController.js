@@ -79,6 +79,7 @@ function resetTimer() {
     eventBus.emit('log-table:clear');
     eventBus.emit('graph:clear-main-logs');
     eventBus.emit('graph:initialize-realtime-chart');
+    eventBus.emit('ui:reset-event-buttons');
 }
 
 // --- 公開関数 ---

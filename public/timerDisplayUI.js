@@ -102,5 +102,26 @@ export function initializeTimerDisplayUI() {
         }
     });
 
+    eventBus.on('ui:reset-event-buttons', () => {
+        const buttons = document.querySelectorAll('.log-event-btn');
+        buttons.forEach(button => {
+            button.classList.remove('activated');
+            const baseText = button.textContent.split(' ')[0]; // "TP 温度" のような場合も "TP" だけ取得
+            if (button.dataset.eventType === 'turningPointTime') {
+                // TPボタンは特殊な構造なので個別に対応
+                const label = button.querySelector('label');
+                if (label) {
+                    label.textContent = 'TP 温度';
+                }
+            } else {
+                 button.innerHTML = baseText;
+            }
+        });
+        const tpTempInput = document.getElementById('turningPointTempInput');
+        if (tpTempInput) {
+            tpTempInput.value = '';
+        }
+    });
+
     console.log("✅ TimerDisplayUI initialized.");
 }
