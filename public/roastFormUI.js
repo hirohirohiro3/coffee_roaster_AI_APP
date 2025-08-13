@@ -368,5 +368,27 @@ export function initializeRoastFormUI() {
         }
     });
     
+    eventBus.on('form:clear-event-times', () => {
+        const timeFieldIds = [
+            'turningPointTime',
+            'firstCrackTime',
+            'secondCrackTime',
+            'totalRoastTime',
+            'turningPointTemp' // TP温度もリセット対象に含める
+        ];
+
+        timeFieldIds.forEach(id => {
+            const field = document.getElementById(id);
+            if (field) {
+                field.value = '';
+            }
+        });
+
+        // 重量減少率の表示もリセット
+        if (weightLossDisplay) {
+            weightLossDisplay.textContent = '- %';
+        }
+    });
+
     console.log("✅ RoastFormUI initialized.");
 }
