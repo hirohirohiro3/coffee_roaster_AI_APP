@@ -15,14 +15,30 @@ function renderRoastList({ roasts, keyword }) {
     roastLogDiv.innerHTML = ''; 
 
     if (!roasts || roasts.length === 0) {
-        roastLogDiv.innerHTML = `<p class="text-center text-gray-500 py-8">${keyword ? '検索結果に一致する記録はありません。' : 'まだ焙煎記録がありません。'}</p>`;
+        if (keyword) {
+            roastLogDiv.innerHTML = `<p class="text-center text-gray-500 py-8">検索結果に一致する記録はありません。</p>`;
+        } else {
+            roastLogDiv.innerHTML = `
+            <div class="text-center py-12 px-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4M4 7s0 4 8 4 8-4 8-4m-8 8c0 2.21-3.582 4-8 4" />
+                </svg>
+                <h3 class="mt-2 text-lg font-medium text-gray-900">まだ焙煎記録がありません</h3>
+                <p class="mt-1 text-sm text-gray-500">最初の焙煎を記録して、分析を始めましょう。</p>
+                <div class="mt-6">
+                    <button type="button" id="addNewRoastButtonEmpty" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700">
+                        最初の焙煎を記録する
+                    </button>
+                </div>
+            </div>`;
+        }
         return;
     }
 
     const fragment = document.createDocumentFragment();
     roasts.forEach(roast => {
         const card = document.createElement('div');
-        card.className = 'bg-white p-4 rounded-lg shadow-sm mb-4';
+        card.className = 'roast-card bg-white p-4 rounded-lg shadow-sm mb-4';
         card.dataset.id = roast.id; 
         
         // 1. メインの総合評価を決定
@@ -87,9 +103,9 @@ function renderRoastList({ roasts, keyword }) {
                     <button class="favorite-btn p-1" data-id="${roast.id}">${starIcon}</button>
                 </div>
                 <div class="mt-4 flex justify-end space-x-2">
-                    <button class="view-btn px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm" data-id="${roast.id}">詳細</button>
-                    <button class="edit-btn px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm" data-id="${roast.id}">編集</button>
-                    <button class="delete-btn px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" data-id="${roast.id}" data-name="${beanNameToDisplay}">削除</button>
+                    <button class="view-btn inline-flex items-center gap-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 -ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>詳細</button>
+                    <button class="edit-btn inline-flex items-center gap-x-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z"></path></svg>編集</button>
+                    <button class="delete-btn inline-flex items-center gap-x-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" data-id="${roast.id}" data-name="${beanNameToDisplay}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>削除</button>
                 </div>
             </div>
         </div>
@@ -161,16 +177,18 @@ export function initializeRoastListUI() {
         const button = e.target.closest('button');
         if (button) {
             const id = button.dataset.id;
-            if (!id) return;
-
-            if (button.classList.contains('view-btn')) {
-                eventBus.emit('ui:view-profile-clicked', id);
-            } else if (button.classList.contains('edit-btn')) {
-                eventBus.emit('ui:edit-roast-clicked', id);
-            } else if (button.classList.contains('delete-btn')) {
-                eventBus.emit('ui:delete-roast-clicked', { id, name: button.dataset.name });
-            } else if (button.classList.contains('favorite-btn')) {
-                eventBus.emit('ui:toggle-favorite-clicked', id);
+            if (id) {
+                if (button.classList.contains('view-btn')) {
+                    eventBus.emit('ui:view-profile-clicked', id);
+                } else if (button.classList.contains('edit-btn')) {
+                    eventBus.emit('ui:edit-roast-clicked', id);
+                } else if (button.classList.contains('delete-btn')) {
+                    eventBus.emit('ui:delete-roast-clicked', { id, name: button.dataset.name });
+                } else if (button.classList.contains('favorite-btn')) {
+                    eventBus.emit('ui:toggle-favorite-clicked', id);
+                }
+            } else if (button.id === 'addNewRoastButtonEmpty') {
+                eventBus.emit('ui:add-new-roast-clicked');
             }
         }
     });
