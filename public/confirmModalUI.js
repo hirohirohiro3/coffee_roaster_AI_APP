@@ -5,12 +5,12 @@ let modal, messageSpan, confirmButton, cancelButton;
 function showConfirmModal({ message }) {
     if (!modal) return;
     messageSpan.textContent = message;
-    modal.classList.remove('hidden');
+    modal.classList.add('is-visible');
 }
 
 function closeConfirmModal() {
     if (!modal) return;
-    modal.classList.add('hidden');
+    modal.classList.remove('is-visible');
 }
 
 export function initializeConfirmModal() {

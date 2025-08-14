@@ -1,53 +1,53 @@
-<section id="roastFormSection" class="mb-8 p-6 bg-white rounded-lg shadow-md hidden">
-    <h2 id="formTitle" class="text-2xl font-semibold mb-6 text-amber-600">新しい焙煎を記録</h2>
-    <form id="roastForm" class="space-y-6">
+<section id="roastFormSection" class="mb-8 p-6 bg-[var(--bg-primary)] rounded-lg shadow-md hidden">
+    <h2 id="formTitle" class="text-2xl font-semibold mb-4 text-[var(--accent-color)]">新しい焙煎を記録</h2>
+    <form id="roastForm" class="space-y-8">
         <input type="hidden" id="editRoastId" name="editRoastId">
 
-        <fieldset class="border-t pt-4">
-            <legend class="text-lg font-medium text-gray-900 mb-4">焙煎前の計画 (Plan)</legend>
-            <div class="space-y-6">
+        <fieldset class="border-t pt-4 border-[var(--border-color)]">
+            <legend class="text-lg font-medium text-[var(--text-primary)] mb-4">焙煎前の計画 (Plan)</legend>
+            <div class="space-y-4">
                 <div>
-                    <label for="beanIdSelect" class="block text-sm font-medium text-gray-700 mb-1">使用する豆 <span class="text-red-500">*</span></label>
-                    <select id="beanIdSelect" name="beanId" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"></select>
+                    <label for="beanIdSelect" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">使用する豆 <span class="text-red-500">*</span></label>
+                    <select id="beanIdSelect" name="beanId" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]"></select>
                 </div>
                 <div>
-                    <label for="roastDate" class="block text-sm font-medium text-gray-700 mb-1">焙煎日 <span class="text-red-500">*</span></label>
-                    <input type="date" id="roastDate" name="roastDate" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="roastDate" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">焙煎日 <span class="text-red-500">*</span></label>
+                    <input type="date" id="roastDate" name="roastDate" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="roastLevelSlider" class="block text-sm font-medium text-gray-700">目標の焙煎度</label>
-                    <input type="range" id="roastLevelSlider" name="roastLevelSlider" min="1" max="8" value="5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2">
-                    <div id="roastLevelLabel" class="text-center text-sm text-gray-800 font-semibold mt-1">シティロースト</div>
+                    <label for="roastLevelSlider" class="block text-sm font-medium text-[var(--text-secondary)]">目標の焙煎度</label>
+                    <input type="range" id="roastLevelSlider" name="roastLevelSlider" min="1" max="8" value="5" class="w-full h-2 bg-[var(--border-color)] rounded-lg appearance-none cursor-pointer mt-2">
+                    <div id="roastLevelLabel" class="text-center text-sm text-[var(--text-primary)] font-semibold mt-1">シティロースト</div>
                     <input type="hidden" id="roastLevel" name="roastLevel" value="シティロースト">
                 </div>
                 <div>
-                    <label for="greenBeanWeight" class="block text-sm font-medium text-gray-700 mb-1">生豆重量 (kg単位) <span class="text-red-500">*</span></label>
-                    <input type="number" id="greenBeanWeight" name="greenBeanWeight" step="0.001" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="例: 0.2 (200gの場合)">
+                    <label for="greenBeanWeight" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">生豆重量 (kg単位) <span class="text-red-500">*</span></label>
+                    <input type="number" id="greenBeanWeight" name="greenBeanWeight" step="0.001" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例: 0.2 (200gの場合)">
                 </div>
                 <div>
-                    <label for="targetFlavor" class="block text-sm font-medium text-gray-700">目標とする風味 (任意)</label>
-                    <input type="text" id="targetFlavor" name="targetFlavor" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="例: フルーティーな酸味を際立たせる">
+                    <label for="targetFlavor" class="block text-sm font-medium text-[var(--text-secondary)]">目標とする風味 (任意)</label>
+                    <input type="text" id="targetFlavor" name="targetFlavor" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例: フルーティーな酸味を際立たせる">
                 </div>
                 <div>
-                    <label for="roasterModel" class="block text-sm font-medium text-gray-700">使用する焙煎機 (任意)</label>
-                    <input type="text" id="roasterModel" name="roasterModel" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="例: Aillio Bullet R1 (半熱風式)">
+                    <label for="roasterModel" class="block text-sm font-medium text-[var(--text-secondary)]">使用する焙煎機 (任意)</label>
+                    <input type="text" id="roasterModel" name="roasterModel" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例: Aillio Bullet R1 (半熱風式)">
                 </div>
-                <div class="space-y-2 pt-4 border-t border-gray-200">
-                    <h3 class="text-md font-medium text-gray-900">焙煎時の気候 (任意)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                <div class="space-y-2 pt-4 border-t border-[var(--border-color)]">
+                    <h3 class="text-md font-medium text-[var(--text-primary)]">焙煎時の気候 (任意)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="roastWeatherTemp" class="block text-sm font-medium text-gray-700">気温 (°C)</label>
-                            <input type="text" id="roastWeatherTemp" name="roastWeatherTemp" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm" readonly placeholder="未取得">
+                            <label for="roastWeatherTemp" class="block text-sm font-medium text-[var(--text-secondary)]">気温 (°C)</label>
+                            <input type="text" id="roastWeatherTemp" name="roastWeatherTemp" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]" readonly placeholder="未取得">
                         </div>
                         <div>
-                            <label for="roastWeatherHumidity" class="block text-sm font-medium text-gray-700">湿度 (%)</label>
-                            <input type="text" id="roastWeatherHumidity" name="roastWeatherHumidity" class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm" readonly placeholder="未取得">
+                            <label for="roastWeatherHumidity" class="block text-sm font-medium text-[var(--text-secondary)]">湿度 (%)</label>
+                            <input type="text" id="roastWeatherHumidity" name="roastWeatherHumidity" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]" readonly placeholder="未取得">
                         </div>
                     </div>
                     <button type="button" id="fetchWeatherButton" class="mt-2 px-3 py-1.5 border border-blue-500 rounded-md shadow-sm text-sm font-medium text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">現在地の気候情報を取得</button>
                 </div>
-                <div class="space-y-4 pt-4 border-t border-gray-200">
-                    <h3 class="text-md font-medium text-gray-900">AI 連携</h3>
+                <div class="space-y-4 pt-4 border-t border-[var(--border-color)]">
+                    <h3 class="text-md font-medium text-[var(--text-primary)]">AI 連携</h3>
                     <div class="tooltip">
                         <button type="button" id="generateAiPromptButton" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
                             🤖 外部AIへの質問を作成 (コピー)
@@ -55,8 +55,8 @@
                         <span class="tooltiptext">現在のフォーム入力からAIへの質問プロンプトを生成し、クリップボードにコピーします。</span>
                     </div>
                     <div>
-                        <label for="aiProfileInput" class="block text-sm font-medium text-gray-700">AIからの提案をペースト</label>
-                        <textarea id="aiProfileInput" rows="5" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm" placeholder="例:\n1分: 150.0℃\n2分: 165.5℃\n..."></textarea>
+                        <label for="aiProfileInput" class="block text-sm font-medium text-[var(--text-secondary)]">AIからの提案をペースト</label>
+                        <textarea id="aiProfileInput" rows="5" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例:\n1分: 150.0℃\n2分: 165.5℃\n..."></textarea>
                     </div>
                     <div class="tooltip">
                         <button type="button" id="applyAiProfileButton" class="w-full px-4 py-2 bg-teal-600 text-white font-medium rounded-md hover:bg-teal-700">
@@ -68,60 +68,60 @@
             </div>
         </fieldset>
         
-        <fieldset class="border-t pt-4">
-            <legend class="text-lg font-medium text-gray-900 mb-4">焙煎中の記録 (Roast)</legend>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+        <fieldset class="border-t pt-4 border-[var(--border-color)]">
+            <legend class="text-lg font-medium text-[var(--text-primary)] mb-4">焙煎中の記録 (Roast)</legend>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="chargingTemperature" class="block text-sm font-medium text-gray-700">投入温度 (°C)</label>
-                    <input type="number" id="chargingTemperature" name="chargingTemperature" step="0.1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="chargingTemperature" class="block text-sm font-medium text-[var(--text-secondary)]">投入温度 (°C)</label>
+                    <input type="number" id="chargingTemperature" name="chargingTemperature" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="turningPointTime" class="block text-sm font-medium text-gray-700">TP時間 (分:秒)</label>
-                    <input type="text" id="turningPointTime" name="turningPointTime" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="turningPointTime" class="block text-sm font-medium text-[var(--text-secondary)]">TP時間 (分:秒)</label>
+                    <input type="text" id="turningPointTime" name="turningPointTime" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="turningPointTemp" class="block text-sm font-medium text-gray-700">TP温度 (°C)</label>
-                    <input type="number" id="turningPointTemp" name="turningPointTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="turningPointTemp" class="block text-sm font-medium text-[var(--text-secondary)]">TP温度 (°C)</label>
+                    <input type="number" id="turningPointTemp" name="turningPointTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="firstCrackTime" class="block text-sm font-medium text-gray-700">1ハゼ時間 (分:秒)</label>
-                    <input type="text" id="firstCrackTime" name="firstCrackTime" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="firstCrackTime" class="block text-sm font-medium text-[var(--text-secondary)]">1ハゼ時間 (分:秒)</label>
+                    <input type="text" id="firstCrackTime" name="firstCrackTime" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="secondCrackTime" class="block text-sm font-medium text-gray-700">2ハゼ時間 (分:秒)</label>
-                    <input type="text" id="secondCrackTime" name="secondCrackTime" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="secondCrackTime" class="block text-sm font-medium text-[var(--text-secondary)]">2ハゼ時間 (分:秒)</label>
+                    <input type="text" id="secondCrackTime" name="secondCrackTime" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                  <div>
-                    <label for="endOfRoastTemp" class="block text-sm font-medium text-gray-700">煎り止め温度 (°C)</label>
-                    <input type="number" id="endOfRoastTemp" name="endOfRoastTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                    <label for="endOfRoastTemp" class="block text-sm font-medium text-[var(--text-secondary)]">煎り止め温度 (°C)</label>
+                    <input type="number" id="endOfRoastTemp" name="endOfRoastTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
             </div>
         </fieldset>
 
-        <fieldset class="border-t pt-4">
-            <legend class="text-lg font-medium text-gray-900 mb-4">焙煎後の評価 (Review)</legend>
-            <div class="space-y-6">
+        <fieldset class="border-t pt-4 border-[var(--border-color)]">
+            <legend class="text-lg font-medium text-[var(--text-primary)] mb-4">焙煎後の評価 (Review)</legend>
+            <div class="space-y-4">
                 <!-- Time and Weight -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label for="totalRoastTime" class="block text-sm font-medium text-gray-700">総焙煎時間 (分:秒) <span class="text-red-500">*</span></label>
-                        <input type="text" id="totalRoastTime" name="totalRoastTime" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                        <label for="totalRoastTime" class="block text-sm font-medium text-[var(--text-secondary)]">総焙煎時間 (分:秒) <span class="text-red-500">*</span></label>
+                        <input type="text" id="totalRoastTime" name="totalRoastTime" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                     </div>
                     <div>
-                        <label for="roastedBeanWeight" class="block text-sm font-medium text-gray-700">焙煎豆重量 (kg)</label>
-                        <input type="number" id="roastedBeanWeight" name="roastedBeanWeight" step="0.001" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm">
+                        <label for="roastedBeanWeight" class="block text-sm font-medium text-[var(--text-secondary)]">焙煎豆重量 (kg)</label>
+                        <input type="number" id="roastedBeanWeight" name="roastedBeanWeight" step="0.001" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                     </div>
                 </div>
                 <div>
-                    <label for="weightLossDisplay" class="block text-sm font-medium text-gray-700">重量減少率</label>
-                    <div id="weightLossDisplay" class="mt-1 block w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm sm:text-sm">- %</div>
+                    <label for="weightLossDisplay" class="block text-sm font-medium text-[var(--text-secondary)]">重量減少率</label>
+                    <div id="weightLossDisplay" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]">- %</div>
                 </div>
 
-                <div class="pt-4 border-t border-gray-200">
-                    <h3 class="text-md font-medium text-gray-900">評価 (任意)</h3>
+                <div class="pt-4 border-t border-[var(--border-color)]">
+                    <h3 class="text-md font-medium text-[var(--text-primary)]">評価 (任意)</h3>
 
-                    <div class="mb-6 pb-4">
-                        <label class="block text-sm font-bold text-gray-700">総合評価 (主観)</label>
+                    <div class="mb-4 pb-4">
+                        <label class="block text-sm font-bold text-[var(--text-primary)]">総合評価 (主観)</label>
                         <div id="overallRatingStars" class="flex items-center mt-2"></div>
                         <input type="hidden" name="overallRating" id="overallRatingInput">
                     </div>
@@ -130,25 +130,25 @@
                         <summary class="cursor-pointer text-sm font-medium text-indigo-600 hover:text-indigo-800">
                             + 詳細なカッピングログを記録する
                         </summary>
-                        <div class="mt-4 border-t pt-4 space-y-6">
+                        <div class="mt-4 border-t pt-4 space-y-4 border-[var(--border-color)]">
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">フレーバープロファイル (複数選択可)</label>
+                                <label class="block text-sm font-bold text-[var(--text-primary)] mb-2">フレーバープロファイル (複数選択可)</label>
                                 <div id="flavorTagsContainer" class="flex flex-wrap gap-2">
                                     </div>
                                 <input type="hidden" id="flavorProfile" name="flavorProfile">
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-700">酸味 (Acidity)</label>
+                                <label class="block text-sm font-bold text-[var(--text-primary)]">酸味 (Acidity)</label>
                                 <div class="mt-2 space-y-2">
-                                    <label class="block text-xs font-medium text-gray-600">強さ:</label>
-                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                    <label class="block text-xs font-medium text-[var(--text-secondary)]">強さ:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-[var(--text-secondary)]">
                                         <span>弱い</span>
                                         <input type="range" id="acidityIntensity" name="acidityIntensity" min="1" max="5" value="3" class="w-full">
                                         <span>強い</span>
                                     </div>
-                                    <label class="block text-xs font-medium text-gray-600 mt-2">質:</label>
+                                    <label class="block text-xs font-medium text-[var(--text-secondary)] mt-2">質:</label>
                                     <div id="acidityQualityTags" class="flex flex-wrap gap-2">
                                          </div>
                                     <input type="hidden" id="acidityQuality" name="acidityQuality">
@@ -156,15 +156,15 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-700">ボディ (Body)</label>
+                                <label class="block text-sm font-bold text-[var(--text-primary)]">ボディ (Body)</label>
                                 <div class="mt-2 space-y-2">
-                                    <label class="block text-xs font-medium text-gray-600">重さ:</label>
-                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                    <label class="block text-xs font-medium text-[var(--text-secondary)]">重さ:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-[var(--text-secondary)]">
                                         <span>軽い</span>
                                         <input type="range" id="bodyWeight" name="bodyWeight" min="1" max="5" value="3" class="w-full">
                                         <span>重い</span>
                                     </div>
-                                    <label class="block text-xs font-medium text-gray-600 mt-2">質感:</label>
+                                    <label class="block text-xs font-medium text-[var(--text-secondary)] mt-2">質感:</label>
                                     <div id="bodyTextureTags" class="flex flex-wrap gap-2">
                                          </div>
                                     <input type="hidden" id="bodyTexture" name="bodyTexture">
@@ -172,16 +172,16 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-700">後味 (Aftertaste)</label>
+                                <label class="block text-sm font-bold text-[var(--text-primary)]">後味 (Aftertaste)</label>
                                 <div class="mt-2 space-y-2">
-                                    <label class="block text-xs font-medium text-gray-600">長さ:</label>
-                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                    <label class="block text-xs font-medium text-[var(--text-secondary)]">長さ:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-[var(--text-secondary)]">
                                         <span>短い</span>
                                         <input type="range" id="aftertasteLength" name="aftertasteLength" min="1" max="5" value="3" class="w-full">
                                         <span>長い</span>
                                     </div>
-                                    <label class="block text-xs font-medium text-gray-600 mt-2">質:</label>
-                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                    <label class="block text-xs font-medium text-[var(--text-secondary)] mt-2">質:</label>
+                                    <div class="flex items-center gap-x-2 text-xs text-[var(--text-secondary)]">
                                         <span>不快</span>
                                         <input type="range" id="aftertasteQuality" name="aftertasteQuality" min="1" max="5" value="3" class="w-full">
                                         <span>きれい</span>
@@ -190,9 +190,9 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-bold text-gray-700">バランス (Balance)</label>
+                                <label class="block text-sm font-bold text-[var(--text-primary)]">バランス (Balance)</label>
                                 <div class="mt-2 space-y-2">
-                                    <div class="flex items-center gap-x-2 text-xs text-gray-500">
+                                    <div class="flex items-center gap-x-2 text-xs text-[var(--text-secondary)]">
                                         <span>まとまりがない</span>
                                         <input type="range" id="balance" name="balance" min="1" max="5" value="3" class="w-full">
                                         <span>調和が取れている</span>
@@ -205,19 +205,19 @@
 
                 <!-- Notes -->
                 <div>
-                    <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">メモ (任意)</label>
-                    <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm"></textarea>
+                    <label for="notes" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">メモ (任意)</label>
+                    <textarea id="notes" name="notes" rows="3" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]"></textarea>
                 </div>
                 <div>
-                    <label for="aiNotes" class="block text-sm font-medium text-gray-700 mb-1">AIによる評価 (任意)</label>
-                    <textarea id="aiNotes" name="aiNotes" rows="4" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm"></textarea>
+                    <label for="aiNotes" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">AIによる評価 (任意)</label>
+                    <textarea id="aiNotes" name="aiNotes" rows="4" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]"></textarea>
                 </div>
             </div>
         </fieldset>
         
-        <div class="flex justify-end space-x-3 pt-6 border-t">
-            <button type="button" id="cancelEditButton" class="px-4 py-2 border rounded-md">キャンセル</button>
-            <button type="submit" id="saveRecordButton" class="inline-flex items-center gap-x-2 px-6 py-2 bg-amber-600 text-white rounded-md">
+        <div class="flex justify-end space-x-4 pt-6 border-t border-[var(--border-color)]">
+            <button type="button" id="cancelEditButton" class="px-4 py-2 border border-[var(--border-color)] text-[var(--text-primary)] rounded-md hover:bg-[var(--bg-secondary)]">キャンセル</button>
+            <button type="submit" id="saveRecordButton" class="btn-primary inline-flex items-center gap-x-2 px-6 py-2 text-white rounded-md">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V8z" clip-rule="evenodd" /></svg>
                 記録を保存
             </button>

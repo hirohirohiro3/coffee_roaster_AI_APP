@@ -7,11 +7,11 @@ let formElement, formTitleElement, beanIdInputElement, saveBeanButtonElement, de
 let purchaseAmountInputElement, priceInputElement, unitPriceDisplayElement;
 
 function showBeanStockModal() {
-    if (modalElement) modalElement.style.display = 'block';
+    if (modalElement) modalElement.classList.add('is-visible');
 }
 
 function hideBeanStockModal() {
-    if (modalElement) modalElement.style.display = 'none';
+    if (modalElement) modalElement.classList.remove('is-visible');
 }
 
 function renderBeanList({ beans, editHandler }) {

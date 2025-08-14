@@ -1,11 +1,11 @@
-<section class="p-4 bg-white rounded-lg shadow-md mb-6">
+<section class="p-4 bg-[var(--bg-primary)] rounded-lg shadow-md mb-8">
     <div class="flex flex-col md:flex-row md:items-end md:space-x-4 space-y-4 md:space-y-0">
         
         <div class="flex-grow">
-            <label for="searchInput" class="block text-sm font-medium text-gray-700">豆の名前で検索</label>
+            <label for="searchInput" class="block text-sm font-medium text-[var(--text-secondary)]">豆の名前で検索</label>
             <div class="mt-1 flex rounded-md shadow-sm">
-                <input type="text" id="searchInput" class="block w-full px-3 py-2 border border-gray-300 rounded-l-md focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="エチオピア、など">
-                <button id="searchButton" type="button" class="inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 bg-gray-50 text-gray-700 rounded-r-md hover:bg-gray-100 font-medium">
+                <input type="text" id="searchInput" class="block w-full px-3 py-2 border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-l-md focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="エチオピア、など">
+                <button id="searchButton" type="button" class="inline-flex items-center px-4 py-2 border border-l-0 border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-r-md hover:bg-opacity-80 font-medium">
                     検索
                 </button>
             </div>
@@ -13,8 +13,8 @@
 
         <div class="flex items-end space-x-4 flex-shrink-0">
             <div>
-                <label for="sort-select" class="block text-sm font-medium text-gray-700">並び替え</label>
-                <select id="sort-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
+                <label for="sort-select" class="block text-sm font-medium text-[var(--text-secondary)]">並び替え</label>
+                <select id="sort-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
                     <option value="date-desc">焙煎日が新しい順</option>
                     <option value="date-asc">焙煎日が古い順</option>
                     <option value="name-asc">豆の名前順</option>
@@ -23,12 +23,12 @@
                 </select>
             </div>
             <div class="flex items-center pb-1">
-                <input id="filter-favorites" type="checkbox" class="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
-                <label for="filter-favorites" class="ml-2 block text-sm text-gray-900 whitespace-nowrap">お気に入りのみ表示</label>
+                <input id="filter-favorites" type="checkbox" class="h-4 w-4 text-[var(--accent-color)] border-[var(--border-color)] rounded focus:ring-amber-500">
+                <label for="filter-favorites" class="ml-2 block text-sm text-[var(--text-primary)] whitespace-nowrap">お気に入りのみ表示</label>
             </div>
         </div>
 
-        <div class="border-t md:border-t-0 md:border-l border-gray-200 mt-4 md:mt-0 pt-4 md:pt-0 md:pl-4 flex items-center">
+        <div class="border-t md:border-t-0 md:border-l border-[var(--border-color)] mt-4 md:mt-0 pt-4 md:pt-0 md:pl-4 flex items-center">
             <button id="compareRoastsButton" class="w-full md:w-auto px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:bg-gray-400 text-sm font-medium" disabled>
                 選択した焙煎を比較
             </button>

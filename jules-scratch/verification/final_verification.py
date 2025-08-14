@@ -1,6 +1,5 @@
 import asyncio
 import subprocess
-import time
 from playwright.async_api import async_playwright, expect
 
 async def main():
@@ -14,7 +13,6 @@ async def main():
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        # Give the server a moment to start
         await asyncio.sleep(2)
         print("Server started.")
 
@@ -32,37 +30,41 @@ async def main():
             await expect(page.locator('#main-content')).toBeVisible({ 'timeout': 10000 })
             print("Login successful.")
 
-            # --- Take Screenshots ---
+            # --- Take Screenshots of Key Changes ---
 
-            # Screenshot 1: Empty state
-            # The app starts in the empty state after login
-            empty_state_locator = page.locator('div.text-center.py-12')
-            await expect(empty_state_locator).toBeVisible()
-            body_font = await page.evaluate("window.getComputedStyle(document.body).fontFamily")
-            if 'Noto Sans JP' not in body_font:
-                raise Exception(f"Incorrect font detected: {body_font}")
-            await page.screenshot(path="jules-scratch/verification/01_empty_state.png")
-            print("Screenshot 1: Empty state captured.")
+            # Screenshot 1: Light Mode & New Button Style
+            await page.locator('#addNewRoastButton').scroll_into_view_if_needed()
+            await page.screenshot(path="jules-scratch/verification/01_light_mode.png")
+            print("Screenshot 1: Light mode captured.")
 
-            # Screenshot 2: Roast card with icons
+            # Screenshot 2: Dark Mode
+            await page.locator('#theme-toggle').click()
+            await asyncio.sleep(0.5) # Wait for animation
+            await page.screenshot(path="jules-scratch/verification/02_dark_mode.png")
+            print("Screenshot 2: Dark mode captured.")
+
+            # Screenshot 3: Open modal to check animation and styling
+            await page.locator('#openBeanStockModalButton').click()
+            await asyncio.sleep(0.5) # Wait for animation
+            await page.screenshot(path="jules-scratch/verification/03_modal_animation.png")
+            print("Screenshot 3: Modal animation captured.")
+            await page.locator('#closeBeanStockModalButton').click()
+            await asyncio.sleep(0.5)
+
+            # Screenshot 4: Graph Fill
+            # Need to render a profile to see a graph
             await page.evaluate("""
-                const sampleRoast = { id: 'sample-1', roastDate: '2024-01-15', beanName: 'エチオピア イルガチェフェ G1', roastLevel: 'シティロースト', totalRoastTime: '10:30', overallRating: 4.5, isFavorite: true, ratings: { flavor: 4, bitterness: 3, acidity: 5, sweetness: 4, body: 3 } };
-                window.eventBus.emit('roasts:render-list', { roasts: [sampleRoast] });
+                const sampleRoast = {
+                    id: 'sample-1', roastDate: '2024-01-15', beanName: 'エチオピア イルガチェフェ G1',
+                    roastLevel: 'シティロースト', totalRoastTime: '10:30', overallRating: 4.5, isFavorite: true,
+                    beanTempLog: '100,120,140,160,180,200,210,215,220,225',
+                    firstCrackTime: '08:30'
+                };
+                window.eventBus.emit('ui:show-profile-modal', sampleRoast);
             """)
-            card_locator = page.locator('div.roast-card')
-            await expect(card_locator).toBeVisible()
-            await page.screenshot(path="jules-scratch/verification/02_roast_card.png")
-            print("Screenshot 2: Roast card captured.")
-
-            # Screenshot 3: Form input focus
-            await page.locator('#addNewRoastButton').click()
-            form_locator = page.locator('#roastFormSection')
-            await expect(form_locator).toBeVisible()
-            weight_input = page.locator('#greenBeanWeight')
-            await weight_input.focus()
-            await asyncio.sleep(0.3) # Wait for focus style
-            await page.screenshot(path="jules-scratch/verification/03_form_focus.png")
-            print("Screenshot 3: Form input focus captured.")
+            await asyncio.sleep(0.5) # Wait for modal and chart
+            await page.screenshot(path="jules-scratch/verification/04_graph_fill.png")
+            print("Screenshot 4: Graph fill captured.")
 
             await browser.close()
             print("Playwright sequence complete.")

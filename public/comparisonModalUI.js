@@ -82,11 +82,11 @@ function showComparisonModal(roastIds) {
     renderComparisonChart(roastsToCompare);
     renderComparisonStats(roastsToCompare);
 
-    if (modal) modal.classList.remove('hidden');
+    if (modal) modal.classList.add('is-visible');
 }
 
 function hideComparisonModal() {
-    if (modal) modal.classList.add('hidden');
+    if (modal) modal.classList.remove('is-visible');
     if (comparisonChartInstance) {
         comparisonChartInstance.destroy();
         comparisonChartInstance = null;

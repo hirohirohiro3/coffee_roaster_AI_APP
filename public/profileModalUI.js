@@ -169,19 +169,29 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
         { time: convertTimeStringToMinutes(roastData.totalRoastTime), temp: roastData.endOfRoastTemp, event: 'Drop' }
     ].filter(p => p.time !== null);
 
+    const style = getComputedStyle(document.body);
+    const accentR = style.getPropertyValue('--accent-r').trim();
+    const accentG = style.getPropertyValue('--accent-g').trim();
+    const accentB = style.getPropertyValue('--accent-b').trim();
+    const beanTempFillColor = `rgba(${accentR}, ${accentG}, ${accentB}, 0.1)`;
+    const beanTempBorderColor = `rgb(${accentR}, ${accentG}, ${accentB})`;
+
     const finalChartData = {
         datasets: [
             {
                 label: '豆温度 (°C)',
                 data: sortedTimeEntries.map(p => ({x:p.time, y:p.bean})),
-                borderColor: '#c2410c',
+                borderColor: beanTempBorderColor,
                 yAxisID: 'yTemp',
                 spanGaps: true,
-                tension: 0.4,
-                fill: true,
-                backgroundColor: 'rgba(234, 88, 12, 0.1)',
+                tension: 0.3,
+                fill: {
+                    target: 'origin',
+                    above: beanTempFillColor,
+                },
+                backgroundColor: beanTempFillColor,
                 pointRadius: 4,
-                pointBackgroundColor: '#c2410c',
+                pointBackgroundColor: beanTempBorderColor,
             },
             {
                 label: '庫内温度 (°C)',
@@ -189,7 +199,7 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
                 borderColor: '#3b82f6',
                 yAxisID: 'yTemp',
                 spanGaps: true,
-                tension: 0.4,
+                tension: 0.3,
                 fill: false,
                 pointRadius: 3,
                 pointStyle: 'rect',
@@ -199,7 +209,7 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
                 data: sortedTimeEntries.map(p => ({x:p.time, y:p.ror})),
                 borderColor: '#16a34a',
                 yAxisID: 'yROR',
-                tension: 0.4,
+                tension: 0.3,
                 borderDash: [5, 5],
                 fill: false,
                 pointRadius: 2,
@@ -381,11 +391,11 @@ export function showProfileModal(roastData) {
     _renderRadarChart(roastData.ratings);
 
     _exitLogEditMode(false);
-    modalElement.style.display = 'block';
+    modalElement.classList.add('is-visible');
 }
 
 export function hideProfileModal() {
-    if (modalElement) modalElement.style.display = 'none';
+    if (modalElement) modalElement.classList.remove('is-visible');
     if (detailedChartInstance) { detailedChartInstance.destroy(); detailedChartInstance = null; }
     if (radarChartInstance) { radarChartInstance.destroy(); radarChartInstance = null; }
     currentRoastDataForCopy = null;
