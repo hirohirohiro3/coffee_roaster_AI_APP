@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ユーザーは自身のユーザー情報ドキュメントを読み取ることができる
+    match /users/{userId} {
+      allow get: if request.auth != null && request.auth.uid == userId;
+
+      // ユーザーは自身の焙煎記録(roasts)を読み書きできる
+      match /roasts/{roastId} {
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // ユーザーは自身の生豆在庫(beans)を読み書きできる
+      match /beans/{beanId} {
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+  }
+}
