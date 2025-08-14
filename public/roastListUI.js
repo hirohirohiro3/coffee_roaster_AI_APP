@@ -4,6 +4,58 @@ import { eventBus } from './EventBus.js';
 let roastLogDiv, searchInput, searchButton, exportCsvButton, sortSelect, filterFavoritesCheckbox;
 
 /**
+ * 総合評価に基づいて星のSVGアイコンを生成する。
+ * @param {number | string} rating - 評価点 (0-5)。
+ * @returns {string} - 星のHTML文字列。
+ */
+function createStarRatingDisplay(rating) {
+    const numRating = typeof rating === 'string' ? parseFloat(rating) : rating;
+    if (isNaN(numRating) || numRating <= 0) {
+        return '<div class="flex items-center" title="未評価"></div>';
+    }
+
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        // 塗りつぶされた星
+        const fullStar = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
+        // 空の星
+        const emptyStar = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-300" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>';
+
+        if (i <= numRating) {
+            stars += fullStar;
+        } else {
+            stars += emptyStar;
+        }
+    }
+    return `<div class="flex items-center" title="評価: ${numRating.toFixed(1)} / 5.0">${stars}</div>`;
+}
+
+
+/**
+ * フレーバープロファイルに基づいてタグのHTMLを生成する。
+ * @param {string | null | undefined} flavorProfile - "ベリー,チョコレート" のようなカンマ区切りの文字列。
+ * @returns {string} - タグのHTML文字列。
+ */
+function createFlavorTagsDisplay(flavorProfile) {
+    if (!flavorProfile || typeof flavorProfile !== 'string' || flavorProfile.trim() === '') {
+        return '';
+    }
+    const tags = flavorProfile.split(',').map(tag => tag.trim()).filter(tag => tag);
+    if (tags.length === 0) {
+        return '';
+    }
+
+    const tagsHtml = tags.map(tag => `
+        <span class="inline-block bg-gray-200 rounded-full px-2 py-0.5 text-xs font-semibold text-gray-700">
+            ${tag}
+        </span>
+    `).join('');
+
+    return `<div class="mt-2 flex flex-wrap gap-1">${tagsHtml}</div>`;
+}
+
+
+/**
  * 焙煎記録のリストを描画する。
  */
 function renderRoastList({ roasts, keyword }) {
@@ -54,31 +106,6 @@ function renderRoastList({ roasts, keyword }) {
             }
         }
         
-        // 2. 詳細評価のミニグラフを生成 (復活)
-        let detailRatingsHtml = '';
-        if (roast.ratings && typeof roast.ratings === 'object') {
-            const categories = { 
-                flavor: 'フレーバー', 
-                bitterness: '苦味', 
-                acidity: '酸味', 
-                sweetness: '甘味', 
-                body: 'ボディ' 
-            };
-            detailRatingsHtml += '<div class="text-xs text-gray-500 font-mono mt-2 space-y-1 w-32">';
-            for (const [key, fullName] of Object.entries(categories)) {
-                const value = roast.ratings[key] || 0;
-                const filled = '■'.repeat(value);
-                const empty = '□'.repeat(5 - value);
-                detailRatingsHtml += `
-                    <div class="flex items-center justify-between">
-                        <span class="text-left">${fullName}</span>
-                        <span class="text-left">${filled}${empty}</span>
-                    </div>
-                `;
-            }
-            detailRatingsHtml += '</div>';
-        }
-        
         const starIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ${roast.isFavorite ? 'text-yellow-400' : 'text-gray-300'}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>`;
         const beanNameToDisplay = roast.beanName || '豆の名前がありません';
 
@@ -92,13 +119,17 @@ function renderRoastList({ roasts, keyword }) {
                 <p class="text-sm text-gray-500">${roast.roastDate || '日付不明'}</p>
                 <h3 class="text-xl font-bold text-gray-800 truncate">${beanNameToDisplay}</h3>
                 <p class="text-sm text-gray-600">${roast.roastLevel || '焙煎度未設定'} | 総時間: ${roast.totalRoastTime || '--:--'}</p>
-                <p class="text-xs text-gray-400 mt-1 truncate">記録ID: ${roast.id || 'N/A'}</p>
+                <!-- フレーバータグ表示エリア -->
+                ${createFlavorTagsDisplay(roast.flavorProfile)}
+                <p class="text-xs text-gray-400 mt-2 truncate">記録ID: ${roast.id || 'N/A'}</p>
             </div>
             <div class="flex-shrink-0 flex flex-col items-end justify-between">
                 <div class="flex items-start space-x-2">
                      <div class="text-right">
-                        <span class="text-2xl font-bold">${overallRatingDisplay}</span>
-                        ${detailRatingsHtml}
+                        <div class="flex items-center justify-end gap-2">
+                            <span class="text-2xl font-bold">${overallRatingDisplay}</span>
+                            ${createStarRatingDisplay(overallRatingDisplay)}
+                        </div>
                     </div>
                     <button class="favorite-btn p-1" data-id="${roast.id}">${starIcon}</button>
                 </div>
