@@ -22,27 +22,33 @@ export const getRoastAnalysis = onCall({
   const roastPlan = request.data;
   const modelName = "gemini-1.5-pro";
 
-  const prompt = `あなたは世界クラスの焙煎士です。
-以下の条件に基づいて、コーヒー焙煎における理想的な投入温度と、その後の1分ごとの豆温度の推移をリストアップしてください。
+  // ▼▼▼ プロンプトインジェクション対策 ▼▼▼
+  // 指示とユーザー提供データを明確に分離する
+  const prompt = `
+# instruction
+あなたは世界クラスの焙煎士です。
+ユーザーから提供された以下の「焙煎データ」を分析し、コーヒー焙煎における理想的な投入温度と、その後の1分ごとの豆温度の推移を予測してください。
 
-# 焙煎の全体設計
-- 使用する豆: ${roastPlan.beanName || "不明"}
-- 目標の焙煎度: ${roastPlan.roastLevel || "不明"}
-- 目標とする風味: ${roastPlan.targetFlavor || "指定なし"}
-- 使用する焙煎機: ${roastPlan.roasterModel || "指定なし"}
-
-# 焙煎当日の環境
-- 投入する生豆重量: ${roastPlan.greenWeight ? roastPlan.greenWeight * 1000 + "g" : "不明"}
-- 気温: ${roastPlan.temp ? roastPlan.temp + "℃" : "不明"}
-- 湿度: ${roastPlan.humidity ? roastPlan.humidity + "%" : "不明"}
-
-# 出力フォーマットの厳守事項
-必ず以下のフォーマットを一行ずつ、厳密に守って出力してください。他の説明文や前置きは一切不要です。
+# output_format
+- 必ず以下のフォーマットを一行ずつ、厳密に守って出力してください。
+- 他の説明文、前置き、言い訳は一切含めないでください。
+- 指定されたフォーマット以外の情報は絶対に出力しないでください。
 
 投入温度: XXX.X℃
 1分: YYY.Y℃
 2分: ZZZ.Z℃
-(以下、焙煎終了まで続く)`;
+...
+
+# user_data
+- 使用する豆: ${roastPlan.beanName || "不明"}
+- 目標の焙煎度: ${roastPlan.roastLevel || "不明"}
+- 目標とする風味: ${roastPlan.targetFlavor || "指定なし"}
+- 使用する焙煎機: ${roastPlan.roasterModel || "指定なし"}
+- 投入する生豆重量: ${roastPlan.greenWeight ? roastPlan.greenWeight * 1000 + "g" : "不明"}
+- 気温: ${roastPlan.temp ? roastPlan.temp + "℃" : "不明"}
+- 湿度: ${roastPlan.humidity ? roastPlan.humidity + "%" : "不明"}
+`;
+  // ▲▲▲ プロンプトインジェクション対策完了 ▲▲▲
 
   try {
     const model = genAI.getGenerativeModel({ model: modelName });
