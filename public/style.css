@@ -1,6 +1,6 @@
 /* style.css */
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
     background-color: #f9fafb;
 }
 
@@ -209,4 +209,30 @@ input[type=range].roast-level-8::-moz-range-thumb { background: #78350f; border:
     background-color: #3b82f6; /* blue-500 */
     color: #ffffff;
     border-color: #3b82f6; /* blue-500 */
+}
+
+/* 以下のルールをファイル末尾に追加 */
+.font-mono {
+    font-family: 'Roboto Mono', monospace;
+}
+
+/* style.css の末尾に追加 */
+.roast-card {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+}
+.roast-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* style.css の末尾に追加 */
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus {
+    border-color: #f59e0b; /* amber-500 */
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
 }
