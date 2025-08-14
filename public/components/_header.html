@@ -1,23 +1,29 @@
 <!-- public/components/_header.html -->
-<header class="bg-white shadow-md rounded-lg p-6 mb-8">
+<header class="bg-[var(--bg-primary)] shadow-md rounded-lg p-6 mb-8">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">コーヒー焙煎記録</h1>
-            <p class="text-gray-500">あなたの焙煎を記録し、分析しよう</p>
+            <h1 class="text-3xl font-bold text-[var(--text-primary)]">コーヒー焙煎記録</h1>
+            <p class="text-[var(--text-secondary)]">あなたの焙煎を記録し、分析しよう</p>
         </div>
-        <div id="userInfo" class="hidden text-right">
-            <!-- ユーザー情報が表示される場所 -->
+        <div class="flex items-center space-x-4">
+            <div id="userInfo" class="hidden text-right">
+                <!-- ユーザー情報が表示される場所 -->
+            </div>
+            <button id="theme-toggle" type="button" class="p-2 rounded-full text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--accent-color)]">
+                <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+            </button>
         </div>
     </div>
     <!-- ▼▼▼ ナビゲーションを修正 ▼▼▼ -->
-    <nav class="mt-4 border-b border-gray-200">
+    <nav class="mt-4 border-b border-[var(--border-color)]">
         <ul class="flex -mb-px">
             <li class="mr-1">
                 <!-- href属性でハッシュを指定 -->
-                <a href="#/list" id="nav-list" class="nav-link inline-block py-2 px-4 text-gray-500 hover:text-gray-800 font-semibold">記録一覧</a>
+                <a href="#/list" id="nav-list" class="nav-link inline-block py-2 px-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold">記録一覧</a>
             </li>
             <li class="mr-1">
-                <a href="#/stats" id="nav-stats" class="nav-link inline-block py-2 px-4 text-gray-500 hover:text-gray-800 font-semibold">統計・分析</a>
+                <a href="#/stats" id="nav-stats" class="nav-link inline-block py-2 px-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold">統計・分析</a>
             </li>
         </ul>
     </nav>

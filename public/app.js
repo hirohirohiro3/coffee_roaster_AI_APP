@@ -82,6 +82,8 @@ export default class App {
     }
     
     _initializeAllModules() {
+        this._initializeThemeManager();
+
         // Core Services
         initializeFirebase();
         initializeDataService();
@@ -220,5 +222,40 @@ export default class App {
                 }, 100);
             }
         }
+    }
+
+    _initializeThemeManager() {
+        const themeToggle = document.getElementById('theme-toggle');
+        const moonIcon = document.getElementById('moon-icon');
+        const sunIcon = document.getElementById('sun-icon');
+
+        if (!themeToggle || !moonIcon || !sunIcon) {
+            console.warn("Theme toggle elements not found, skipping theme manager initialization.");
+            return;
+        }
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.body.classList.add('dark');
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden');
+            } else {
+                document.body.classList.remove('dark');
+                moonIcon.classList.remove('hidden');
+                sunIcon.classList.add('hidden');
+            }
+        };
+
+        // Apply theme on initial load
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        applyTheme(savedTheme);
+
+        // Add event listener
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.body.classList.contains('dark');
+            const newTheme = isDark ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
     }
 }

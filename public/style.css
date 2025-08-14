@@ -1,92 +1,167 @@
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f9fafb;
+  --text-primary: #1f2937;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --accent-color: #d97706; /* amber-600 */
+  --accent-color-dark: #b45309; /* amber-700 */
+  --accent-r: 217;
+  --accent-g: 119;
+  --accent-b: 6;
+}
+
+body.dark {
+  --bg-primary: #1f2937; /* gray-800 */
+  --bg-secondary: #111827; /* gray-900 */
+  --text-primary: #f9fafb; /* gray-100 */
+  --text-secondary: #9ca3af; /* gray-400 */
+  --border-color: #374151; /* gray-700 */
+  --accent-color: #fbbf24; /* amber-400 */
+  --accent-color-dark: #d97706; /* amber-600 */
+  --accent-r: 251;
+  --accent-g: 191;
+  --accent-b: 36;
+}
+
 /* style.css */
 body {
     font-family: 'Noto Sans JP', sans-serif;
-    background-color: #f9fafb;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* ▼▼▼ このブロックを修正 ▼▼▼ */
 .modal {
-    /* display: none; を削除しました */
-    position: fixed; 
+    position: fixed;
     z-index: 1000;
-    left: 0; 
-    top: 0; 
-    width: 100%; 
+    left: 0;
+    top: 0;
+    width: 100%;
     height: 100%;
-    overflow: auto; 
+    overflow: auto;
     background-color: rgba(0,0,0,0.5);
+    transition: opacity 0.2s ease-in-out;
+    opacity: 0;
+    pointer-events: none;
 }
-/* ▲▲▲ ここまで修正 ▲▲▲ */
 
 .modal-content {
-    background-color: #fefefe; margin: 5% auto; padding: 20px;
-    border: 1px solid #d1d5db; width: 90%;
-    border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    background-color: var(--bg-primary);
+    margin: 5% auto;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    width: 90%;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 .modal-content-profile { max-width: 950px; }
 .modal-content-small { max-width: 500px; }
 
 .close-button {
-    color: #9ca3af; float: right; font-size: 28px; font-weight: bold;
+    color: var(--text-secondary);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
 .close-button:hover, .close-button:focus {
-    color: #1f2937; text-decoration: none; cursor: pointer;
+    color: var(--text-primary);
+    text-decoration: none;
+    cursor: pointer;
 }
+
 ::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #718096; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: var(--text-secondary); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-primary); }
 
 .temperature-log-area {
-    font-family: monospace; font-size: 0.875rem; line-height: 1.25rem;
-    border: 1px solid #d1d5db; border-radius: 0.375rem;
-    padding: 0.5rem 0.75rem; min-height: 60px;
+    font-family: monospace;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    min-height: 60px;
+    background-color: var(--bg-secondary);
 }
+
 .profile-data-table {
-    width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.875rem;
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    font-size: 0.875rem;
 }
 .profile-data-table th, .profile-data-table td {
-    border: 1px solid #e5e7eb; padding: 8px 10px; text-align: right;
+    border: 1px solid var(--border-color);
+    padding: 8px 10px;
+    text-align: right;
 }
 .profile-data-table th {
-    background-color: #f9fafb; font-weight: 600; color: #374151;
+    background-color: var(--bg-secondary);
+    font-weight: 600;
+    color: var(--text-primary);
 }
-.profile-data-table td { color: #4b5563; }
-.profile-data-table tr:nth-child(even) td { background-color: #f9fafb; }
+.profile-data-table td { color: var(--text-secondary); }
+.profile-data-table tr:nth-child(even) td { background-color: var(--bg-secondary); }
 .profile-data-table .time-col { text-align: center; }
+
 .editing-indicator {
-    border-left: 4px solid #fbbf24; /* amber-400 */
+    border-left: 4px solid var(--accent-color);
     padding-left: 1rem;
 }
+
 .toggle-switch {
-    position: relative; display: inline-block; width: 50px; height: 28px;
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
 }
 .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
 .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: #ccc; transition: .4s; border-radius: 28px;
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--border-color);
+    transition: .4s;
+    border-radius: 28px;
 }
 .slider:before {
-    position: absolute; content: ""; height: 20px; width: 20px;
-    left: 4px; bottom: 4px; background-color: white;
-    transition: .4s; border-radius: 50%;
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: var(--bg-primary);
+    transition: .4s;
+    border-radius: 50%;
 }
 input:checked + .slider { background-color: #22c55e; }
 input:checked + .slider:before { transform: translateX(22px); }
 
 #inlineRealtimeGraphContainer {
-    background-color: #fff;
+    background-color: var(--bg-primary);
     padding: 1rem;
     border-radius: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     margin-top: 1.5rem;
 }
 #liveEventLoggingSection fieldset {
-    border: none; padding: 0; margin:0;
+    border: none;
+    padding: 0;
+    margin:0;
 }
 #liveEventLoggingSection legend {
-    font-size: 1.125rem; font-weight: 500; color: #4b5563;
-    margin-bottom: 0.75rem; text-align: center;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    text-align: center;
 }
 .tooltip {
     position: relative;
@@ -95,13 +170,13 @@ input:checked + .slider:before { transform: translateX(22px); }
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 220px;
-    background-color: #555;
+    background-color: #333;
     color: #fff;
     text-align: center;
     border-radius: 6px;
     padding: 5px 8px;
     position: absolute;
-    z-index: 1001; /* Ensure tooltip is above other elements */
+    z-index: 1001;
     bottom: 125%;
     left: 50%;
     margin-left: -110px;
@@ -114,41 +189,36 @@ input:checked + .slider:before { transform: translateX(22px); }
     visibility: visible;
     opacity: 1;
 }
-/* Toast container and message styling */
+
 #toast-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    z-index: 2001; /* Ensure toasts are on top */
+    z-index: 2001;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 0.5rem; /* space-y-2 */
+    gap: 0.5rem;
 }
 .toast-message {
-    padding: 0.75rem 1rem; /* p-3 */
-    border-radius: 0.375rem; /* rounded-md */
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-lg */
-    font-size: 0.875rem; /* text-sm */
-    font-weight: 500; /* font-medium */
-    max-width: 20rem; /* max-w-xs */
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    font-size: 0.875rem;
+    font-weight: 500;
+    max-width: 20rem;
     word-break: break-word;
     opacity: 0;
     transition: opacity 0.5s ease-in-out;
+    background-color: #333;
+    color: #fff;
 }
-.toast-message.show {
-    opacity: 1;
-}
-/* 記録済みイベントボタンのスタイル */
-.log-event-btn.activated {
-    background-color: #16a34a; /* Tailwindの bg-green-600 の色 */
-}
+.toast-message.show { opacity: 1; }
 
-.log-event-btn.activated:hover {
-    background-color: #15803d; /* Tailwindの hover:bg-green-700 の色 */
-}
+.log-event-btn.activated { background-color: #16a34a; }
+.log-event-btn.activated:hover { background-color: #15803d; }
 
-/* Roast Level Slider Color Feedback */
+/* Roast Level Slider remains the same as it uses specific color feedback */
 input[type=range].roast-level-1::-webkit-slider-runnable-track { background: #fef3c7; }
 input[type=range].roast-level-1::-moz-range-track { background: #fef3c7; }
 input[type=range].roast-level-1::-webkit-slider-thumb { background: #fde68a; border: 1px solid #fcd34d; }
@@ -193,22 +263,22 @@ input[type=range].roast-level-8::-moz-range-thumb { background: #78350f; border:
 .tag-button {
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    border: 1px solid #d1d5db; /* gray-300 */
-    background-color: #ffffff;
-    color: #374151; /* gray-700 */
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
     font-size: 0.875rem;
     cursor: pointer;
-    transition: background-color 0.2s, color 0.2s;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
 }
 
 .tag-button:hover {
-    background-color: #f3f4f6; /* gray-100 */
+    background-color: var(--bg-secondary);
 }
 
 .tag-button.selected {
-    background-color: #3b82f6; /* blue-500 */
+    background-color: #3b82f6;
     color: #ffffff;
-    border-color: #3b82f6; /* blue-500 */
+    border-color: #3b82f6;
 }
 
 /* 以下のルールをファイル末尾に追加 */
@@ -233,6 +303,40 @@ input[type="email"]:focus,
 input[type="password"]:focus,
 textarea:focus,
 select:focus {
-    border-color: #f59e0b; /* amber-500 */
-    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(var(--accent-r), var(--accent-g), var(--accent-b), 0.3);
+}
+
+.btn-primary {
+    background-image: linear-gradient(to bottom, var(--accent-color), var(--accent-color-dark));
+    transition: all 0.2s ease-in-out;
+    border: 1px solid var(--accent-color-dark);
+}
+.btn-primary:hover {
+    filter: brightness(1.1);
+}
+.btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+    filter: brightness(0.9);
+}
+
+.modal.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal.is-visible .modal-content {
+    animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
 }

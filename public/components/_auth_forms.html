@@ -1,48 +1,48 @@
 <div id="userInfo" class="hidden items-center space-x-2">
     <img id="userPhoto" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="User Photo" class="w-8 h-8 rounded-full">
     <div>
-        <p id="userName" class="font-medium text-gray-700"></p>
-        <p id="userEmail" class="text-xs text-gray-500"></p>
+        <p id="userName" class="font-medium text-[var(--text-primary)]"></p>
+        <p id="userEmail" class="text-xs text-[var(--text-secondary)]"></p>
     </div>
     <button id="logoutButton" class="ml-2 px-3 py-1.5 text-xs border border-red-400 text-red-500 rounded hover:bg-red-50 transition-colors hidden">ログアウト</button>
 </div>
 
 <div id="emailAuthFormsContainer">
     <div id="loginFormContainer">
-        <h3 class="text-lg font-semibold mb-3 text-center text-amber-700">ログイン</h3>
+        <h3 class="text-lg font-semibold mb-3 text-center text-[var(--accent-color)]">ログイン</h3>
         <form id="loginForm" class="space-y-3">
             <div>
-                <label for="loginEmail" class="block text-xs font-medium text-gray-600">メールアドレス</label>
-                <input type="email" id="loginEmail" name="loginEmail" required autocomplete="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+                <label for="loginEmail" class="block text-xs font-medium text-[var(--text-secondary)]">メールアドレス</label>
+                <input type="email" id="loginEmail" name="loginEmail" required autocomplete="email" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
             </div>
             <div>
-                <label for="loginPassword" class="block text-xs font-medium text-gray-600">パスワード</label>
-                <input type="password" id="loginPassword" name="loginPassword" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+                <label for="loginPassword" class="block text-xs font-medium text-[var(--text-secondary)]">パスワード</label>
+                <input type="password" id="loginPassword" name="loginPassword" required autocomplete="current-password" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
             </div>
             <button type="submit" id="loginButton" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">ログイン</button>
         </form>
-        <p class="mt-3 text-xs text-center text-gray-600">
+        <p class="mt-3 text-xs text-center text-[var(--text-secondary)]">
             アカウントをお持ちでないですか？
-            <button id="showSignUpFormButton" type="button" class="font-medium text-amber-600 hover:text-amber-500 hover:underline">新規登録へ</button>
+            <button id="showSignUpFormButton" type="button" class="font-medium text-[var(--accent-color)] hover:brightness-110 hover:underline">新規登録へ</button>
         </p>
     </div>
 
     <div id="signUpFormContainer" class="hidden">
-        <h3 class="text-lg font-semibold mb-3 text-center text-amber-700">新規アカウント登録</h3>
+        <h3 class="text-lg font-semibold mb-3 text-center text-[var(--accent-color)]">新規アカウント登録</h3>
         <form id="signUpForm" class="space-y-3">
             <div>
-                <label for="signUpEmail" class="block text-xs font-medium text-gray-600">メールアドレス</label>
-                <input type="email" id="signUpEmail" name="signUpEmail" required autocomplete="email" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
+                <label for="signUpEmail" class="block text-xs font-medium text-[var(--text-secondary)]">メールアドレス</label>
+                <input type="email" id="signUpEmail" name="signUpEmail" required autocomplete="email" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm">
             </div>
             <div>
-                <label for="signUpPassword" class="block text-xs font-medium text-gray-600">パスワード</label>
-                <input type="password" id="signUpPassword" name="signUpPassword" required minlength="6" autocomplete="new-password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="6文字以上">
+                <label for="signUpPassword" class="block text-xs font-medium text-[var(--text-secondary)]">パスワード</label>
+                <input type="password" id="signUpPassword" name="signUpPassword" required minlength="6" autocomplete="new-password" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="6文字以上">
             </div>
             <button type="submit" id="signUpButton" class="w-full px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">登録する</button>
         </form>
-        <p class="mt-3 text-xs text-center text-gray-600">
+        <p class="mt-3 text-xs text-center text-[var(--text-secondary)]">
             既にアカウントをお持ちですか？
-            <button id="showLoginFormButton" type="button" class="font-medium text-amber-600 hover:text-amber-500 hover:underline">ログインへ</button>
+            <button id="showLoginFormButton" type="button" class="font-medium text-[var(--accent-color)] hover:brightness-110 hover:underline">ログインへ</button>
         </p>
     </div>
 </div>

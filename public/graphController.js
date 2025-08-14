@@ -144,13 +144,35 @@ export function initializeRealtimeChart() {
         }
 
         const ctx = chartCanvasElement.getContext('2d');
+
+        const style = getComputedStyle(document.body);
+        const accentR = style.getPropertyValue('--accent-r').trim();
+        const accentG = style.getPropertyValue('--accent-g').trim();
+        const accentB = style.getPropertyValue('--accent-b').trim();
+        const beanTempFillColor = `rgba(${accentR}, ${accentG}, ${accentB}, 0.1)`;
+        const beanTempBorderColor = `rgb(${accentR}, ${accentG}, ${accentB})`;
+
+
         realtimeChartInstance = new Chart(ctx, {
             type: 'line',
             data: {
                 datasets: [
-                    { label: '豆温度 (°C)', data: initialBeanData, borderColor: '#d97706', backgroundColor: '#d97706', yAxisID: 'yTemp', tension: 0.1, pointRadius: 4, pointHoverRadius: 6 },
-                    { label: '庫内温度 (°C)', data: [], borderColor: '#3b82f6', backgroundColor: '#3b82f6', yAxisID: 'yTemp', tension: 0.1, pointRadius: 4, pointHoverRadius: 6 },
-                    { label: 'ROR (°C/分)', data: [], borderColor: '#16a34a', backgroundColor: '#16a34a', yAxisID: 'yROR', tension: 0.1, borderDash: [5, 5], pointRadius: 2, pointHoverRadius: 4 },
+                    {
+                        label: '豆温度 (°C)',
+                        data: initialBeanData,
+                        borderColor: beanTempBorderColor,
+                        backgroundColor: beanTempFillColor,
+                        yAxisID: 'yTemp',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        fill: {
+                            target: 'origin',
+                            above: beanTempFillColor
+                        }
+                    },
+                    { label: '庫内温度 (°C)', data: [], borderColor: '#3b82f6', backgroundColor: '#3b82f6', yAxisID: 'yTemp', tension: 0.3, pointRadius: 4, pointHoverRadius: 6 },
+                    { label: 'ROR (°C/分)', data: [], borderColor: '#16a34a', backgroundColor: '#16a34a', yAxisID: 'yROR', tension: 0.3, borderDash: [5, 5], pointRadius: 2, pointHoverRadius: 4 },
                     {
                         label: 'AI目標プロファイル',
                         data: [],
@@ -159,7 +181,7 @@ export function initializeRealtimeChart() {
                         yAxisID: 'yTemp',
                         pointRadius: 2,
                         backgroundColor: 'rgba(150, 150, 150, 0.3)',
-                        tension: 0.1
+                        tension: 0.3
                     }
                 ]
             },
