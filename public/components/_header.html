@@ -2,10 +2,15 @@
 <header class="bg-[var(--bg-primary)] shadow-md rounded-lg p-6 mb-8">
     <div class="flex justify-between items-center">
         <div>
-            <h1 class="text-3xl font-bold text-[var(--text-primary)]">コーヒー焙煎記録</h1>
-            <p class="text-[var(--text-secondary)]">あなたの焙煎を記録し、分析しよう</p>
+            <h1 class="text-3xl font-bold text-[var(--text-primary)]" data-i18n-key="appTitle"></h1>
+            <p class="text-[var(--text-secondary)]" data-i18n-key="appSubtitle"></p>
         </div>
         <div class="flex items-center space-x-4">
+            <div id="language-switcher" class="text-sm">
+                <button data-lang="ja" class="font-medium">日本語</button>
+                <span class="mx-1">|</span>
+                <button data-lang="en" class="font-medium">English</button>
+            </div>
             <div id="userInfo" class="hidden text-right">
                 <!-- ユーザー情報が表示される場所 -->
             </div>
@@ -20,10 +25,10 @@
         <ul class="flex -mb-px">
             <li class="mr-1">
                 <!-- href属性でハッシュを指定 -->
-                <a href="#/list" id="nav-list" class="nav-link inline-block py-2 px-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold">記録一覧</a>
+                <a href="#/list" id="nav-list" class="nav-link inline-block py-2 px-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold" data-i18n-key="navRecords"></a>
             </li>
             <li class="mr-1">
-                <a href="#/stats" id="nav-stats" class="nav-link inline-block py-2 px-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold">統計・分析</a>
+                <a href="#/stats" id="nav-stats" class="nav-link inline-block py-2 px-4 text-[var(--text-secondary)] hover:text-[var(--text-primary)] font-semibold" data-i18n-key="navStats"></a>
             </li>
         </ul>
     </nav>

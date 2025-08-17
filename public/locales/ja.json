@@ -1,0 +1,9 @@
+{
+  "appTitle": "コーヒー焙煎記録",
+  "appSubtitle": "あなたの焙煎を記録し、分析しよう",
+  "navRecords": "記録一覧",
+  "navStats": "統計・分析",
+  "addNewRoast": "新しい焙煎を記録",
+  "manageBeanStock": "生豆の在庫管理",
+  "roastTimerTitle": "焙煎タイマー"
+}

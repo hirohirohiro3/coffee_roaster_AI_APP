@@ -1,3 +1,5 @@
+import { initI18n, setLanguage } from './i18n.js';
+import { initializeUITranslator, updateUIText } from './uiTranslator.js';
 import { loadAllComponents } from './htmlLoader.js';
 import { initializeFirebase } from './firebaseService.js';
 import { initializeDataService } from './dataService.js';
@@ -31,22 +33,26 @@ export default class App {
     }
 
     async start() {
+        initI18n(); // Initialize i18n
         console.log("Application starting...");
 
-        // 1. 先に「HTMLの読み込み完了」イベントを受け取る準備をする
+        // 1. Wait for the 'html:loaded' event
         eventBus.on('html:loaded', () => {
             console.log("app.js: 'html:loaded' event received. Initializing modules...");
             
-            // 2. HTMLの準備ができてから、全てのJSモジュールを初期化する
+            // 2. Initialize all JavaScript modules
             this._initializeAllModules();
             this._setupGlobalEventListeners();
             
-            // 3. 全ての準備が整ったことを通知する
+            // 3. Perform initial UI translation
+            updateUIText();
+
+            // 4. Notify that the application is ready
             eventBus.emit('app:ready');
             console.log("Application is ready!");
         });
         
-        // 4. 最後にHTMLの読み込みを開始する
+        // 5. Start loading HTML components
         try {
             await this._loadComponents();
         } catch (error) {
@@ -54,7 +60,6 @@ export default class App {
         }
     }
 
-    // ▼▼▼ この関数内のリストが修正されました ▼▼▼
     async _loadComponents() {
         const componentsToLoad = [
             { url: '_header.html', containerId: 'header-container' },
@@ -65,8 +70,6 @@ export default class App {
             { url: '_filter.html', containerId: 'filter-sort-container' },
             { url: '_roast_list.html', containerId: 'roast-list-container' },
             { url: '_footer.html', containerId: 'footer-container' },
-            // IDが重複する古い_modals.htmlではなく、
-            // すべてのモーダル定義を含む新しい_bean_stock_modal.htmlを読み込みます
             { url: '_bean_stock_modal.html', containerId: 'modals-container' },
             { url: '_comparison_modal.html', containerId: 'modals-container', append: true },
             { url: '_statistics.html', containerId: 'statistics-page' },
@@ -74,7 +77,6 @@ export default class App {
         
         await loadAllComponents(componentsToLoad);
     }
-    // ▲▲▲ 修正完了 ▲▲▲
     
     _registerPages() {
         registerPage('list', document.getElementById('roast-list-page'));
@@ -91,6 +93,7 @@ export default class App {
         
         // UI Management
         initializeUIManager();
+        initializeUITranslator(); // Initialize UI Translator
         
         // Controllers
         initializeAuthController();
@@ -112,12 +115,23 @@ export default class App {
         initializeRealtimeGraphUI();
         initializeRealtimeLogTableUI();
 
-        // 最後にナビゲーションとページ登録を初期化
+        // Initialize navigation and page registration last
         this._registerPages();
         initializePageNavigation();
     }
     
     _setupGlobalEventListeners() {
+        // Language switcher
+        const langSwitcher = document.getElementById('language-switcher');
+        if (langSwitcher) {
+            langSwitcher.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (target && target.dataset.lang) {
+                    setLanguage(target.dataset.lang);
+                }
+            });
+        }
+
         eventBus.on('ui:log-event-time', this.handleLogEventTime.bind(this));
         eventBus.on('audio:speak', (text) => speak(text));
         eventBus.on('ui:fetch-weather', this.handleFetchWeather.bind(this));
@@ -128,7 +142,10 @@ export default class App {
             if (addNewRoastButton) {
                 const hasBeans = beansInStock.some(b => (b.remainingAmount || 0) > 0);
                 addNewRoastButton.disabled = !hasBeans;
-                addNewRoastButton.innerHTML = hasBeans ? '新しい焙煎を記録' : '在庫の豆がありません';
+                // Note: This text will be updated by the i18n system via data-i18n-key
+                if (!hasBeans) {
+                    addNewRoastButton.textContent = '在庫の豆がありません'; // Fallback text
+                }
                 addNewRoastButton.classList.toggle('bg-amber-400', !hasBeans);
                 addNewRoastButton.classList.toggle('cursor-not-allowed', !hasBeans);
                 addNewRoastButton.classList.toggle('bg-amber-600', hasBeans);
@@ -197,7 +214,6 @@ export default class App {
             setFormFieldValue(targetFieldId, f);
             speak(`${eventName} の時間を ${f} で記録しました。`);
 
-            // turningPointTimeが記録された場合、温度も一緒に記録する
             if (targetFieldId === 'turningPointTime') {
                 const turningPointTemp = document.getElementById('turningPointTempInput').value;
                 if (turningPointTemp) {
@@ -246,11 +262,9 @@ export default class App {
             }
         };
 
-        // Apply theme on initial load
         const savedTheme = localStorage.getItem('theme') || 'light';
         applyTheme(savedTheme);
 
-        // Add event listener
         themeToggle.addEventListener('click', () => {
             const isDark = document.body.classList.contains('dark');
             const newTheme = isDark ? 'light' : 'dark';
