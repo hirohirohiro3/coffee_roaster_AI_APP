@@ -59,18 +59,22 @@ function createFlavorTagsDisplay(flavorProfile) {
  * 焙煎記録のリストを描画する。
  */
 function renderRoastList({ roasts, keyword }) {
-    if (!roastLogDiv) {
-        console.error("RoastListUI: Cannot render list, 'roastLogDiv' element not found.");
+    // ▼▼▼ [修正] 描画対象を #roastLog に変更 ▼▼▼
+    const listElement = document.getElementById('roastLog');
+    if (!listElement) {
+        console.error("RoastListUI: Cannot render list, '#roastLog' element not found.");
+        // フォールバックとして、古いコンテナにエラーメッセージを表示
+        if (roastLogDiv) roastLogDiv.innerHTML = '<p class="text-red-500 p-4">Error: #roastLog element not found inside the container.</p>';
         return;
     }
 
-    roastLogDiv.innerHTML = ''; 
+    listElement.innerHTML = '';
 
     if (!roasts || roasts.length === 0) {
         if (keyword) {
-            roastLogDiv.innerHTML = `<p class="text-center text-gray-500 py-8">検索結果に一致する記録はありません。</p>`;
+            listElement.innerHTML = `<p class="text-center text-gray-500 py-8">検索結果に一致する記録はありません。</p>`;
         } else {
-            roastLogDiv.innerHTML = `
+            listElement.innerHTML = `
             <div class="text-center py-12 px-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4M4 7s0 4 8 4 8-4 8-4m-8 8c0 2.21-3.582 4-8 4" />
@@ -93,7 +97,6 @@ function renderRoastList({ roasts, keyword }) {
         card.className = 'roast-card bg-white p-4 rounded-lg shadow-sm mb-4';
         card.dataset.id = roast.id; 
         
-        // 1. メインの総合評価を決定
         let overallRatingDisplay = '未評価';
         if (typeof roast.overallRating === 'number') {
             overallRatingDisplay = roast.overallRating.toFixed(1);
@@ -109,7 +112,6 @@ function renderRoastList({ roasts, keyword }) {
         const starIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ${roast.isFavorite ? 'text-yellow-400' : 'text-gray-300'}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>`;
         const beanNameToDisplay = roast.beanName || '豆の名前がありません';
 
-        // ▼▼▼ [修正] レスポンシブ対応とイベント処理の改善 ▼▼▼
         card.innerHTML = `
         <div class="flex flex-col sm:flex-row justify-between items-stretch gap-3">
             <div class="flex-shrink-0 flex items-center sm:h-full pt-2 sm:pt-0">
@@ -142,12 +144,11 @@ function renderRoastList({ roasts, keyword }) {
             </div>
         </div>
         `;
-        // ▲▲▲ 修正完了 ▲▲▲
         
         fragment.appendChild(card);
     });
 
-    roastLogDiv.appendChild(fragment);
+    listElement.appendChild(fragment);
 }
 
 /**
