@@ -109,23 +109,24 @@ function renderRoastList({ roasts, keyword }) {
         const starIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ${roast.isFavorite ? 'text-yellow-400' : 'text-gray-300'}" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>`;
         const beanNameToDisplay = roast.beanName || '豆の名前がありません';
 
-        // ▼▼▼ カード全体のHTML構造を修正 ▼▼▼
+        // ▼▼▼ [修正] レスポンシブ対応とイベント処理の改善 ▼▼▼
         card.innerHTML = `
-        <div class="flex justify-between items-start gap-4">
-            <div class="flex-shrink-0 flex items-center h-full pt-2">
+        <div class="flex flex-col sm:flex-row justify-between items-stretch gap-3">
+            <div class="flex-shrink-0 flex items-center sm:h-full pt-2 sm:pt-0">
                 <input type="checkbox" class="roast-compare-checkbox h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500" data-id="${roast.id}">
             </div>
-            <div class="flex-grow cursor-pointer" onclick="eventBus.emit('ui:view-profile-clicked', '${roast.id}')">
+
+            <div class="flex-grow cursor-pointer view-profile-trigger" data-id="${roast.id}">
                 <p class="text-sm text-gray-500">${roast.roastDate || '日付不明'}</p>
                 <h3 class="text-xl font-bold text-gray-800 truncate">${beanNameToDisplay}</h3>
                 <p class="text-sm text-gray-600">${roast.roastLevel || '焙煎度未設定'} | 総時間: ${roast.totalRoastTime || '--:--'}</p>
-                <!-- フレーバータグ表示エリア -->
                 ${createFlavorTagsDisplay(roast.flavorProfile)}
                 <p class="text-xs text-gray-400 mt-2 truncate">記録ID: ${roast.id || 'N/A'}</p>
             </div>
-            <div class="flex-shrink-0 flex flex-col items-end justify-between">
+
+            <div class="flex-shrink-0 flex sm:flex-col justify-between items-end">
                 <div class="flex items-start space-x-2">
-                     <div class="text-right">
+                    <div class="text-right">
                         <div class="flex items-center justify-end gap-2">
                             <span class="text-2xl font-bold">${overallRatingDisplay}</span>
                             ${createStarRatingDisplay(overallRatingDisplay)}
@@ -133,7 +134,7 @@ function renderRoastList({ roasts, keyword }) {
                     </div>
                     <button class="favorite-btn p-1" data-id="${roast.id}">${starIcon}</button>
                 </div>
-                <div class="mt-4 flex justify-end space-x-2">
+                <div class="mt-2 sm:mt-4 flex justify-end space-x-2">
                     <button class="view-btn inline-flex items-center gap-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 -ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>詳細</button>
                     <button class="edit-btn inline-flex items-center gap-x-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z"></path></svg>編集</button>
                     <button class="delete-btn inline-flex items-center gap-x-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" data-id="${roast.id}" data-name="${beanNameToDisplay}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>削除</button>
@@ -204,8 +205,12 @@ export function initializeRoastListUI() {
         }
     });
 
+    // ▼▼▼ [修正] イベントリスナーをより堅牢に ▼▼▼
     roastLogDiv.addEventListener('click', (e) => {
-        const button = e.target.closest('button');
+        const target = e.target;
+
+        // 1. ボタンのクリックを最優先で処理
+        const button = target.closest('button');
         if (button) {
             const id = button.dataset.id;
             if (id) {
@@ -220,6 +225,16 @@ export function initializeRoastListUI() {
                 }
             } else if (button.id === 'addNewRoastButtonEmpty') {
                 eventBus.emit('ui:add-new-roast-clicked');
+            }
+            return; // ボタン処理後は他の処理をしない
+        }
+
+        // 2. ボタン以外がクリックされた場合、詳細表示のトリガーを探す
+        const profileTrigger = target.closest('.view-profile-trigger');
+        if (profileTrigger) {
+            const id = profileTrigger.dataset.id;
+            if (id) {
+                eventBus.emit('ui:view-profile-clicked', id);
             }
         }
     });
