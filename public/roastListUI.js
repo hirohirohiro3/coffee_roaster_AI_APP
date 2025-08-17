@@ -1,7 +1,37 @@
 import { eventBus } from './EventBus.js';
+import { t } from './i18n.js';
 
 // DOM Elements
 let roastLogDiv, searchInput, searchButton, exportCsvButton, sortSelect, filterFavoritesCheckbox;
+
+/**
+ * Populates the sort dropdown with translated options.
+ */
+function populateSortOptions() {
+    if (!sortSelect) return;
+
+    const options = [
+        { value: 'date-desc', key: 'dateDesc' },
+        { value: 'date-asc', key: 'dateAsc' },
+        { value: 'name-asc', key: 'nameAsc' },
+        { value: 'rating-desc', key: 'ratingDesc' },
+        { value: 'rating-asc', key: 'ratingAsc' },
+    ];
+
+    const currentSort = sortSelect.value;
+    sortSelect.innerHTML = ''; // Clear existing options
+
+    options.forEach(opt => {
+        const optionElement = document.createElement('option');
+        optionElement.value = opt.value;
+        optionElement.textContent = t(opt.key);
+        sortSelect.appendChild(optionElement);
+    });
+
+    // Restore previous selection if it exists
+    sortSelect.value = currentSort;
+}
+
 
 /**
  * 総合評価に基づいて星のSVGアイコンを生成する。
@@ -11,7 +41,7 @@ let roastLogDiv, searchInput, searchButton, exportCsvButton, sortSelect, filterF
 function createStarRatingDisplay(rating) {
     const numRating = typeof rating === 'string' ? parseFloat(rating) : rating;
     if (isNaN(numRating) || numRating <= 0) {
-        return '<div class="flex items-center" title="未評価"></div>';
+        return `<div class="flex items-center" title="${t('notRated')}"></div>`;
     }
 
     let stars = '';
@@ -97,7 +127,7 @@ function renderRoastList({ roasts, keyword }) {
         card.className = 'roast-card bg-white p-4 rounded-lg shadow-sm mb-4';
         card.dataset.id = roast.id; 
         
-        let overallRatingDisplay = '未評価';
+        let overallRatingDisplay = t('notRated');
         if (typeof roast.overallRating === 'number') {
             overallRatingDisplay = roast.overallRating.toFixed(1);
         } 
@@ -125,9 +155,9 @@ function renderRoastList({ roasts, keyword }) {
             <div class="flex-grow cursor-pointer view-profile-trigger" data-id="${roast.id}">
                 <p class="text-sm text-gray-500">${roast.roastDate || '日付不明'}</p>
                 <h3 class="text-xl font-bold text-gray-800 truncate">${beanNameToDisplay}</h3>
-                <p class="text-sm text-gray-600">${roast.roastLevel || '焙煎度未設定'} | 総時間: ${roast.totalRoastTime || '--:--'}</p>
+                <p class="text-sm text-gray-600">${roast.roastLevel || t('roastLevelUnset')} | ${t('totalTime')}: ${roast.totalRoastTime || '--:--'}</p>
                 ${createFlavorTagsDisplay(roast.flavorProfile)}
-                <p class="text-xs text-gray-400 mt-2 truncate">記録ID: ${roast.id || 'N/A'}</p>
+                <p class="text-xs text-gray-400 mt-2 truncate">${t('recordId')}: ${roast.id || 'N/A'}</p>
             </div>
 
             <div class="flex-shrink-0 flex sm:flex-col justify-between items-end">
@@ -141,9 +171,9 @@ function renderRoastList({ roasts, keyword }) {
                     <button class="favorite-btn p-1" data-id="${roast.id}">${heartIcon}</button>
                 </div>
                 <div class="mt-2 sm:mt-4 flex justify-end space-x-2">
-                    <button class="view-btn inline-flex items-center gap-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 -ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>詳細</button>
-                    <button class="edit-btn inline-flex items-center gap-x-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z"></path></svg>編集</button>
-                    <button class="delete-btn inline-flex items-center gap-x-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" data-id="${roast.id}" data-name="${beanNameToDisplay}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>削除</button>
+                    <button class="view-btn inline-flex items-center gap-x-1 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 -ml-1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>${t('details')}</button>
+                    <button class="edit-btn inline-flex items-center gap-x-1 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm" data-id="${roast.id}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z"></path></svg>${t('edit')}</button>
+                    <button class="delete-btn inline-flex items-center gap-x-1 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" data-id="${roast.id}" data-name="${beanNameToDisplay}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 -ml-1"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>${t('delete')}</button>
                 </div>
             </div>
         </div>
@@ -181,11 +211,11 @@ export function initializeRoastListUI() {
         compareRoastsButton.disabled = !isEnabled;
 
         if (isEnabled) {
-            compareRoastsButton.textContent = `${count}件の焙煎を比較`;
+            compareRoastsButton.textContent = t('compareXItems').replace('{count}', count);
             compareRoastsButton.classList.remove('bg-gray-300', 'cursor-not-allowed');
             compareRoastsButton.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
         } else {
-            compareRoastsButton.textContent = '比較する (2-3件選択)';
+            compareRoastsButton.textContent = t('compareHelpText');
             compareRoastsButton.classList.add('bg-gray-300', 'cursor-not-allowed');
             compareRoastsButton.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
         }
@@ -254,7 +284,11 @@ export function initializeRoastListUI() {
     
     eventBus.on('roasts:render-list', renderRoastList);
 
-    // 初期状態を設定
+    // Add listener for language changes
+    document.addEventListener('language-changed', populateSortOptions);
+
+    // Initial population
+    populateSortOptions();
     updateCompareButtonState();
 
     console.log("✅ RoastListUI initialized.");
