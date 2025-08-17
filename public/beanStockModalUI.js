@@ -7,11 +7,19 @@ let formElement, formTitleElement, beanIdInputElement, saveBeanButtonElement, de
 let purchaseAmountInputElement, priceInputElement, unitPriceDisplayElement;
 
 function showBeanStockModal() {
-    if (modalElement) modalElement.classList.add('is-visible');
+    if (!modalElement) return;
+    modalElement.classList.remove('hidden');
+    setTimeout(() => {
+        modalElement.classList.add('is-visible');
+    }, 10);
 }
 
 function hideBeanStockModal() {
-    if (modalElement) modalElement.classList.remove('is-visible');
+    if (!modalElement) return;
+    modalElement.classList.remove('is-visible');
+    modalElement.addEventListener('transitionend', () => {
+        modalElement.classList.add('hidden');
+    }, { once: true });
 }
 
 function renderBeanList({ beans, editHandler }) {

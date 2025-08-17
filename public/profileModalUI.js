@@ -391,16 +391,29 @@ export function showProfileModal(roastData) {
     _renderRadarChart(roastData.ratings);
 
     _exitLogEditMode(false);
-    modalElement.classList.add('is-visible');
+
+    modalElement.classList.remove('hidden');
+    setTimeout(() => {
+        modalElement.classList.add('is-visible');
+    }, 10);
 }
 
 export function hideProfileModal() {
-    if (modalElement) modalElement.classList.remove('is-visible');
-    if (detailedChartInstance) { detailedChartInstance.destroy(); detailedChartInstance = null; }
-    if (radarChartInstance) { radarChartInstance.destroy(); radarChartInstance = null; }
-    currentRoastDataForCopy = null;
-    if (transposedLogTableContainerElement) transposedLogTableContainerElement.innerHTML = '';
-    isLogEditMode = false;
+    if (!modalElement) return;
+
+    const onTransitionEnd = () => {
+        modalElement.classList.add('hidden');
+        modalElement.removeEventListener('transitionend', onTransitionEnd);
+
+        if (detailedChartInstance) { detailedChartInstance.destroy(); detailedChartInstance = null; }
+        if (radarChartInstance) { radarChartInstance.destroy(); radarChartInstance = null; }
+        currentRoastDataForCopy = null;
+        if (transposedLogTableContainerElement) transposedLogTableContainerElement.innerHTML = '';
+        isLogEditMode = false;
+    };
+
+    modalElement.classList.remove('is-visible');
+    modalElement.addEventListener('transitionend', onTransitionEnd);
 }
 
 export function initializeProfileModalUI() {

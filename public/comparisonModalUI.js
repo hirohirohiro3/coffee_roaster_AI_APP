@@ -82,16 +82,28 @@ function showComparisonModal(roastIds) {
     renderComparisonChart(roastsToCompare);
     renderComparisonStats(roastsToCompare);
 
-    if (modal) modal.classList.add('is-visible');
+    if (modal) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.add('is-visible');
+        }, 10);
+    }
 }
 
 function hideComparisonModal() {
-    if (modal) modal.classList.remove('is-visible');
+    if (modal) {
+        modal.classList.remove('is-visible');
+        modal.addEventListener('transitionend', () => {
+            modal.classList.add('hidden');
+        }, { once: true });
+    }
     if (comparisonChartInstance) {
         comparisonChartInstance.destroy();
         comparisonChartInstance = null;
     }
-    statsContainer.innerHTML = '';
+    if (statsContainer) {
+        statsContainer.innerHTML = '';
+    }
 }
 
 export function initializeComparisonModalUI(roastDataProvider) {
