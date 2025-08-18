@@ -1,5 +1,6 @@
 import { eventBus } from './EventBus.js';
 import { formatTime } from './roastUtils.js';
+import { t } from './i18n.js';
 
 // --- DOM要素 ---
 let timerDisplayElement, firstCrackDevTimeElement, secondCrackDevTimeElement, predictionContainer, predictionDisplay;
@@ -24,9 +25,9 @@ function updateDevelopmentTimeDisplay({ firstCrackDevSeconds, secondCrackDevSeco
     }
 }
 
-function updateStartPauseButton({ isRunning, buttonText }) {
+function updateStartPauseButton({ isRunning }) {
     if (startPauseButton) {
-        startPauseButton.textContent = buttonText;
+        startPauseButton.textContent = isRunning ? t('pause') : t('start');
         startPauseButton.classList.toggle('bg-red-500', isRunning);
         startPauseButton.classList.toggle('hover:bg-red-600', isRunning);
         startPauseButton.classList.toggle('bg-green-500', !isRunning);
@@ -104,12 +105,14 @@ export function initializeTimerDisplayUI() {
             const label = button.querySelector('label');
             if (label) {
                 // ラベルのテキストだけを変更し、入力欄はそのまま維持する
-                label.textContent = `TP (${time})`;
+                label.textContent = `TP (${time})`; // This is complex, leave as is for now.
             }
         } else {
             // 他の単純なボタンはinnerHTMLを更新する
-            const baseText = button.textContent.trim().split(' ')[0];
-            button.innerHTML = `${baseText} <span class="text-xs font-mono">(${time})</span>`;
+            const baseKey = button.dataset.i18nKey;
+            if(baseKey) {
+                button.innerHTML = `${t(baseKey)} <span class="text-xs font-mono">(${time})</span>`;
+            }
         }
     });
 
@@ -123,7 +126,7 @@ export function initializeTimerDisplayUI() {
             if (eventType === 'turningPointTime') {
                 const label = button.querySelector('label');
                 if (label) {
-                    label.textContent = 'TP 温度';
+                    label.textContent = t('tpTempLabel');
                 }
                 const tpInput = button.querySelector('#turningPointTempInput');
                 if (tpInput) {
@@ -131,8 +134,10 @@ export function initializeTimerDisplayUI() {
                 }
             } else {
                 // 他の単純なボタンはテキストを元に戻す
-                const baseText = button.innerHTML.split(' ')[0];
-                button.innerHTML = baseText;
+                const baseKey = button.dataset.i18nKey;
+                if(baseKey) {
+                    button.textContent = t(baseKey);
+                }
             }
         });
     });

@@ -1,3 +1,5 @@
+import { t } from './i18n.js';
+
 /**
  * ユーザーの現在の位置情報を取得します。
  * @returns {Promise<object>} 成功時は { latitude, longitude } を解決するPromise、失敗時はエラーメッセージで拒否。
@@ -5,7 +7,7 @@
 function _getCurrentLocation() {
     return new Promise((resolve, reject) => {
         if (!navigator.geolocation) {
-            reject("お使いのブラウザは位置情報取得に対応していません。");
+            reject(t('geolocationNotSupported'));
             return;
         }
         navigator.geolocation.getCurrentPosition(
@@ -17,10 +19,10 @@ function _getCurrentLocation() {
             },
             (error) => {
                 switch (error.code) {
-                    case error.PERMISSION_DENIED: reject("位置情報の取得が許可されていません。"); break;
-                    case error.POSITION_UNAVAILABLE: reject("位置情報を取得できませんでした。"); break;
-                    case error.TIMEOUT: reject("位置情報の取得がタイムアウトしました。"); break;
-                    default: reject("原因不明のエラーで位置情報を取得できませんでした。"); break;
+                    case error.PERMISSION_DENIED: reject(t('geolocationPermissionDenied')); break;
+                    case error.POSITION_UNAVAILABLE: reject(t('geolocationPositionUnavailable')); break;
+                    case error.TIMEOUT: reject(t('geolocationTimeout')); break;
+                    default: reject(t('geolocationUnknownError')); break;
                 }
             }
         );
@@ -39,7 +41,7 @@ async function _fetchWeatherFromAPI(latitude, longitude) {
     try {
         const response = await fetch(apiUrl);
         if (!response.ok) {
-            throw new Error(`気象情報APIエラー: ${response.status} ${response.statusText}`);
+            throw new Error(t('weatherApiError', { status: response.status, statusText: response.statusText }));
         }
         const data = await response.json();
 
@@ -66,7 +68,7 @@ async function _fetchWeatherFromAPI(latitude, longitude) {
                 humidity: closestHumidity 
             };
         } else {
-            throw new Error("気象情報APIのレスポンス形式が無効です。");
+            throw new Error(t('weatherApiInvalidResponse'));
         }
     } catch (error) {
         console.error("weatherService.js: Error fetching or parsing weather data:", error);

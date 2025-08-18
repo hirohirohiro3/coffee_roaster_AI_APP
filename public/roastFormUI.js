@@ -1,6 +1,7 @@
 import { eventBus } from './EventBus.js';
 import * as RoastUtils from './roastUtils.js';
 import { showToast } from './ui.js';
+import { t } from './i18n.js';
 
 // --- Module Scope Variables ---
 let formSection, form, formTitle, editRoastIdInput, saveButton, cancelButton;
@@ -12,27 +13,17 @@ let roastWeatherTempInput, roastWeatherHumidityInput, fetchWeatherButton;
 let isFormDirty = false;
 
 // --- Constants for Tag Selectors ---
-const FLAVOR_TAGS = [
-    "ベリー", "シトラス", "リンゴ", "ブドウ", "トロピカルフルーツ", "ストーンフルーツ",
-    "チョコレート", "キャラメル", "ナッツ", "スパイス", "フローラル", "ハーバル", "ワイン", "スモーキー"
-];
-const ACIDITY_QUALITY_TAGS = ["爽やか", "ジューシー", "複雑", "シャープ", "刺激的", "マイルド", "平坦"];
-const BODY_TEXTURE_TAGS = ["シルキー", "クリーミー", "リッチ", "薄い", "ザラザラ", "水っぽい"];
+const getFlavorTags = () => t('flavorTags').split(',');
+const getAcidityQualityTags = () => t('acidityQualityTags').split(',');
+const getBodyTextureTags = () => t('bodyTextureTags').split(',');
 
 // --- Helper Functions ---
 
-/**
- * Creates a star rating component.
- * @param {string} containerId - The ID of the container element for the stars.
- * @param {string} hiddenInputId - The ID of the hidden input to store the rating.
- */
 function _createStarRating(containerId, hiddenInputId) {
     const container = document.getElementById(containerId);
     const hiddenInput = document.getElementById(hiddenInputId);
     if (!container || !hiddenInput) return;
-
-    container.innerHTML = ''; // Clear existing content
-
+    container.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
         const star = document.createElement('span');
         star.classList.add('star', 'text-3xl', 'cursor-pointer', 'text-gray-300');
@@ -40,9 +31,7 @@ function _createStarRating(containerId, hiddenInputId) {
         star.innerHTML = '&#9733;';
         container.appendChild(star);
     }
-
     const stars = container.querySelectorAll('.star');
-
     const setRating = (value) => {
         hiddenInput.value = value;
         stars.forEach(star => {
@@ -51,11 +40,9 @@ function _createStarRating(containerId, hiddenInputId) {
         });
         form.dispatchEvent(new Event('input', { bubbles: true }));
     };
-
     container.addEventListener('click', e => {
         if (e.target.classList.contains('star')) {
             const value = e.target.dataset.value;
-            // Allow un-setting the rating by clicking the same star again
             if (hiddenInput.value === value) {
                 setRating(0);
             } else {
@@ -63,33 +50,27 @@ function _createStarRating(containerId, hiddenInputId) {
             }
         }
     });
-
-    // Needed for form reset and initial load
     container.setRating = setRating;
 }
 
-
-/**
- * Creates a tag selector component.
- * @param {string} containerId - The ID of the container for the tags.
- * @param {string} hiddenInputId - The ID of the hidden input to store selected tags.
- * @param {string[]} tags - An array of available tags.
- */
-function _createTagSelector(containerId, hiddenInputId, tags) {
+function _createTagSelector(containerId, hiddenInputId, tagsFunc) {
     const container = document.getElementById(containerId);
     const hiddenInput = document.getElementById(hiddenInputId);
     if (!container || !hiddenInput) return;
 
-    container.innerHTML = ''; // Clear existing content
-
-    tags.forEach(tag => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.classList.add('tag-button');
-        button.dataset.value = tag;
-        button.textContent = tag;
-        container.appendChild(button);
-    });
+    const populateTags = () => {
+        container.innerHTML = '';
+        const tags = tagsFunc();
+        tags.forEach(tag => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.classList.add('tag-button');
+            button.dataset.value = tag;
+            button.textContent = tag;
+            container.appendChild(button);
+        });
+        container.setSelectedTags(hiddenInput.value);
+    };
 
     container.addEventListener('click', e => {
         if (e.target.classList.contains('tag-button')) {
@@ -101,7 +82,6 @@ function _createTagSelector(containerId, hiddenInputId, tags) {
         }
     });
 
-    // Attach methods to container for external manipulation (loading/resetting)
     container.setSelectedTags = (tagString) => {
         const selected = tagString ? tagString.split(',') : [];
         hiddenInput.value = tagString || '';
@@ -109,16 +89,16 @@ function _createTagSelector(containerId, hiddenInputId, tags) {
             button.classList.toggle('selected', selected.includes(button.dataset.value));
         });
     };
-}
 
+    container.populate = populateTags;
+    populateTags();
+}
 
 // --- Core Functions ---
 
 function getFormData() {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
-
-    // Convert numeric fields from strings to numbers
     const numericFields = [
         'greenBeanWeight', 'roastedBeanWeight', 'chargingTemperature', 'turningPointTemp', 'endOfRoastTemp',
         'overallRating', 'acidityIntensity', 'bodyWeight', 'aftertasteLength', 'aftertasteQuality', 'balance'
@@ -127,66 +107,51 @@ function getFormData() {
         if (data[field] && data[field].trim() !== '') {
             data[field] = parseFloat(data[field]);
         } else {
-            // Use null for empty optional numbers to distinguish from 0
             data[field] = null;
         }
     });
-
-    // Ensure text fields that are just whitespace are treated as empty
     const textFields = ['flavorProfile', 'acidityQuality', 'bodyTexture'];
     textFields.forEach(field => {
         if (data[field] && data[field].trim() === '') {
             data[field] = '';
         }
     });
-    
     return data;
 }
 
 function showRoastForm({ isEdit, data }) {
-    formTitle.textContent = isEdit ? '焙煎記録を編集' : '新しい焙煎を記録';
+    formTitle.textContent = isEdit ? t('editRoastRecord') : t('addNewRoast');
     editRoastIdInput.value = isEdit ? data.id : '';
     form.reset();
-
-    // Reset all UI to default state first
     _resetFormUI();
 
     if (isEdit && data) {
-        // Populate standard form fields
         Object.keys(data).forEach(key => {
             const input = form.elements[key];
             if (input && data[key] !== null && data[key] !== undefined) {
                 input.value = data[key];
             }
         });
-
         if (data.beanId) beanSelect.value = data.beanId;
         
-        // Populate Roast Level Slider
-        const roastLevels = ["ライト", "シナモン", "ミディアム", "ハイ", "シティ", "フルシティ", "フレンチ", "イタリアン"];
-        const levelIndex = roastLevels.findIndex(l => data.roastLevel?.startsWith(l));
-        if (roastLevelSlider && levelIndex !== -1) {
-            roastLevelSlider.value = levelIndex + 1;
+        const roastLevelIndex = t('roastLevelNames').split(',').findIndex(l => data.roastLevel?.startsWith(l));
+        if (roastLevelSlider && roastLevelIndex !== -1) {
+            roastLevelSlider.value = roastLevelIndex + 1;
         }
 
-        // --- Populate New Evaluation UI ---
         document.getElementById('overallRatingStars').setRating(data.overallRating || 0);
-
         document.getElementById('flavorTagsContainer').setSelectedTags(data.flavorProfile || '');
         document.getElementById('acidityQualityTags').setSelectedTags(data.acidityQuality || '');
         document.getElementById('bodyTextureTags').setSelectedTags(data.bodyTexture || '');
 
-        // Open the details section if it contains detailed data
         const detailsElement = document.getElementById('cuppingLogDetails');
         const hasDetailedData = data.flavorProfile || data.acidityQuality || data.bodyTexture ||
                                 data.acidityIntensity > 0 || data.bodyWeight > 0 || data.aftertasteLength > 0 ||
                                 data.aftertasteQuality > 0 || data.balance > 0;
-
         if (detailsElement && hasDetailedData) {
             detailsElement.open = true;
         }
     }
-
     _updateRoastLevelSlider();
     updateWeightLoss();
     formSection.classList.remove('hidden');
@@ -196,7 +161,7 @@ function showRoastForm({ isEdit, data }) {
 }
 
 function hideRoastForm() {
-    if (isFormDirty && !window.confirm('編集中の内容が失われますが、よろしいですか？')) {
+    if (isFormDirty && !window.confirm(t('confirmDiscardChanges'))) {
         return;
     }
     form.reset();
@@ -208,38 +173,29 @@ function hideRoastForm() {
 }
 
 function _resetFormUI() {
-    // Reset sliders to default
     ['acidityIntensity', 'bodyWeight', 'aftertasteLength', 'aftertasteQuality', 'balance'].forEach(id => {
         const slider = document.getElementById(id);
         if (slider) slider.value = 3;
     });
-
-    if (roastLevelSlider) roastLevelSlider.value = 5; // Default roast level
+    if (roastLevelSlider) roastLevelSlider.value = 5;
     _updateRoastLevelSlider();
-
-    // Reset new evaluation UI
     document.getElementById('overallRatingStars').setRating(0);
-    document.getElementById('flavorTagsContainer').setSelectedTags('');
-    document.getElementById('acidityQualityTags').setSelectedTags('');
-    document.getElementById('bodyTextureTags').setSelectedTags('');
-
-    // Close details section
+    document.getElementById('flavorTagsContainer').populate();
+    document.getElementById('acidityQualityTags').populate();
+    document.getElementById('bodyTextureTags').populate();
     const detailsElement = document.getElementById('cuppingLogDetails');
     if (detailsElement) detailsElement.open = false;
 }
-
-
-// --- UI Update Functions ---
 
 function updateBeanSelection(beans) {
     if (!beanSelect) return;
     const beansInStock = beans.filter(b => (b.remainingAmount || 0) > 0);
     const currentValue = beanSelect.value;
-    beanSelect.innerHTML = '<option value="">在庫から豆を選択してください</option>';
+    beanSelect.innerHTML = `<option value="">${t('selectBeanFromStock')}</option>`;
     beansInStock.forEach(bean => {
         const option = document.createElement('option');
         option.value = bean.id;
-        option.textContent = `${bean.beanName} (残 ${bean.remainingAmount.toFixed(3)}kg)`;
+        option.textContent = t('beanStockLabel', { beanName: bean.beanName, amount: bean.remainingAmount.toFixed(3) });
         beanSelect.appendChild(option);
     });
     if (beans.find(b => b.id === currentValue)) beanSelect.value = currentValue;
@@ -260,25 +216,18 @@ function setWeatherInfo({ temperature, humidity }) {
 
 function _updateRoastLevelSlider() {
     if (!roastLevelSlider || !roastLevelLabel || !roastLevelHiddenInput) return;
-    const roastLevels = ["ライト", "シナモン", "ミディアム", "ハイ", "シティ", "フルシティ", "フレンチ", "イタリアン"];
+    const roastLevels = t('roastLevelNames').split(',');
     const value = roastLevelSlider.value;
-    const levelName = roastLevels[value - 1] + "ロースト";
+    const levelName = roastLevels[value - 1];
     roastLevelLabel.textContent = levelName;
     roastLevelHiddenInput.value = levelName;
-
-    // Remove all existing roast-level-* classes
     for (let i = 1; i <= 8; i++) {
         roastLevelSlider.classList.remove(`roast-level-${i}`);
     }
-
-    // Add the new class
     roastLevelSlider.classList.add(`roast-level-${value}`);
 }
 
-// --- Initialization ---
-
 export function initializeRoastFormUI() {
-    // Assign DOM elements to module-scoped variables
     formSection = document.getElementById('roastFormSection');
     form = document.getElementById('roastForm');
     if (!formSection || !form) return;
@@ -301,58 +250,39 @@ export function initializeRoastFormUI() {
     roastWeatherHumidityInput = document.getElementById('roastWeatherHumidity');
     fetchWeatherButton = document.getElementById('fetchWeatherButton');
 
-    // --- Setup New Evaluation UI ---
     _createStarRating('overallRatingStars', 'overallRatingInput');
-    _createTagSelector('flavorTagsContainer', 'flavorProfile', FLAVOR_TAGS);
-    _createTagSelector('acidityQualityTags', 'acidityQuality', ACIDITY_QUALITY_TAGS);
-    _createTagSelector('bodyTextureTags', 'bodyTexture', BODY_TEXTURE_TAGS);
-    // --- End New UI Setup ---
+    _createTagSelector('flavorTagsContainer', 'flavorProfile', getFlavorTags);
+    _createTagSelector('acidityQualityTags', 'acidityQuality', getAcidityQualityTags);
+    _createTagSelector('bodyTextureTags', 'bodyTexture', getBodyTextureTags);
 
     if (roastLevelSlider) {
         roastLevelSlider.addEventListener('input', _updateRoastLevelSlider);
         _updateRoastLevelSlider();
     }
 
-    // Setup general event listeners
     const submitRoastData = () => {
         if (saveButton) {
             saveButton.disabled = true;
-            saveButton.textContent = '保存中...';
+            const textSpan = saveButton.querySelector('span');
+            if (textSpan) textSpan.textContent = t('saving');
         }
         const formData = getFormData();
         const editId = editRoastIdInput.value;
         eventBus.emit('form:submit-roast', { formData, editId });
     };
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        submitRoastData();
-    });
+    form.addEventListener('submit', (e) => { e.preventDefault(); submitRoastData(); });
     form.addEventListener('input', () => { isFormDirty = true; });
 
     if (cancelButton) cancelButton.addEventListener('click', () => hideRoastForm());
     if (greenBeanWeightInput) greenBeanWeightInput.addEventListener('input', updateWeightLoss);
     if (roastedBeanWeightInput) roastedBeanWeightInput.addEventListener('input', updateWeightLoss);
-
     if(fetchWeatherButton) {
         fetchWeatherButton.addEventListener('click', () => {
             eventBus.emit('ui:fetch-weather', (message, type) => showToast(message, type));
         });
     }
 
-    // AI-related listeners
-    if (generateAiPromptButton) {
-        generateAiPromptButton.addEventListener('click', () => {
-            // ... (AI prompt generation logic is complex and assumed to be correct)
-        });
-    }
-    if (applyAiProfileButton) {
-        applyAiProfileButton.addEventListener('click', () => {
-            // ... (AI profile application logic is complex and assumed to be correct)
-        });
-    }
-
-    // Listen to global events
     eventBus.on('ui:show-roast-form', showRoastForm);
     eventBus.on('ui:hide-roast-form', hideRoastForm);
     eventBus.on('beans:updated-for-roast-form', updateBeanSelection);
@@ -364,30 +294,29 @@ export function initializeRoastFormUI() {
         }
         if (saveButton) {
             saveButton.disabled = false;
-            saveButton.textContent = '記録を保存';
+            const textSpan = saveButton.querySelector('span');
+            if (textSpan) textSpan.textContent = t('saveRecord');
         }
     });
     
     eventBus.on('form:clear-event-times', () => {
-        const timeFieldIds = [
-            'turningPointTime',
-            'firstCrackTime',
-            'secondCrackTime',
-            'totalRoastTime',
-            'turningPointTemp' // TP温度もリセット対象に含める
-        ];
-
+        const timeFieldIds = ['turningPointTime', 'firstCrackTime', 'secondCrackTime', 'totalRoastTime', 'turningPointTemp'];
         timeFieldIds.forEach(id => {
             const field = document.getElementById(id);
-            if (field) {
-                field.value = '';
-            }
+            if (field) field.value = '';
         });
-
-        // 重量減少率の表示もリセット
         if (weightLossDisplay) {
             weightLossDisplay.textContent = '- %';
         }
+    });
+
+    document.addEventListener('language-changed', () => {
+        if (formSection && formSection.classList.contains('hidden')) return;
+        const editId = editRoastIdInput.value;
+        const isEdit = !!editId;
+        const data = isEdit ? getFormData() : null;
+        if (isEdit && data) data.id = editId;
+        showRoastForm({ isEdit, data });
     });
 
     console.log("✅ RoastFormUI initialized.");

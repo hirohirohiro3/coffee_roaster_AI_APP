@@ -1,5 +1,6 @@
 import { eventBus } from './EventBus.js';
 import * as RoastDataManager from './roastDataManager.js';
+import { t } from './i18n.js';
 import * as RoastUtils from './roastUtils.js';
 import * as FirebaseService from './firebaseService.js';
 
@@ -113,13 +114,14 @@ export function handleEditButtonClick(roastId) {
     if (roastToEdit) {
         eventBus.emit('ui:show-roast-form', { isEdit: true, data: roastToEdit });
     } else {
-        eventBus.emit('ui:show-toast', { message: "編集する記録が見つかりません。", type: "error" });
+        eventBus.emit('ui:show-toast', { message: t('recordToEditNotFound'), type: "error" });
     }
 }
 
 export function handleDeleteButtonClick(roastId, beanName) {
     currentRoastIdToDeleteForConfirmation = roastId;
-    eventBus.emit('ui:show-confirm-modal', { message: `「${beanName || 'この記録'}」を本当に削除しますか？` });
+    const name = beanName || t('thisRecord');
+    eventBus.emit('ui:show-confirm-modal', { message: t('confirmDeleteRecord', { beanName: name }) });
 }
 
 export async function handleConfirmDelete() {
@@ -135,7 +137,7 @@ export function handleViewProfileButtonClick(roastId) {
     if (roastToView) {
         eventBus.emit('ui:show-profile-modal', roastToView);
     } else {
-        eventBus.emit('ui:show-toast', { message: "詳細を表示する記録が見つかりません。", type: "error" });
+        eventBus.emit('ui:show-toast', { message: t('recordToViewNotFound'), type: "error" });
     }
 }
 
@@ -158,7 +160,7 @@ export async function handleRoastFormSubmit(formData, editId) {
 export async function handleToggleFavorite(roastId) {
     const roast = localRoastsCache.find(r => r.id === roastId);
     if (!roast) {
-        eventBus.emit('ui:show-toast', { message: "対象の記録が見つかりません。", type: "error" });
+        eventBus.emit('ui:show-toast', { message: t('recordNotFound'), type: "error" });
         return;
     }
     const newFavoriteStatus = !roast.isFavorite;
@@ -181,10 +183,10 @@ export function getRoastsByIds(ids) {
 
 export function handleExportCsv() {
     if (!localRoastsCache || localRoastsCache.length === 0) {
-        eventBus.emit('ui:show-toast', { message: "エクスポートする記録がありません。", type: "warning" });
+        eventBus.emit('ui:show-toast', { message: t('noRecordsToExport'), type: "warning" });
         return;
     }
-    const headers = ["ID", "豆の名前", "焙煎日", "焙煎度", "産地", "生豆重量(g)", "焙煎豆重量(g)", "投入温度(°C)", "TP時間(分:秒)", "TP温度(°C)", "1ハゼ時間(分:秒)", "2ハゼ時間(分:秒)", "煎り止め温度(°C)", "総焙煎時間(分:秒)", "DTR(%)", "重量減少率(%)", "記録時気温(°C)", "記録時湿度(%)", "メモ", "豆温度ログ", "庫内温度ログ", "RORログ"];
+    const headers = ["ID", t('csvHeaderBeanName'), t('csvHeaderRoastDate'), t('csvHeaderRoastLevel'), t('csvHeaderOrigin'), t('csvHeaderGreenWeightG'), t('csvHeaderRoastedWeightG'), t('csvHeaderChargingTempC'), t('csvHeaderTpTime'), t('csvHeaderTpTemp'), t('csvHeaderFcTime'), t('csvHeaderScTime'), t('csvHeaderDropTempC'), t('csvHeaderTotalTime'), t('csvHeaderDtrPct'), t('csvHeaderWeightLossPct'), t('csvHeaderWeatherTemp'), t('csvHeaderWeatherHumidity'), t('csvHeaderNotes'), t('csvHeaderBeanTempLog'), t('csvHeaderChamberTempLog'), t('csvHeaderRorLog')];
     const rows = localRoastsCache.map(roast => {
         const greenBeanWeight = roast.greenBeanWeight !== undefined && roast.greenBeanWeight !== null ? roast.greenBeanWeight : '';
         const roastedBeanWeight = roast.roastedBeanWeight !== undefined && roast.roastedBeanWeight !== null ? roast.roastedBeanWeight : '';
@@ -214,9 +216,9 @@ export function handleExportCsv() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        eventBus.emit('ui:show-toast', { message: "CSVファイルをエクスポートしました。", type: "success" });
+        eventBus.emit('ui:show-toast', { message: t('csvExportSuccess'), type: "success" });
     } else {
-        eventBus.emit('ui:show-toast', { message: "お使いのブラウザでは直接ダウンロードがサポートされていません。", type: "error" });
+        eventBus.emit('ui:show-toast', { message: t('directDownloadNotSupported'), type: "error" });
         console.error("RoastWorkflowController: CSV export - Download attribute not supported.");
     }
 }

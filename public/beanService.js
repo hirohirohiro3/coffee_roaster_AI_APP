@@ -4,6 +4,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { eventBus } from './EventBus.js';
 import * as FirebaseService from './firebaseService.js';
+import { t } from './i18n.js';
 
 let unsubscribeBeans = null;
 
@@ -31,7 +32,7 @@ function listenToBeans() {
         eventBus.emit('data:beans-updated', beans);
     }, (error) => {
         console.error("beanService: Error listening to beans data:", error);
-        eventBus.emit('ui:show-toast', { message: "生豆の在庫データの取得に失敗しました。", type: "error" });
+        eventBus.emit('ui:show-toast', { message: t('beanStockFetchFailed'), type: "error" });
         eventBus.emit('data:beans-updated', []);
     });
 }
