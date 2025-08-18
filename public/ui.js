@@ -83,14 +83,15 @@ export function setFormFieldValue(fieldId, value) {
  * @param {string} text - 読み上げるテキスト
  * @param {string} [lang='ja-JP'] - 言語コード
  */
-export function speak(text, lang = 'ja-JP') {
+export function speak(text) {
     if ('speechSynthesis' in window) {
         try {
             if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
             }
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = lang;
+            // Use the language set on the root element
+            utterance.lang = document.documentElement.lang === 'ja' ? 'ja-JP' : 'en-US';
             window.speechSynthesis.speak(utterance);
         } catch (e) {
             console.error("Speech synthesis error in ui.js:", e);

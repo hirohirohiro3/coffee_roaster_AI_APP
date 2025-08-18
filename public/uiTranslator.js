@@ -9,6 +9,22 @@ export function updateUIText() {
       el.textContent = t(key);
     }
   });
+
+  // Update placeholder text for elements with data-i18n-placeholder-key
+  document.querySelectorAll('[data-i18n-placeholder-key]').forEach(el => {
+    const key = el.dataset.i18nPlaceholderKey;
+    if (key) {
+      el.placeholder = t(key);
+    }
+  });
+
+  // Update title text for elements with data-i18n-title-key
+  document.querySelectorAll('[data-i18n-title-key]').forEach(el => {
+    const key = el.dataset.i18nTitleKey;
+    if (key) {
+      el.title = t(key);
+    }
+  });
 }
 
 export function initializeUITranslator() {

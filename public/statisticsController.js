@@ -2,6 +2,7 @@ import { eventBus } from './EventBus.js';
 import { getJoinedRoasts } from './dataService.js';
 import { timeToSeconds, formatTime, calculateDTR } from './roastUtils.js';
 import { updateRoastRecord } from './firebaseService.js';
+import { t } from './i18n.js';
 
 // --- モジュールスコープの変数 ---
 let monthlyChartInstance = null;
@@ -40,15 +41,18 @@ function populateYearSelector(years) {
     if (!yearSelector) return;
     
     // すでにオプションが生成済みなら何もしない
-    if (yearSelector.options.length > 1) return;
+    if (yearSelector.options.length > 1 && yearSelector.dataset.i18nLoaded) return;
 
-    yearSelector.innerHTML = '<option value="">年を選択...</option>';
+    const selectedValue = yearSelector.value;
+    yearSelector.innerHTML = `<option value="">${t('selectYear')}</option>`;
     years.forEach(year => {
         const option = document.createElement('option');
         option.value = year;
-        option.textContent = `${year}年`;
+        option.textContent = t('yearLabel', { year });
         yearSelector.appendChild(option);
     });
+    yearSelector.value = selectedValue;
+    yearSelector.dataset.i18nLoaded = true;
 }
 
 
@@ -108,7 +112,7 @@ function renderMonthlyCostChart(roasts) {
         data: {
             labels: labels,
             datasets: [{
-                label: '月別投資額 (円)',
+                label: t('monthlyInvestmentYen'),
                 data: data,
                 backgroundColor: 'rgba(217, 119, 6, 0.5)',
                 borderColor: 'rgba(217, 119, 6, 1)',
@@ -151,7 +155,7 @@ function renderBeanRankingTable(roasts) {
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${index + 1}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bean.name}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bean.avgRating} ★</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bean.count} 回</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${bean.count} ${t('countSuffix')}</td>
         </tr>
     `).join('');
 }
@@ -159,76 +163,79 @@ function renderBeanRankingTable(roasts) {
 // 相関分析で利用可能な指標の定義
 const scatterAxesOptions = {
     // 焙煎プロセス
-    dtr: { label: 'DTR (%)', getter: r => r.dtr },
-    developmentTime: { label: '現像時間 (秒)', getter: r => {
+    dtr: { labelKey: 'axisDtrPct', getter: r => r.dtr },
+    developmentTime: { labelKey: 'axisDevTimeSec', getter: r => {
         const totalSeconds = timeToSeconds(r.totalRoastTime);
         const crackSeconds = timeToSeconds(r.firstCrackTime);
-        // どちらかの値が無効な場合はnullを返し、計算エラーを防ぐ
         return (totalSeconds && crackSeconds) ? totalSeconds - crackSeconds : null;
     }},
-    totalRoastTime: { label: '合計時間 (秒)', getter: r => timeToSeconds(r.totalRoastTime) },
-    chargeTemp: { label: '投入温度 (°C)', getter: r => r.chargeTemp },
-    turningPointTemp: { label: 'TP温度 (°C)', getter: r => r.turningPointTemp },
-    firstCrackTime: { label: '1ハゼ時間 (秒)', getter: r => timeToSeconds(r.firstCrackTime) },
+    totalRoastTime: { labelKey: 'axisTotalTimeSec', getter: r => timeToSeconds(r.totalRoastTime) },
+    chargeTemp: { labelKey: 'axisChargeTempC', getter: r => r.chargeTemp },
+    turningPointTemp: { labelKey: 'axisTpTempC', getter: r => r.turningPointTemp },
+    firstCrackTime: { labelKey: 'axisFcTimeSec', getter: r => timeToSeconds(r.firstCrackTime) },
     // 物理的な結果
-    weightLoss: { label: '重量減少率 (%)', getter: r => r.weightLoss },
-    greenBeanWeight: { label: '生豆重量 (kg)', getter: r => r.greenBeanWeight },
+    weightLoss: { labelKey: 'axisWeightLossPct', getter: r => r.weightLoss },
+    greenBeanWeight: { labelKey: 'axisGreenWeightKg', getter: r => r.greenBeanWeight },
     // 感覚的な評価
-    overallRating: { label: '総合評価 (点)', getter: r => r.overallRating },
-    acidityIntensity: { label: '酸味の強さ (1-5)', getter: r => r.acidityIntensity },
-    bodyWeight: { label: 'ボディの重さ (1-5)', getter: r => r.bodyWeight },
-    aftertasteLength: { label: '後味の長さ (1-5)', getter: r => r.aftertasteLength },
-    aftertasteQuality: { label: '後味の質 (1-5)', getter: r => r.aftertasteQuality },
-    balance: { label: 'バランス (1-5)', getter: r => r.balance }
+    overallRating: { labelKey: 'axisOverallRating', getter: r => r.overallRating },
+    acidityIntensity: { labelKey: 'axisAcidityIntensity', getter: r => r.acidityIntensity },
+    bodyWeight: { labelKey: 'axisBodyWeight', getter: r => r.bodyWeight },
+    aftertasteLength: { labelKey: 'axisAftertasteLength', getter: r => r.aftertasteLength },
+    aftertasteQuality: { labelKey: 'axisAftertasteQuality', getter: r => r.aftertasteQuality },
+    balance: { labelKey: 'axisBalance', getter: r => r.balance }
 };
 
 /**
  * 相関分析のX軸・Y軸の選択肢を生成
  */
 function populateScatterAxisSelects() {
-    if (!scatterXAxisSelect || !scatterYAxisSelect || scatterXAxisSelect.options.length > 0) return;
+    if (!scatterXAxisSelect || !scatterYAxisSelect || scatterXAxisSelect.dataset.i18nLoaded) return;
 
-    // グループ分けされた選択肢の定義
     const axisGroups = {
-        "焙煎プロセス": {
-            dtr: { label: 'DTR (%)' },
-            developmentTime: { label: '現像時間 (秒)' },
-            totalRoastTime: { label: '合計時間 (秒)' },
-            chargeTemp: { label: '投入温度 (°C)' },
-            turningPointTemp: { label: 'TP温度 (°C)' },
-            firstCrackTime: { label: '1ハゼ時間 (秒)' }
+        "axisGroupProcess": {
+            dtr: { labelKey: 'axisDtrPct' },
+            developmentTime: { labelKey: 'axisDevTimeSec' },
+            totalRoastTime: { labelKey: 'axisTotalTimeSec' },
+            chargeTemp: { labelKey: 'axisChargeTempC' },
+            turningPointTemp: { labelKey: 'axisTpTempC' },
+            firstCrackTime: { labelKey: 'axisFcTimeSec' }
         },
-        "物理的な結果": {
-            weightLoss: { label: '重量減少率 (%)' },
-            greenBeanWeight: { label: '生豆重量 (kg)' }
+        "axisGroupPhysical": {
+            weightLoss: { labelKey: 'axisWeightLossPct' },
+            greenBeanWeight: { labelKey: 'axisGreenWeightKg' }
         },
-        "感覚的な評価": {
-            overallRating: { label: '総合評価 (点)' },
-            acidityIntensity: { label: '酸味の強さ (1-5)' },
-            bodyWeight: { label: 'ボディの重さ (1-5)' },
-            aftertasteLength: { label: '後味の長さ (1-5)' },
-            aftertasteQuality: { label: '後味の質 (1-5)' },
-            balance: { label: 'バランス (1-5)' }
+        "axisGroupSensory": {
+            overallRating: { labelKey: 'axisOverallRating' },
+            acidityIntensity: { labelKey: 'axisAcidityIntensity' },
+            bodyWeight: { labelKey: 'axisBodyWeight' },
+            aftertasteLength: { labelKey: 'axisAftertasteLength' },
+            aftertasteQuality: { labelKey: 'axisAftertasteQuality' },
+            balance: { labelKey: 'axisBalance' }
         }
     };
 
-    // <optgroup> を使ったHTMLを生成
-    let optionsHtml = '';
-    for (const groupLabel in axisGroups) {
-        optionsHtml += `<optgroup label="--- ${groupLabel} ---">`;
-        for (const key in axisGroups[groupLabel]) {
-            optionsHtml += `<option value="${key}">${axisGroups[groupLabel][key].label}</option>`;
+    const buildOptions = (selectElement) => {
+        const currentValue = selectElement.value;
+        let optionsHtml = '';
+        for (const groupKey in axisGroups) {
+            optionsHtml += `<optgroup label="--- ${t(groupKey)} ---">`;
+            for (const key in axisGroups[groupKey]) {
+                optionsHtml += `<option value="${key}">${t(axisGroups[groupKey][key].labelKey)}</option>`;
+            }
+            optionsHtml += `</optgroup>`;
         }
-        optionsHtml += `</optgroup>`;
-    }
+        selectElement.innerHTML = optionsHtml;
+        selectElement.value = currentValue;
+    };
 
-    // 両方のプルダウンに生成したHTMLを適用
-    scatterXAxisSelect.innerHTML = optionsHtml;
-    scatterYAxisSelect.innerHTML = optionsHtml;
+    buildOptions(scatterXAxisSelect);
+    buildOptions(scatterYAxisSelect);
 
-    // 最も有益な組み合わせをデフォルトに設定
     scatterXAxisSelect.value = 'dtr';
     scatterYAxisSelect.value = 'overallRating';
+
+    scatterXAxisSelect.dataset.i18nLoaded = true;
+    scatterYAxisSelect.dataset.i18nLoaded = true;
 }
 
 /**
@@ -247,11 +254,15 @@ function renderScatterPlot(roasts) {
     const ctx = document.getElementById('scatterPlotChart')?.getContext('2d');
     if (!ctx) return;
     if (scatterPlotInstance) scatterPlotInstance.destroy();
+
+    const xLabel = t(scatterAxesOptions[xKey].labelKey);
+    const yLabel = t(scatterAxesOptions[yKey].labelKey);
+
     scatterPlotInstance = new Chart(ctx, {
         type: 'scatter',
         data: {
             datasets: [{
-                label: `${scatterAxesOptions[xKey].label} vs ${scatterAxesOptions[yKey].label}`,
+                label: `${xLabel} vs ${yLabel}`,
                 data: data,
                 backgroundColor: 'rgba(217, 119, 6, 0.7)'
             }]
@@ -260,8 +271,8 @@ function renderScatterPlot(roasts) {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                x: { title: { display: true, text: scatterAxesOptions[xKey].label } },
-                y: { title: { display: true, text: scatterAxesOptions[yKey].label } }
+                x: { title: { display: true, text: xLabel } },
+                y: { title: { display: true, text: yLabel } }
             },
             plugins: {
                 tooltip: {
@@ -294,7 +305,7 @@ function checkForOldDataAndShowPrompt() {
 async function handleBatchUpdate() {
     if (!runUpdateButton) return;
     runUpdateButton.disabled = true;
-    runUpdateButton.textContent = '更新処理を実行中...';
+    runUpdateButton.textContent = t('updateInProgress');
     const allRoasts = getJoinedRoasts();
     let updatedCount = 0;
     const updatePromises = allRoasts.map(roast => {
@@ -309,7 +320,6 @@ async function handleBatchUpdate() {
                 averageRating = parseFloat((ratingValues.reduce((s, v) => s + v, 0) / ratingValues.length).toFixed(2));
             }
         }
-        // undfinedの代わりにnullを使用する
         if (averageRating === undefined) {
             averageRating = null;
         }
@@ -322,7 +332,6 @@ async function handleBatchUpdate() {
         let dtrValue = roast.dtr;
         if (typeof roast.dtr === 'undefined' || roast.dtr === null) {
             const dtr = calculateDTR(roast.firstCrackTime, roast.totalRoastTime);
-            // undfinedの代わりにnullを使用する
             dtrValue = dtr ? parseFloat(dtr.toFixed(2)) : null;
         }
         if (roast.dtr !== dtrValue) {
@@ -338,15 +347,15 @@ async function handleBatchUpdate() {
     });
     try {
         await Promise.all(updatePromises);
-        runUpdateButton.textContent = '更新が完了しました！';
+        runUpdateButton.textContent = t('updateComplete');
         runUpdateButton.classList.remove('bg-teal-600', 'hover:bg-teal-700');
         runUpdateButton.classList.add('bg-green-600');
-        eventBus.emit('ui:show-toast', { message: `${updatedCount}件の記録を更新しました。`, type: 'success' });
+        eventBus.emit('ui:show-toast', { message: t('recordsUpdated', { count: updatedCount }), type: 'success' });
         setTimeout(() => { if (updateNotificationBar) updateNotificationBar.classList.add('hidden'); }, 2000);
     } catch (error) {
-        console.error("一括更新中にエラーが発生しました:", error);
-        eventBus.emit('ui:show-toast', { message: 'エラーが発生しました。', type: 'error' });
-        runUpdateButton.textContent = 'エラーが発生しました';
+        console.error(t('batchUpdateError'), error);
+        eventBus.emit('ui:show-toast', { message: t('anErrorOccurred'), type: 'error' });
+        runUpdateButton.textContent = t('anErrorOccurred');
         runUpdateButton.classList.add('bg-red-600');
     }
 }
@@ -416,6 +425,13 @@ export function initializeStatisticsController() {
         }
     });
 
+    document.addEventListener('language-changed', () => {
+        if (document.getElementById('statistics-page')?.style.display !== 'none') {
+            renderAllStatistics();
+            populateFlavorAnalysisSelects();
+        }
+    });
+
     if (scatterXAxisSelect && scatterYAxisSelect) {
         scatterXAxisSelect.addEventListener('change', () => renderScatterPlot(getJoinedRoasts()));
         scatterYAxisSelect.addEventListener('change', () => renderScatterPlot(getJoinedRoasts()));
@@ -428,30 +444,28 @@ export function initializeStatisticsController() {
  * 生豆別フレーバー分析のプルダウンを初期化・生成する関数
  */
 function populateFlavorAnalysisSelects() {
-    // ▼▼▼ この2行を追加 ▼▼▼
-    if (flavorAnalysisBeanSelect && flavorAnalysisBeanSelect.options.length > 1) return;
-    // ▲▲▲ 追加ここまで ▲▲▲
+    if (flavorAnalysisBeanSelect && flavorAnalysisBeanSelect.dataset.i18nLoaded) return;
     if (!flavorAnalysisBeanSelect || !flavorAnalysisParamSelect) return;
 
     const allRoasts = getJoinedRoasts();
 
-    // ユニークな豆の名前リストを作成して、豆選択プルダウンを生成
-    const uniqueBeanNames = [...new Set(allRoasts.map(r => r.beanName).filter(name => name && name !== '（削除された豆）'))];
+    const uniqueBeanNames = [...new Set(allRoasts.map(r => r.beanName).filter(name => name && name !== t('deletedBean')))];
     uniqueBeanNames.sort((a, b) => a.localeCompare(b, 'ja'));
-    flavorAnalysisBeanSelect.innerHTML = '<option value="">まず豆を選んでください</option>' +
+    flavorAnalysisBeanSelect.innerHTML = `<option value="">${t('selectBeanFirst')}</option>` +
         uniqueBeanNames.map(name => `<option value="${name}">${name}</option>`).join('');
 
-    // 分析対象とする焙煎指標のプルダウンを生成
     const params = {
-        dtr: { label: 'DTR (%)' },
-        developmentTime: { label: '現像時間 (秒)' },
-        totalRoastTime: { label: '合計時間 (秒)' },
-        weightLoss: { label: '重量減少率 (%)' },
-        chargeTemp: { label: '投入温度 (°C)' }
+        dtr: { labelKey: 'axisDtrPct' },
+        developmentTime: { labelKey: 'axisDevTimeSec' },
+        totalRoastTime: { labelKey: 'axisTotalTimeSec' },
+        weightLoss: { labelKey: 'axisWeightLossPct' },
+        chargeTemp: { labelKey: 'axisChargeTempC' }
     };
     flavorAnalysisParamSelect.innerHTML = Object.entries(params)
-        .map(([key, { label }]) => `<option value="${key}">${label}</option>`)
+        .map(([key, { labelKey }]) => `<option value="${key}">${t(labelKey)}</option>`)
         .join('');
+
+    flavorAnalysisBeanSelect.dataset.i18nLoaded = true;
 }
 
 function renderFlavorRadarChart() {
@@ -486,13 +500,12 @@ function renderFlavorRadarChart() {
     });
 
     const labels = Object.keys(flavorStats);
-    flavorRadarChartContainer.style.display = 'flex'; // コンテナは常に表示
+    flavorRadarChartContainer.style.display = 'flex';
 
     if (labels.length < 3) {
-        // データが不足している場合：メッセージを表示
         if (chartCanvas) chartCanvas.style.display = 'none';
         flavorRadarMessage.style.display = 'block';
-        flavorRadarMessage.textContent = `「${selectedBeanName}」には、分析に必要な3種類以上のフレーバー記録がまだありません。`;
+        flavorRadarMessage.textContent = t('notEnoughFlavorData', { beanName: selectedBeanName });
         if (flavorRadarChartInstance) {
             flavorRadarChartInstance.destroy();
             flavorRadarChartInstance = null;
@@ -500,7 +513,6 @@ function renderFlavorRadarChart() {
         return;
     }
 
-    // データが十分な場合：チャートを表示
     if (chartCanvas) chartCanvas.style.display = 'block';
     flavorRadarMessage.style.display = 'none';
 
@@ -512,12 +524,14 @@ function renderFlavorRadarChart() {
         flavorRadarChartInstance.destroy();
     }
 
+    const paramLabel = t(scatterAxesOptions[selectedParamKey].labelKey);
+
     flavorRadarChartInstance = new Chart(ctx, {
         type: 'radar',
         data: {
             labels: labels,
             datasets: [{
-                label: `${selectedBeanName}の${flavorAnalysisParamSelect.options[flavorAnalysisParamSelect.selectedIndex].text}`,
+                label: t('flavorRadarLabel', { beanName: selectedBeanName, param: paramLabel }),
                 data: data,
                 fill: true,
                 backgroundColor: 'rgba(217, 119, 6, 0.2)',

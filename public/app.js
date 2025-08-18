@@ -1,4 +1,4 @@
-import { initI18n, setLanguage } from './i18n.js';
+import { initI18n, setLanguage, t } from './i18n.js';
 import { initializeUITranslator, updateUIText } from './uiTranslator.js';
 import { loadAllComponents } from './htmlLoader.js';
 import { initializeFirebase } from './firebaseService.js';
@@ -144,7 +144,7 @@ export default class App {
                 addNewRoastButton.disabled = !hasBeans;
                 // Note: This text will be updated by the i18n system via data-i18n-key
                 if (!hasBeans) {
-                    addNewRoastButton.textContent = '在庫の豆がありません'; // Fallback text
+                    addNewRoastButton.textContent = t('noBeansInStock'); // Fallback text
                 }
                 addNewRoastButton.classList.toggle('bg-amber-400', !hasBeans);
                 addNewRoastButton.classList.toggle('cursor-not-allowed', !hasBeans);
@@ -170,27 +170,27 @@ export default class App {
                     temperature: weatherData.temperature, 
                     humidity: weatherData.humidity 
                 });
-                if (showToastCb) showToastCb(`気象情報を取得しました: 気温 ${weatherData.temperature}°C, 湿度 ${weatherData.humidity}%`, "success");
+                if (showToastCb) showToastCb(t('weatherFetchSuccess', { temperature: weatherData.temperature, humidity: weatherData.humidity }), "success");
             } else {
-                const message = weatherData?.error || '不明なエラーです。';
+                const message = weatherData?.error || t('unknownError');
                 eventBus.emit('weather:data-fetched', { temperature: null, humidity: null });
-                if (showToastCb) showToastCb(`気象情報の取得に失敗: ${message}`, "error", 5000);
+                if (showToastCb) showToastCb(t('weatherFetchFailed', { message }), "error", 5000);
             }
         } catch (e) {
             console.error("app.js: Unexpected error in handleFetchWeather:", e);
             eventBus.emit('weather:data-fetched', { temperature: null, humidity: null });
-            if (showToastCb) showToastCb("気象情報の取得中に予期せぬエラーが発生しました。", "error", 5000);
+            if (showToastCb) showToastCb(t('weatherFetchUnexpectedError'), "error", 5000);
         } finally {
             if (fetchButton) fetchButton.disabled = false;
         }
     }
 
     handleLogEventTime(targetFieldId) {
-        const t = getCurrentElapsedTimeInSeconds();
-        const f = formatTime(t);
+        const timeValue = getCurrentElapsedTimeInSeconds();
+        const formattedTime = formatTime(timeValue);
         
         if (!targetFieldId || targetFieldId.trim() === '') {
-            showToast("記録対象イベントが選択されていません。", "warning");
+            showToast(t('noEventToRecordSelected'), "warning");
             return;
         }
 
@@ -205,14 +205,14 @@ export default class App {
         const eventName = eventButton ? eventButton.textContent.split(' ')[0] : targetFieldId;
         
         if (existingTime && existingTime.trim() !== '') {
-            if (!window.confirm(`「${eventName}」は ${existingTime} で記録済みです。新しい時間 (${f}) で上書きしますか？`)) {
+            if (!window.confirm(t('confirmOverwriteEventTime', { eventName, existingTime, newTime: formattedTime }))) {
                 return; 
             }
         }
         
-        if (t >= 0) {
-            setFormFieldValue(targetFieldId, f);
-            speak(`${eventName} の時間を ${f} で記録しました。`);
+        if (timeValue >= 0) {
+            setFormFieldValue(targetFieldId, formattedTime);
+            speak(t('eventTimeRecorded', { eventName, time: formattedTime }));
 
             if (targetFieldId === 'turningPointTime') {
                 const turningPointTemp = document.getElementById('turningPointTempInput').value;

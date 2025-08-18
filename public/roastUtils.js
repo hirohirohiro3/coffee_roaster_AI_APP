@@ -1,4 +1,4 @@
-// roastUtils.js
+import { t } from './i18n.js';
 
 /**
  * 秒数を MM:SS 形式の文字列に変換します。
@@ -36,8 +36,8 @@ export function timeToSeconds(timeString) {
  * @returns {{lossPercentage: string, error: string|null}} 計算結果またはエラー情報。
  */
 export function calculateWeightLoss(greenWeight, roastedWeight) {
-    if (greenWeight <= 0) return { lossPercentage: '-', error: '生豆重量が不正です' };
-    if (roastedWeight > greenWeight) return { lossPercentage: '-', error: '焙煎後の方が重いです' };
+    if (greenWeight <= 0) return { lossPercentage: '-', error: t('errorInvalidGreenWeight') };
+    if (roastedWeight > greenWeight) return { lossPercentage: '-', error: t('errorRoastedHeavier') };
     const loss = greenWeight - roastedWeight;
     const lossPercentage = (loss / greenWeight) * 100;
     return { lossPercentage: lossPercentage.toFixed(1), error: null };

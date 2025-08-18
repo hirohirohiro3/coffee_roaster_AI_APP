@@ -4,65 +4,63 @@
         <input type="hidden" id="editRoastId" name="editRoastId">
 
         <fieldset class="border-t pt-4 border-[var(--border-color)]">
-            <legend class="text-lg font-medium text-[var(--text-primary)] mb-4">焙煎前の計画 (Plan)</legend>
+            <legend class="text-lg font-medium text-[var(--text-primary)] mb-4" data-i18n-key="roastPlan"></legend>
             <div class="space-y-4">
                 <div>
-                    <label for="beanIdSelect" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">使用する豆 <span class="text-red-500">*</span></label>
+                    <label for="beanIdSelect" class="block text-sm font-medium text-[var(--text-secondary)] mb-1" data-i18n-key="beanToUse"></label>
                     <select id="beanIdSelect" name="beanId" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]"></select>
                 </div>
                 <div>
-                    <label for="roastDate" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">焙煎日 <span class="text-red-500">*</span></label>
+                    <label for="roastDate" class="block text-sm font-medium text-[var(--text-secondary)] mb-1" data-i18n-key="roastDateLabel"></label>
                     <input type="date" id="roastDate" name="roastDate" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="roastLevelSlider" class="block text-sm font-medium text-[var(--text-secondary)]">目標の焙煎度</label>
+                    <label for="roastLevelSlider" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="targetRoastLevel"></label>
                     <input type="range" id="roastLevelSlider" name="roastLevelSlider" min="1" max="8" value="5" class="w-full h-2 bg-[var(--border-color)] rounded-lg appearance-none cursor-pointer mt-2">
-                    <div id="roastLevelLabel" class="text-center text-sm text-[var(--text-primary)] font-semibold mt-1">シティロースト</div>
+                    <div id="roastLevelLabel" class="text-center text-sm text-[var(--text-primary)] font-semibold mt-1" data-i18n-key="roastLevelCity"></div>
                     <input type="hidden" id="roastLevel" name="roastLevel" value="シティロースト">
                 </div>
                 <div>
-                    <label for="greenBeanWeight" class="block text-sm font-medium text-[var(--text-secondary)] mb-1">生豆重量 (kg単位) <span class="text-red-500">*</span></label>
-                    <input type="number" id="greenBeanWeight" name="greenBeanWeight" step="0.001" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例: 0.2 (200gの場合)">
+                    <label for="greenBeanWeight" class="block text-sm font-medium text-[var(--text-secondary)] mb-1" data-i18n-key="greenBeanWeightKg"><span class="text-red-500">*</span></label>
+                    <input type="number" id="greenBeanWeight" name="greenBeanWeight" step="0.001" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" data-i18n-placeholder-key="greenBeanWeightPlaceholder">
                 </div>
                 <div>
-                    <label for="targetFlavor" class="block text-sm font-medium text-[var(--text-secondary)]">目標とする風味 (任意)</label>
-                    <input type="text" id="targetFlavor" name="targetFlavor" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例: フルーティーな酸味を際立たせる">
+                    <label for="targetFlavor" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="targetFlavorProfileOptional"></label>
+                    <input type="text" id="targetFlavor" name="targetFlavor" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" data-i18n-placeholder-key="targetFlavorProfilePlaceholder">
                 </div>
                 <div>
-                    <label for="roasterModel" class="block text-sm font-medium text-[var(--text-secondary)]">使用する焙煎機 (任意)</label>
-                    <input type="text" id="roasterModel" name="roasterModel" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例: Aillio Bullet R1 (半熱風式)">
+                    <label for="roasterModel" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="roasterModelOptional"></label>
+                    <input type="text" id="roasterModel" name="roasterModel" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" data-i18n-placeholder-key="roasterModelPlaceholder">
                 </div>
                 <div class="space-y-2 pt-4 border-t border-[var(--border-color)]">
-                    <h3 class="text-md font-medium text-[var(--text-primary)]">焙煎時の気候 (任意)</h3>
+                    <h3 class="text-md font-medium text-[var(--text-primary)]" data-i18n-key="roastWeatherOptional"></h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label for="roastWeatherTemp" class="block text-sm font-medium text-[var(--text-secondary)]">気温 (°C)</label>
-                            <input type="text" id="roastWeatherTemp" name="roastWeatherTemp" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]" readonly placeholder="未取得">
+                            <label for="roastWeatherTemp" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="temperatureC"></label>
+                            <input type="text" id="roastWeatherTemp" name="roastWeatherTemp" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]" readonly data-i18n-placeholder-key="notAvailable">
                         </div>
                         <div>
-                            <label for="roastWeatherHumidity" class="block text-sm font-medium text-[var(--text-secondary)]">湿度 (%)</label>
-                            <input type="text" id="roastWeatherHumidity" name="roastWeatherHumidity" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]" readonly placeholder="未取得">
+                            <label for="roastWeatherHumidity" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="humidityPct"></label>
+                            <input type="text" id="roastWeatherHumidity" name="roastWeatherHumidity" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-md shadow-sm sm:text-sm text-[var(--text-primary)]" readonly data-i18n-placeholder-key="notAvailable">
                         </div>
                     </div>
-                    <button type="button" id="fetchWeatherButton" class="mt-2 px-3 py-1.5 border border-blue-500 rounded-md shadow-sm text-sm font-medium text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400">現在地の気候情報を取得</button>
+                    <button type="button" id="fetchWeatherButton" class="mt-2 px-3 py-1.5 border border-blue-500 rounded-md shadow-sm text-sm font-medium text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400" data-i18n-key="fetchCurrentWeather"></button>
                 </div>
                 <div class="space-y-4 pt-4 border-t border-[var(--border-color)]">
-                    <h3 class="text-md font-medium text-[var(--text-primary)]">AI 連携</h3>
+                    <h3 class="text-md font-medium text-[var(--text-primary)]" data-i18n-key="aiIntegration"></h3>
                     <div class="tooltip">
-                        <button type="button" id="generateAiPromptButton" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700">
-                            🤖 外部AIへの質問を作成 (コピー)
+                        <button type="button" id="generateAiPromptButton" class="w-full px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700" data-i18n-key="createAiPrompt">
                         </button>
-                        <span class="tooltiptext">現在のフォーム入力からAIへの質問プロンプトを生成し、クリップボードにコピーします。</span>
+                        <span class="tooltiptext" data-i18n-key="createAiPromptTooltip"></span>
                     </div>
                     <div>
-                        <label for="aiProfileInput" class="block text-sm font-medium text-[var(--text-secondary)]">AIからの提案をペースト</label>
-                        <textarea id="aiProfileInput" rows="5" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" placeholder="例:\n1分: 150.0℃\n2分: 165.5℃\n..."></textarea>
+                        <label for="aiProfileInput" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="pasteAiSuggestion"></label>
+                        <textarea id="aiProfileInput" rows="5" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]" data-i18n-placeholder-key="pasteAiSuggestionPlaceholder"></textarea>
                     </div>
                     <div class="tooltip">
-                        <button type="button" id="applyAiProfileButton" class="w-full px-4 py-2 bg-teal-600 text-white font-medium rounded-md hover:bg-teal-700">
-                            AIの提案を貼り付けてグラフ表示
+                        <button type="button" id="applyAiProfileButton" class="w-full px-4 py-2 bg-teal-600 text-white font-medium rounded-md hover:bg-teal-700" data-i18n-key="applyAiSuggestion">
                         </button>
-                        <span class="tooltiptext">テキストエリアのデータを解析し、目標プロファイルとしてグラフに点線で表示します。</span>
+                        <span class="tooltiptext" data-i18n-key="applyAiSuggestionTooltip"></span>
                     </div>
                 </div>
             </div>
@@ -72,27 +70,27 @@
             <legend class="text-lg font-medium text-[var(--text-primary)] mb-4" data-i18n-key="roastInProgress"></legend>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="chargingTemperature" class="block text-sm font-medium text-[var(--text-secondary)]">投入温度 (°C)</label>
+                    <label for="chargingTemperature" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="chargingTempC"></label>
                     <input type="number" id="chargingTemperature" name="chargingTemperature" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="turningPointTime" class="block text-sm font-medium text-[var(--text-secondary)]">TP時間 (分:秒)</label>
+                    <label for="turningPointTime" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="turningPointTimeLabel"></label>
                     <input type="text" id="turningPointTime" name="turningPointTime" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="turningPointTemp" class="block text-sm font-medium text-[var(--text-secondary)]">TP温度 (°C)</label>
+                    <label for="turningPointTemp" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="turningPointTempLabel"></label>
                     <input type="number" id="turningPointTemp" name="turningPointTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="firstCrackTime" class="block text-sm font-medium text-[var(--text-secondary)]">1ハゼ時間 (分:秒)</label>
+                    <label for="firstCrackTime" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="firstCrackTimeLabel"></label>
                     <input type="text" id="firstCrackTime" name="firstCrackTime" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                 <div>
-                    <label for="secondCrackTime" class="block text-sm font-medium text-[var(--text-secondary)]">2ハゼ時間 (分:秒)</label>
+                    <label for="secondCrackTime" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="secondCrackTimeLabel"></label>
                     <input type="text" id="secondCrackTime" name="secondCrackTime" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
                  <div>
-                    <label for="endOfRoastTemp" class="block text-sm font-medium text-[var(--text-secondary)]">煎り止め温度 (°C)</label>
+                    <label for="endOfRoastTemp" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="endOfRoastTempC"></label>
                     <input type="number" id="endOfRoastTemp" name="endOfRoastTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm text-[var(--text-primary)]">
                 </div>
             </div>
