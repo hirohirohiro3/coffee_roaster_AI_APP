@@ -227,6 +227,79 @@ function _updateRoastLevelSlider() {
     roastLevelSlider.classList.add(`roast-level-${value}`);
 }
 
+function _handleGenerateAiPrompt() {
+    const data = getFormData();
+    const beanName = beanSelect.selectedOptions[0]?.textContent.split('(')[0].trim() || t('deletedBean');
+
+    const promptParts = [
+        `これから、コーヒー豆「${beanName}」の焙煎プロファイルについて相談です。`,
+        `以下の情報をもとに、最高の風味を引き出すための理想的な温度推移（タイムスタンプと目標温度）を提案してください。`,
+        `・目標の焙煎度: ${data.roastLevel || '未設定'}`,
+        `・生豆の投入量: ${data.greenBeanWeight || '未設定'} kg`,
+        `・目標とする風味: ${data.targetFlavor || '特に指定なし'}`,
+        `・使用する焙煎機: ${data.roasterModel || '不明'}`,
+        `・焙煎時の環境: 気温 ${data.roastWeatherTemp || '不明'}℃, 湿度 ${data.roastWeatherHumidity || '不明'}%`,
+        `\n提案は、以下のような「時間(分:秒), 温度(℃)」の形式で、複数行にわたって提示してください。`,
+        `例:`,
+        `0:30, 120.5`,
+        `1:00, 150.0`,
+        `...`
+    ];
+
+    const promptText = promptParts.join('\n');
+    navigator.clipboard.writeText(promptText).then(() => {
+        showToast(t('aiPromptCopied'), 'success');
+    }).catch(err => {
+        console.error('Failed to copy AI prompt: ', err);
+        showToast(t('aiPromptCopyFailed'), 'error');
+    });
+}
+
+function _handleApplyAiProfile() {
+    const text = aiProfileInput.value.trim();
+    if (!text) {
+        showToast(t('pasteAiSuggestionFirst'), 'warning');
+        return;
+    }
+
+    try {
+        const points = text.split('\n').map(line => {
+            const parts = line.split(/[,、]/); // Supports both comma and Japanese comma
+            if (parts.length !== 2) return null;
+
+            const timeStr = parts[0].trim();
+            const tempStr = parts[1].trim();
+
+            const timeParts = timeStr.split(':');
+            if (timeParts.length !== 2) return null;
+
+            const minutes = parseInt(timeParts[0], 10);
+            const seconds = parseInt(timeParts[1], 10);
+            const temperature = parseFloat(tempStr);
+
+            if (isNaN(minutes) || isNaN(seconds) || isNaN(temperature)) return null;
+
+            return {
+                x: (minutes * 60) + seconds,
+                y: temperature
+            };
+        }).filter(p => p !== null);
+
+        if (points.length === 0) {
+            showToast(t('aiSuggestionParseError'), 'error');
+            return;
+        }
+
+        eventBus.emit('graph:set-target-profile', points);
+        showToast(t('aiSuggestionApplied'), 'success');
+
+    } catch (error) {
+        console.error('Error parsing AI profile:', error);
+        showToast(t('aiSuggestionParseFailed'), 'error');
+    }
+}
+
+
 export function initializeRoastFormUI() {
     formSection = document.getElementById('roastFormSection');
     form = document.getElementById('roastForm');
@@ -281,6 +354,13 @@ export function initializeRoastFormUI() {
         fetchWeatherButton.addEventListener('click', () => {
             eventBus.emit('ui:fetch-weather', (message, type) => showToast(message, type));
         });
+    }
+
+    if (generateAiPromptButton) {
+        generateAiPromptButton.addEventListener('click', _handleGenerateAiPrompt);
+    }
+    if (applyAiProfileButton) {
+        applyAiProfileButton.addEventListener('click', _handleApplyAiProfile);
     }
 
     eventBus.on('ui:show-roast-form', showRoastForm);

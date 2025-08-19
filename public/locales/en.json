@@ -172,5 +172,12 @@
   "roastLevelCity": "City Roast",
   "roastLevelFullCity": "Full City Roast",
   "roastLevelFrench": "French Roast",
-  "roastLevelItalian": "Italian Roast"
+  "roastLevelItalian": "Italian Roast",
+  "roastLevelNames": "Light Roast,Cinnamon Roast,Medium Roast,High Roast,City Roast,Full City Roast,French Roast,Italian Roast",
+  "aiPromptCopied": "Copied AI prompt to clipboard.",
+  "aiPromptCopyFailed": "Failed to copy AI prompt.",
+  "pasteAiSuggestionFirst": "Please paste the AI suggestion first.",
+  "aiSuggestionParseError": "Could not parse suggestion format. Please check if it's in 'min:sec, temp' format.",
+  "aiSuggestionApplied": "Applied AI suggestion as the target profile on the graph.",
+  "aiSuggestionParseFailed": "An error occurred while parsing the AI suggestion."
 }

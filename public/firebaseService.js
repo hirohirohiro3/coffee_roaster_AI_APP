@@ -7,7 +7,7 @@ import {
     connectAuthEmulator
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import {
-    getFirestore, collection, addDoc, doc, updateDoc, deleteDoc,
+    getFirestore, collection, addDoc, doc, updateDoc, deleteDoc, getDoc,
     onSnapshot, query, orderBy, serverTimestamp, connectFirestoreEmulator
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
@@ -146,6 +146,23 @@ export async function deleteRoastRecord(docId) {
     } catch (error) {
         console.error("FirebaseService: Error deleting roast record:", error);
         return false;
+    }
+}
+
+export async function getRoastRecord(docId) {
+    if (!currentUserIdInternal) return null;
+    try {
+        const roastDocRef = doc(db, `users/${currentUserIdInternal}/roasts`, docId);
+        const roastDoc = await getDoc(roastDocRef);
+        if (roastDoc.exists()) {
+            return { id: roastDoc.id, ...roastDoc.data() };
+        } else {
+            console.warn(`Roast record with id ${docId} not found.`);
+            return null;
+        }
+    } catch (error) {
+        console.error("FirebaseService: Error getting roast record:", error);
+        return null;
     }
 }
 

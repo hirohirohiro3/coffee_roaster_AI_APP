@@ -211,19 +211,17 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
     const chamberTemp = chamberTempStr ? parseFloat(chamberTempStr) : null;
     if (beanTemp === null && chamberTemp === null) return;
 
+    let calculatedROR = null; // RORをこのスコープで管理
+
     // --- Bean Temp and ROR ---
     if (beanTemp !== null) {
-        let calculatedROR = null;
         if (realtimeBeanTemperaturesLog.length > 0) {
             const prevPoint = realtimeBeanTemperaturesLog[realtimeBeanTemperaturesLog.length - 1];
             const prevPlotIntegerMinute = Math.floor(prevPoint.time);
-
-            // グラフのX軸（整数分）を基準に時間差を計算
             const timeDiffMinutes = plotIntegerMinute - prevPlotIntegerMinute;
 
             if (timeDiffMinutes > 0) {
                 const timeDiffSeconds = timeDiffMinutes * 60;
-                // RORを計算。前のポイントの温度は、その分ブロックの最後の記録された温度となる。
                 calculatedROR = calculateBeanROR(prevPoint.temp, beanTemp, timeDiffSeconds);
                 updatePrediction(beanTemp, calculatedROR);
             }
@@ -237,12 +235,6 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
             _updateDatasetPoint(2, plotIntegerMinute, calculatedROR, true);
         }
 
-        eventBus.emit('log-table:add-entry', {
-            time: formatTime(elapsedTimeSeconds),
-            beanTemp: beanTemp,
-            chamberTemp: chamberTemp,
-            ror: calculatedROR
-        });
     }
 
     // --- Chamber Temp ---
@@ -258,11 +250,12 @@ export function logRealtimeTemperatures({ beanTempStr, chamberTempStr }) {
         time: formatTime(elapsedTimeSeconds),
         beanTemp: beanTemp,
         chamberTemp: chamberTemp,
-        ror: realtimeRorValuesLog.length > 0 ? realtimeRorValuesLog[realtimeRorValuesLog.length - 1].ror : null
+        ror: calculatedROR // このスコープで計算されたRORを使用
     });
 
     lastLogEntry = { time: plotIntegerMinute, beanTemp, chamberTemp };
     eventBus.emit('graph:clear-inputs');
+    eventBus.emit('ui:toggle-fix-last-button', true);
 }
 
 export function removeLastLog() {
@@ -282,6 +275,10 @@ export function removeLastLog() {
     eventBus.emit('log-table:remove-last-entry');
     realtimeChartInstance.update('none');
     lastLogEntry = { time: null, beanTemp: null, chamberTemp: null };
+    // ログが初期状態（または空）になったら修正ボタンを隠す
+    if (realtimeBeanTemperaturesLog.length <= 1) {
+        eventBus.emit('ui:toggle-fix-last-button', false);
+    }
 }
 
 export function resetGraphAndLogs() {
@@ -295,6 +292,7 @@ export function resetGraphAndLogs() {
     realtimeChamberTemperaturesLog = [];
     realtimeRorValuesLog = [];
     lastLogEntry = { time: null, beanTemp: null, chamberTemp: null };
+    eventBus.emit('ui:toggle-fix-last-button', false);
 }
 
 export function getGraphLogsForSaving() {

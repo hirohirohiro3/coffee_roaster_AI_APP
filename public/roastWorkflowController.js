@@ -3,6 +3,7 @@ import * as RoastDataManager from './roastDataManager.js';
 import { t } from './i18n.js';
 import * as RoastUtils from './roastUtils.js';
 import * as FirebaseService from './firebaseService.js';
+import { getRoastRecord } from './firebaseService.js';
 
 let localRoastsCache = [];
 let currentSearchKeyword = '';
@@ -179,6 +180,31 @@ function _escapeCsvCell(cellData) {
 export function getRoastsByIds(ids) {
     if (!localRoastsCache) return [];
     return ids.map(id => localRoastsCache.find(roast => roast.id === id)).filter(Boolean);
+}
+
+export async function getRoastDetailsByIds(ids) {
+    if (!ids || ids.length === 0) return [];
+
+    try {
+        const roastPromises = ids.map(id => getRoastRecord(id));
+        const detailedRoasts = await Promise.all(roastPromises);
+
+        const validRoasts = detailedRoasts.filter(Boolean);
+
+        // キャッシュからbeanNameなどをマージする
+        const roastsWithBeanNames = validRoasts.map(detailedRoast => {
+            const cachedRoast = localRoastsCache.find(r => r.id === detailedRoast.id);
+            return {
+                ...detailedRoast,
+                beanName: cachedRoast ? cachedRoast.beanName : '（不明な豆）'
+            };
+        });
+
+        return roastsWithBeanNames;
+    } catch (error) {
+        console.error("Error fetching roast details:", error);
+        return [];
+    }
 }
 
 export function handleExportCsv() {

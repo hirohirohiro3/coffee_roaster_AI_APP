@@ -172,5 +172,12 @@
   "roastLevelCity": "シティロースト",
   "roastLevelFullCity": "フルシティロースト",
   "roastLevelFrench": "フレンチロースト",
-  "roastLevelItalian": "イタリアンロースト"
+  "roastLevelItalian": "イタリアンロースト",
+  "roastLevelNames": "ライトロースト,シナモンロースト,ミディアムロースト,ハイロースト,シティロースト,フルシティロースト,フレンチロースト,イタリアンロースト",
+  "aiPromptCopied": "AIへの質問をクリップボードにコピーしました。",
+  "aiPromptCopyFailed": "AIへの質問のコピーに失敗しました。",
+  "pasteAiSuggestionFirst": "先にAIからの提案を貼り付けてください。",
+  "aiSuggestionParseError": "提案の形式を解析できませんでした。'分:秒, 温度'の形式か確認してください。",
+  "aiSuggestionApplied": "AIの提案を目標プロファイルとしてグラフに適用しました。",
+  "aiSuggestionParseFailed": "AIの提案の解析中にエラーが発生しました。"
 }
