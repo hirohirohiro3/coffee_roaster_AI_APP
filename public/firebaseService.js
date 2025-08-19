@@ -35,7 +35,8 @@ function listenToAllData(userId) {
         beanSnapshot.forEach(doc => {
             beansCache.set(doc.id, { ...doc.data(), id: doc.id });
         });
-        eventBus.emit('beans:updated-for-roast-form', Array.from(beansCache.values()));
+        // データを汎用的なイベントで通知し、ビジネスロジックはコントローラー層に任せる
+        eventBus.emit('data:beans-updated', Array.from(beansCache.values()));
 
         if (unsubscribes.length < 2) {
             const roastsQuery = query(roastsRef, orderBy("roastDate", "desc"), orderBy("createdAt", "desc"));
