@@ -134,6 +134,8 @@
   "anErrorOccurred": "An error occurred.",
   "selectBeanFirst": "Please select a bean first.",
   "deletedBean": "(Deleted Bean)",
+  "selectBeanFromStock": "Select a bean from stock...",
+  "beanStockLabel": "{beanName} (Remaining: {amount}kg)",
   "notEnoughFlavorData": "\"{beanName}\" does not yet have the 3 or more flavor records required for analysis.",
   "flavorRadarLabel": "{param} of {beanName}",
   "countSuffix": "roasts",
