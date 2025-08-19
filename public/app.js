@@ -9,7 +9,7 @@ import { initializePageNavigation, registerPage } from './pageViewManager.js';
 import { eventBus } from './EventBus.js';
 import { fetchCurrentWeatherForRoast } from './weatherService.js';
 import { initializeAuthController } from './authController.js';
-import { initializeRoastWorkflowController, handleAddNewRoast, getRoastsByIds } from './roastWorkflowController.js';
+import { initializeRoastWorkflowController, handleAddNewRoast, getRoastDetailsByIds } from './roastWorkflowController.js';
 import { initializeBeanStockController } from './beanStockController.js';
 import { initializeTimerController, getCurrentElapsedTimeInSeconds, getIsTimerRunning, recordCrackTime } from './timerController.js';
 import { initializeGraphController } from './graphController.js';
@@ -111,7 +111,7 @@ export default class App {
         initializeConfirmModal();
         initializeProfileModalUI();
         initializeBeanStockModalUI();
-        initializeComparisonModalUI(getRoastsByIds);
+        initializeComparisonModalUI(getRoastDetailsByIds);
         initializeRealtimeGraphUI();
         initializeRealtimeLogTableUI();
 
@@ -223,7 +223,7 @@ export default class App {
 
             eventBus.emit('ui:update-event-button-state', {
                 eventType: targetFieldId,
-                time: f
+                time: formattedTime
             });
 
             if (targetFieldId === 'firstCrackTime' || targetFieldId === 'secondCrackTime') {

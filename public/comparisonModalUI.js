@@ -71,8 +71,8 @@ function renderComparisonStats(roasts) {
     });
 }
 
-function showComparisonModal(roastIds) {
-    const roastsToCompare = getRoastsByIds(roastIds);
+async function showComparisonModal(roastIds) {
+    const roastsToCompare = await getRoastsByIds(roastIds);
     if (roastsToCompare.length !== roastIds.length) {
         console.error("Could not find all selected roasts for comparison.");
         // Maybe show a toast message here

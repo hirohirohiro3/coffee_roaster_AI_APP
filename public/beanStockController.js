@@ -14,7 +14,8 @@ function applyFiltersAndRender() {
         beans: beansToDisplay,
         editHandler: handleEditBeanClick
     });
-    eventBus.emit('beans:updated-for-roast-form', localBeansCache);
+    const beansForRoastForm = localBeansCache.filter(bean => (bean.remainingAmount || 0) > 0);
+    eventBus.emit('beans:updated-for-roast-form', beansForRoastForm);
 }
 
 function handleBeansUpdate(updatedBeans) {
