@@ -134,6 +134,8 @@
   "anErrorOccurred": "エラーが発生しました。",
   "selectBeanFirst": "まず豆を選んでください",
   "deletedBean": "（削除された豆）",
+  "selectBeanFromStock": "在庫から豆を選択...",
+  "beanStockLabel": "{beanName} (残り: {amount}kg)",
   "notEnoughFlavorData": "「{beanName}」には、分析に必要な3種類以上のフレーバー記録がまだありません。",
   "flavorRadarLabel": "{beanName}の{param}",
   "countSuffix": "回",
