@@ -12,6 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 import { eventBus } from './EventBus.js';
+import { t } from './i18n.js';
 
 let app;
 let auth;
@@ -44,7 +45,7 @@ function listenToAllData(userId) {
                 const roasts = roastSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 const joinedData = roasts.map(roast => {
                     const beanData = beansCache.get(roast.beanId) || {};
-                    return { ...roast, beanName: beanData.beanName || '紐付けられた豆がありません' };
+            return { ...roast, beanName: beanData.beanName || t('text.unlinkedBean') };
                 });
                 eventBus.emit('data:roasts-updated', joinedData);
             });
@@ -218,7 +219,7 @@ export async function deleteBean(beanId) {
 // --- Gemini API ---
 export async function getRoastAnalysisFromAI(roastPlan) {
     if (!auth.currentUser) {
-        throw new Error("認証が必要です。");
+        throw new Error(t('firebase.authRequired'));
     }
     const getAnalysis = httpsCallable(functions, 'getRoastAnalysis');
     try {
@@ -226,6 +227,6 @@ export async function getRoastAnalysisFromAI(roastPlan) {
         return result.data;
     } catch (error) {
         console.error("Function call failed:", error);
-        throw new Error(error.message || "AIとの通信中に不明なエラーが発生しました。");
+        throw new Error(error.message || t('firebase.ai.commError'));
     }
 }

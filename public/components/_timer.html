@@ -2,20 +2,21 @@
     <h2 class="text-2xl font-semibold mb-4 text-[var(--accent-color)] text-center" data-i18n-key="roastTimerTitle"></h2>
     <div class="mb-4">
         <label for="timerChargingTemperature" class="block text-sm font-medium text-[var(--text-secondary)] text-center" data-i18n-key="chargeTempSchedule"></label>
-        <input type="number" id="timerChargingTemperature" name="timerChargingTemperature" step="0.1" class="mt-1 block w-1/2 mx-auto px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="例: 180.0">
+        <input type="number" id="timerChargingTemperature" name="timerChargingTemperature" step="0.1" class="mt-1 block w-1/2 mx-auto px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" data-i18n-placeholder-key="timer.chargeTempPlaceholder">
     </div>
     <div class="text-center">
         <div id="timerDisplay" class="text-6xl font-mono text-[var(--accent-color)] mb-2 tracking-wider">00:00</div>
         
         <div id="developmentTimeContainer" class="h-6 mb-4 text-[var(--text-secondary)] font-mono text-lg">
-            <span>1C: </span><span id="firstCrackDevTime" class="w-16 inline-block">--:--</span>
+            <span data-i18n-key="timer.firstCrackLabel"></span><span id="firstCrackDevTime" class="w-16 inline-block">--:--</span>
             <span class="mx-2">|</span>
-            <span>2C: </span><span id="secondCrackDevTime" class="w-16 inline-block">--:--</span>
+            <span data-i18n-key="timer.secondCrackLabel"></span><span id="secondCrackDevTime" class="w-16 inline-block">--:--</span>
         </div>
 
         <div id="predictionContainer" class="h-8 mb-4" style="display: none;">
             <p class="text-base text-[var(--text-secondary)]">
-                <span class="font-bold text-teal-600">200℃</span> 到達予測: 
+                <span class="font-bold text-teal-600" data-i18n-key="timer.predictionTemp"></span>
+                <span data-i18n-key="timer.predictionLabel"></span>
                 <span id="predictionDisplay" class="font-semibold text-teal-600">-</span>
             </p>
         </div>
@@ -35,11 +36,11 @@
     <div id="tempInputForm" class="mt-8 pt-4 border-t border-[var(--border-color)] space-y-4 md:space-y-0 md:flex md:space-x-4 md:items-end" style="display: none;">
         <div class="flex-1">
             <label for="realtimeBeanTemp" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanTempC"></label>
-            <input type="number" id="realtimeBeanTemp" name="realtimeBeanTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="例: 150.5">
+            <input type="number" id="realtimeBeanTemp" name="realtimeBeanTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" data-i18n-placeholder-key="timer.beanTempPlaceholder">
         </div>
         <div class="flex-1">
             <label for="realtimeChamberTemp" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="chamberTempC"></label>
-            <input type="number" id="realtimeChamberTemp" name="realtimeChamberTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" placeholder="例: 200.0">
+            <input type="number" id="realtimeChamberTemp" name="realtimeChamberTemp" step="0.1" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm" data-i18n-placeholder-key="timer.chamberTempPlaceholder">
         </div>
         <div class="flex items-end space-x-2">
             <button id="logRealtimeTempButton" class="w-full md:w-auto px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition-colors" data-i18n-key="logTemperature"></button>

@@ -1,76 +1,42 @@
-import os
 import asyncio
-import subprocess
 from playwright.async_api import async_playwright, expect
+import os
 
-async def run_verification():
-    server_process = None
-    try:
-        # Start the local server
-        print("Starting local server...")
-        server_process = await asyncio.create_subprocess_shell(
-            'python -m http.server 8080',
-            cwd='.', # Run from the public directory
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
-        await asyncio.sleep(2)
-        print("Server started on http://localhost:8080")
+async def main():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
 
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            page = await browser.new_page()
+        file_path = os.path.abspath('public/index.html')
+        await page.goto(f'file://{file_path}')
 
-            # --- Login ---
-            print("Navigating to login page...")
-            await page.goto('http://localhost:8080/index.html')
+        await expect(page.locator('#main-content')).to_be_visible(timeout=10000)
 
-            # Wait for the login form to be visible, if it appears
-            try:
-                await expect(page.locator('#loginForm')).to_be_visible(timeout=5000)
-                print("Login form found. Attempting login...")
-                await page.locator('#loginEmail').fill('test@example.com')
-                await page.locator('#loginPassword').fill('testpass123')
-                await page.locator('#loginButton').click()
-                await expect(page.locator('#main-content')).to_be_visible(timeout=10000)
-                print("Login successful.")
-            except Exception:
-                print("Login form not found or login failed, assuming direct access to main page.")
+        # Use a more robust selector for the language button
+        english_button_selector = 'button[data-lang="en"]'
+        await expect(page.locator(english_button_selector)).to_be_visible()
+        await page.locator(english_button_selector).click()
 
+        # After clicking, wait for some text to be translated to confirm the change
+        # The "Add New Roast" button is a good candidate
+        await expect(page.locator('button[data-i18n-key="addNewRoast"]')).to_have_text("Add New Roast", timeout=5000)
 
-            # Wait for the page to load and the button to be visible
-            manage_beans_button = page.locator('#openBeanStockModalButton')
-            await expect(manage_beans_button).to_be_visible(timeout=10000)
-            print("Main page content is visible.")
+        # --- Verification 1: Check empty roast list page ---
+        empty_add_button = page.locator('#addNewRoastButtonEmpty')
+        await expect(empty_add_button).to_have_text("Record First Roast")
+        await page.screenshot(path="jules-scratch/verification/verify_i18n_emptylist.png")
 
-            # Take a screenshot of the initial Japanese state
-            print("Taking Japanese screenshot...")
-            await page.screenshot(path="jules-scratch/verification/verification_ja.png")
-            print("Japanese screenshot saved.")
+        # --- Verification 2: Check Roast Form ---
+        await page.locator('button[data-i18n-key="addNewRoast"]').click()
+        await expect(page.locator('#roastFormSection')).to_be_visible()
+        await page.locator('#aiIntegration').scroll_into_view_if_needed()
 
-            # Find and click the English language button
-            print("Switching to English...")
-            english_button = page.get_by_role("button", name="English")
-            await english_button.click()
+        ai_prompt_button = page.locator('button[data-i18n-key="createAiPrompt"]')
+        await expect(ai_prompt_button).to_have_text("🤖 Create & Copy AI Prompt")
 
-            # Wait for the text to update to English
-            print("Waiting for text to update...")
-            await expect(manage_beans_button).to_have_text("Manage Green Beans", timeout=5000)
-            print("Text updated to English.")
+        await page.locator('#roastForm').screenshot(path="jules-scratch/verification/verify_i18n_form.png")
 
-            # Take a screenshot of the English state
-            print("Taking English screenshot...")
-            await page.screenshot(path="jules-scratch/verification/verification_en.png")
-            print("English screenshot saved.")
+        await browser.close()
 
-            await browser.close()
-
-    finally:
-        if server_process:
-            print("Stopping server...")
-            server_process.kill()
-            await server_process.wait()
-            print("Server stopped.")
-
-if __name__ == "__main__":
-    asyncio.run(run_verification())
+if __name__ == '__main__':
+    asyncio.run(main())

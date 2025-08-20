@@ -161,7 +161,7 @@ function showRoastForm({ isEdit, data }) {
 }
 
 function hideRoastForm() {
-    if (isFormDirty && !window.confirm(t('confirmDiscardChanges'))) {
+    if (isFormDirty && !window.confirm(t('toast.confirmDiscard'))) {
         return;
     }
     form.reset();
@@ -229,24 +229,18 @@ function _updateRoastLevelSlider() {
 
 function _handleGenerateAiPrompt() {
     const data = getFormData();
-    const beanName = beanSelect.selectedOptions[0]?.textContent.split('(')[0].trim() || t('deletedBean');
+    const beanName = beanSelect.selectedOptions[0]?.textContent.split('(')[0].trim() || t('text.deletedBeanFallback');
 
-    const promptParts = [
-        `これから、コーヒー豆「${beanName}」の焙煎プロファイルについて相談です。`,
-        `以下の情報をもとに、最高の風味を引き出すための理想的な温度推移（タイムスタンプと目標温度）を提案してください。`,
-        `・目標の焙煎度: ${data.roastLevel || '未設定'}`,
-        `・生豆の投入量: ${data.greenBeanWeight || '未設定'} kg`,
-        `・目標とする風味: ${data.targetFlavor || '特に指定なし'}`,
-        `・使用する焙煎機: ${data.roasterModel || '不明'}`,
-        `・焙煎時の環境: 気温 ${data.roastWeatherTemp || '不明'}℃, 湿度 ${data.roastWeatherHumidity || '不明'}%`,
-        `\n提案は、以下のような「時間(分:秒), 温度(℃)」の形式で、複数行にわたって提示してください。`,
-        `例:`,
-        `0:30, 120.5`,
-        `1:00, 150.0`,
-        `...`
-    ];
+    const promptText = t('aiPrompt.base', {
+        beanName: beanName,
+        roastLevel: data.roastLevel || t('text.notSet'),
+        greenBeanWeight: data.greenBeanWeight || t('text.notSet'),
+        targetFlavor: data.targetFlavor || t('text.noneSpecified'),
+        roasterModel: data.roasterModel || t('text.unknown'),
+        roastWeatherTemp: data.roastWeatherTemp || t('text.unknown'),
+        roastWeatherHumidity: data.roastWeatherHumidity || t('text.unknown')
+    });
 
-    const promptText = promptParts.join('\n');
     navigator.clipboard.writeText(promptText).then(() => {
         showToast(t('aiPromptCopied'), 'success');
     }).catch(err => {

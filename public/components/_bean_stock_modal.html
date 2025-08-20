@@ -1,89 +1,89 @@
 <div id="beanStockModal" class="modal hidden">
     <div class="modal-content modal-content-large">
         <span class="close-button" id="closeBeanStockModalButton">&times;</span>
-        <h3 class="text-xl font-semibold text-[var(--accent-color)] mb-4">生豆の在庫管理</h3>
+        <h3 class="text-xl font-semibold text-[var(--accent-color)] mb-4" data-i18n-key="beanStock.modalTitle"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="border-r-0 md:border-r md:pr-6 border-[var(--border-color)]">
                 <div class="flex justify-between items-center mb-2">
-                    <h4 class="text-lg font-semibold text-[var(--text-primary)]">在庫リスト</h4>
-                    <button id="addNewBeanButton" class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded shadow-sm transition-all duration-200 hidden">+ 新規登録</button>
+                    <h4 class="text-lg font-semibold text-[var(--text-primary)]" data-i18n-key="beanStock.listTitle"></h4>
+                    <button id="addNewBeanButton" class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded shadow-sm transition-all duration-200 hidden" data-i18n-key="beanStock.addNewBeanButton"></button>
                 </div>
                 <div class="mb-3">
                     <label for="show-empty-beans-checkbox" class="inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="show-empty-beans-checkbox" name="show-empty-beans-checkbox" class="rounded border-[var(--border-color)] text-[var(--accent-color)] shadow-sm focus:border-amber-300 focus:ring focus:ring-amber-200 focus:ring-opacity-50">
-                        <span class="ml-2 text-sm text-[var(--text-secondary)]">在庫切れの豆を表示する</span>
+                        <span class="ml-2 text-sm text-[var(--text-secondary)]" data-i18n-key="beanStock.showEmptyBeansLabel"></span>
                     </label>
                 </div>
                 <div id="beanStockListContainer" class="space-y-3 h-96 overflow-y-auto pr-2">
-                    <p class="text-[var(--text-secondary)] italic">在庫データを読み込み中...</p>
+                    <p class="text-[var(--text-secondary)] italic" data-i18n-key="beanStock.loadingMessage"></p>
                 </div>
             </div>
             <div>
-                <h4 id="beanStockFormTitle" class="text-lg font-semibold text-[var(--text-primary)] mb-2">新規生豆を登録</h4>
+                <h4 id="beanStockFormTitle" class="text-lg font-semibold text-[var(--text-primary)] mb-2" data-i18n-key="beanStock.formTitleNew"></h4>
                 <form id="beanStockForm" class="space-y-4">
                     <input type="hidden" id="beanId" name="beanId">
                     <div>
-                        <label for="beanName" class="block text-sm font-medium text-[var(--text-secondary)]">豆の名前 <span class="text-red-500">*</span></label>
+                        <label for="beanName" class="block text-sm font-medium text-[var(--text-secondary)]"><span data-i18n-key="beanStock.nameLabel"></span> <span class="text-red-500">*</span></label>
                         <input type="text" id="beanName" name="beanName" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]">
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="beanOrigin" class="block text-sm font-medium text-[var(--text-secondary)]">産地</label>
+                            <label for="beanOrigin" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.originLabel"></label>
                             <input type="text" id="beanOrigin" name="origin" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]">
                         </div>
                         <div>
-                            <label for="farm" class="block text-sm font-medium text-[var(--text-secondary)]">農園名</label>
+                            <label for="farm" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.farmLabel"></label>
                             <input type="text" id="farm" name="farm" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="variety" class="block text-sm font-medium text-[var(--text-secondary)]">品種</label>
-                            <input type="text" id="variety" name="variety" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" placeholder="例: ゲイシャ">
+                            <label for="variety" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.varietyLabel"></label>
+                            <input type="text" id="variety" name="variety" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" data-i18n-placeholder-key="beanStock.varietyPlaceholder">
                         </div>
                         <div>
-                            <label for="altitude" class="block text-sm font-medium text-[var(--text-secondary)]">標高 (m)</label>
-                            <input type="number" id="altitude" name="altitude" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" placeholder="例: 1500">
+                            <label for="altitude" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.altitudeLabel"></label>
+                            <input type="number" id="altitude" name="altitude" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" data-i18n-placeholder-key="beanStock.altitudePlaceholder">
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="process" class="block text-sm font-medium text-[var(--text-secondary)]">精製方法</label>
-                            <input type="text" id="process" name="process" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" placeholder="例: ナチュラル">
+                            <label for="process" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.processLabel"></label>
+                            <input type="text" id="process" name="process" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" data-i18n-placeholder-key="beanStock.processPlaceholder">
                         </div>
                         <div>
-                            <label for="purchaseDate" class="block text-sm font-medium text-[var(--text-secondary)]">購入日</label>
+                            <label for="purchaseDate" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.purchaseDateLabel"></label>
                             <input type="date" id="purchaseDate" name="purchaseDate" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]">
                         </div>
                     </div>
                     <div class="p-3 bg-amber-50 dark:bg-amber-900/50 border border-amber-200 dark:border-amber-800/50 rounded-lg space-y-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label for="purchaseAmount" class="block text-sm font-medium text-[var(--text-secondary)]">購入量 (kg単位) <span class="text-red-500">*</span></label>
-                                <input type="number" id="purchaseAmount" name="purchaseAmount" step="0.001" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" placeholder="例: 0.5 (500gの場合)">
+                                <label for="purchaseAmount" class="block text-sm font-medium text-[var(--text-secondary)]"><span data-i18n-key="beanStock.purchaseAmountLabel"></span> <span class="text-red-500">*</span></label>
+                                <input type="number" id="purchaseAmount" name="purchaseAmount" step="0.001" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]" data-i18n-placeholder-key="beanStock.purchaseAmountPlaceholder">
                             </div>
                             <div>
-                                <label for="price" class="block text-sm font-medium text-[var(--text-secondary)]">購入価格 (円) <span class="text-red-500">*</span></label>
+                                <label for="price" class="block text-sm font-medium text-[var(--text-secondary)]"><span data-i18n-key="beanStock.priceLabel"></span> <span class="text-red-500">*</span></label>
                                 <input type="number" id="price" name="price" required class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]">
-                                <p class="text-xs text-[var(--text-secondary)] mt-1">袋全体の合計金額です。</p>
+                                <p class="text-xs text-[var(--text-secondary)] mt-1" data-i18n-key="beanStock.priceHint"></p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <p class="text-sm font-medium text-[var(--text-secondary)]">単価: <span id="unitPriceDisplay" class="font-bold text-[var(--accent-color)]">- 円/kg</span></p>
+                            <p class="text-sm font-medium text-[var(--text-secondary)]"><span data-i18n-key="beanStock.unitPriceLabel"></span> <span id="unitPriceDisplay" class="font-bold text-[var(--accent-color)]"></span></p>
                         </div>
                     </div>
                     <div>
-                        <label for="remainingAmount" class="block text-sm font-medium text-[var(--text-secondary)]">現在の残量 (kg)</label>
+                        <label for="remainingAmount" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.remainingAmountLabel"></label>
                         <input type="number" step="0.001" name="remainingAmount" id="remainingAmount" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]">
-                        <p class="mt-1 text-xs text-[var(--text-secondary)]">在庫量を直接修正する場合に入力します。新規登録時は空欄でOKです。</p>
+                        <p class="mt-1 text-xs text-[var(--text-secondary)]" data-i18n-key="beanStock.remainingAmountHint"></p>
                     </div>
                     <div>
-                        <label for="beanNotes" class="block text-sm font-medium text-[var(--text-secondary)]">メモ</label>
+                        <label for="beanNotes" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="beanStock.notesLabel"></label>
                         <textarea id="beanNotes" name="notes" rows="3" class="mt-1 block w-full px-3 py-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm text-[var(--text-primary)]"></textarea>
                     </div>
                     <div class="flex justify-between items-center pt-2">
-                        <button type="button" id="deleteBeanButton" class="px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 hidden">削除</button>
-                        <button type="submit" id="saveBeanButton" class="btn-primary ml-auto px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white">保存</button>
+                        <button type="button" id="deleteBeanButton" class="px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 hover:bg-red-50 hidden" data-i18n-key="beanStock.deleteButton"></button>
+                        <button type="submit" id="saveBeanButton" class="btn-primary ml-auto px-6 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white" data-i18n-key="beanStock.saveButton"></button>
                     </div>
                 </form>
             </div>
@@ -95,18 +95,18 @@
     <div class="modal-content modal-content-xlarge">
         <span class="close-button" id="closeProfileModalButton">&times;</span>
         <div id="profile-modal-content" class="space-y-6">
-            <h3 id="profileModalTitle" class="text-2xl font-bold text-[var(--text-primary)]">焙煎プロファイル</h3>
+            <h3 id="profileModalTitle" class="text-2xl font-bold text-[var(--text-primary)]"></h3>
             <p id="profileMessage" class="text-sm text-[var(--text-secondary)]"></p>
             <div id="profileRoastSummary" class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-[var(--bg-secondary)] rounded-lg">
-                <div><dt class="text-sm font-medium text-[var(--text-secondary)]">記録ID</dt><dd id="profileRoastId" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
-                <div><dt class="text-sm font-medium text-[var(--text-secondary)]">総時間</dt><dd id="profileSummaryTotalTime" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
-                <div><dt class="text-sm font-medium text-[var(--text-secondary)]">重量減少率</dt><dd id="profileSummaryWeightLoss" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
-                <div><dt class="text-sm font-medium text-[var(--text-secondary)]">DTR (%)</dt><dd id="profileSummaryDTR" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
+                <div><dt class="text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="profile.roastIdLabel"></dt><dd id="profileRoastId" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
+                <div><dt class="text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="profile.totalTimeLabel"></dt><dd id="profileSummaryTotalTime" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
+                <div><dt class="text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="profile.weightLossLabel"></dt><dd id="profileSummaryWeightLoss" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
+                <div><dt class="text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="profile.dtrLabel"></dt><dd id="profileSummaryDTR" class="mt-1 text-lg font-semibold text-[var(--text-primary)]">-</dd></div>
             </div>
             <div id="profileWeatherInfo" class="text-sm text-[var(--text-secondary)]">
-                <span>気象情報: </span>
-                <span>気温 <span id="profileWeatherTemp" class="font-semibold">-</span>°C</span>,
-                <span>湿度 <span id="profileWeatherHumidity" class="font-semibold">-</span>%</span>
+                <span data-i18n-key="profile.weatherInfoLabel"></span>
+                <span data-i18n-key="profile.tempLabel"></span> <span id="profileWeatherTemp" class="font-semibold">-</span>°C,
+                <span data-i18n-key="profile.humidityLabel"></span> <span id="profileWeatherHumidity" class="font-semibold">-</span>%
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2 h-96 bg-[var(--bg-primary)] p-2 rounded-lg shadow-inner">
@@ -118,23 +118,23 @@
             </div>
 
             <div id="profileAiNotesSection" class="p-4 bg-blue-50 dark:bg-blue-900/50 border border-blue-200 dark:border-blue-800/50 rounded-lg" style="display: none;">
-                <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2">🤖 外部AIによる焙煎分析</h4>
+                <h4 class="font-semibold text-blue-800 dark:text-blue-200 mb-2" data-i18n-key="profile.aiNotesTitle"></h4>
                 <p id="profileAiNotes" class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></p>
             </div>
             <div>
                 <div class="flex justify-between items-center mb-2">
-                    <h4 class="font-semibold text-[var(--text-primary)]">焙煎ログ（分単位）</h4>
+                    <h4 class="font-semibold text-[var(--text-primary)]" data-i18n-key="profile.logTitle"></h4>
                     <div>
-                        <button id="editTemperaturesButton" class="px-3 py-1 text-xs bg-[var(--border-color)] hover:bg-opacity-80 rounded text-[var(--text-primary)]">温度データ編集</button>
-                        <button id="saveTemperaturesButton" class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded hidden">保存</button>
-                        <button id="cancelEditTemperaturesButton" class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded hidden">キャンセル</button>
+                        <button id="editTemperaturesButton" class="px-3 py-1 text-xs bg-[var(--border-color)] hover:bg-opacity-80 rounded text-[var(--text-primary)]" data-i18n-key="profile.editTemperaturesButton"></button>
+                        <button id="saveTemperaturesButton" class="px-3 py-1 text-xs bg-green-500 hover:bg-green-600 text-white rounded hidden" data-i18n-key="profile.saveTemperaturesButton"></button>
+                        <button id="cancelEditTemperaturesButton" class="px-3 py-1 text-xs bg-gray-500 hover:bg-gray-600 text-white rounded hidden" data-i18n-key="profile.cancelEditTemperaturesButton"></button>
                     </div>
                 </div>
                 <div id="profileTransposedLogTableContainer" class="w-full overflow-x-auto border border-[var(--border-color)]"></div>
             </div>
 
             <div class="flex justify-end items-center pt-4 space-x-3">
-                <button id="copyProfileJsonButton" class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500">JSONをコピー</button>
+                <button id="copyProfileJsonButton" class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 dark:bg-gray-600 dark:hover:bg-gray-500" data-i18n-key="profile.copyJsonButton"></button>
             </div>
             </div>
     </div>
@@ -142,11 +142,11 @@
 
 <div id="confirmModal" class="modal hidden">
     <div class="modal-content modal-content-small">
-        <h3 class="text-lg font-semibold mb-4 text-[var(--text-primary)]">確認</h3>
-        <p id="confirmMessage" class="mb-6 text-[var(--text-secondary)]">この操作を続けてもよろしいですか？</p>
+        <h3 class="text-lg font-semibold mb-4 text-[var(--text-primary)]" data-i18n-key="confirm.title"></h3>
+        <p id="confirmMessage" class="mb-6 text-[var(--text-secondary)]" data-i18n-key="confirm.defaultMessage"></p>
         <div class="flex justify-end space-x-3">
-            <button id="cancelDeleteButton" class="px-4 py-2 bg-[var(--border-color)] text-[var(--text-primary)] rounded-md hover:bg-opacity-80">キャンセル</button>
-            <button id="confirmDeleteButton" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">実行する</button>
+            <button id="cancelDeleteButton" class="px-4 py-2 bg-[var(--border-color)] text-[var(--text-primary)] rounded-md hover:bg-opacity-80" data-i18n-key="confirm.cancelButton"></button>
+            <button id="confirmDeleteButton" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700" data-i18n-key="confirm.confirmButton"></button>
         </div>
     </div>
 </div>

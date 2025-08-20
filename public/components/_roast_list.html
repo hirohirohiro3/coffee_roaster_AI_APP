@@ -1,12 +1,11 @@
 <section id="roastLogSection" class="p-6 bg-[var(--bg-primary)] rounded-lg shadow-md">
     <h2 class="text-2xl font-semibold text-[var(--accent-color)] mb-4 flex justify-between items-center">
-        <span>焙煎記録一覧</span>
+        <span data-i18n-key="roastList.title"></span>
         <div>
-            <button id="compareRoastsButton" class="px-4 py-2 bg-green-500 text-white text-xs font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-colors mr-2" style="display: none;">選択したローストを比較</button>
-            <button id="exportCsvButton" class="px-4 py-2 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors">CSVエクスポート</button>
+            <button id="exportCsvButton" class="px-4 py-2 bg-blue-500 text-white text-xs font-semibold rounded-lg shadow-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-colors" data-i18n-key="roastList.exportCsvButton"></button>
         </div>
     </h2>
     <div id="roastLog" class="space-y-4">
-        <p class="text-[var(--text-secondary)] italic">データを読み込み中... または記録がありません。</p>
+        <p class="text-[var(--text-secondary)] italic" data-i18n-key="roastList.loadingMessage"></p>
     </div>
 </section>

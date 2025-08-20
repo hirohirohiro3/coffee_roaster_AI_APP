@@ -2,6 +2,10 @@
 let translations = {};
 let currentLang = 'ja';
 
+export function getCurrentLanguage() {
+    return currentLang;
+}
+
 // A function to get the translation for a given key
 export function t(key, options = {}) {
   let translation = translations[key] || `[${key}]`;
@@ -28,6 +32,11 @@ export async function setLanguage(lang) {
     currentLang = validLang;
     localStorage.setItem('lang', validLang);
     document.documentElement.lang = validLang; // Update the lang attribute on the <html> tag
+
+    // Update page title
+    if (translations.pageTitle) {
+        document.title = translations.pageTitle;
+    }
 
     // Announce that the language has changed, so other modules can react
     document.dispatchEvent(new CustomEvent('language-changed'));
