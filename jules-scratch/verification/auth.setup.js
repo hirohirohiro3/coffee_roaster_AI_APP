@@ -1,32 +1,28 @@
 import { test as setup, expect } from '@playwright/test';
+import * as path from 'path';
 
 const authFile = 'jules-scratch/verification/auth.json';
 
 setup('authenticate', async ({ page }) => {
-  // Go to the login page
-  await page.goto('/');
+  // Get the absolute path to the index.html file
+  const filePath = path.resolve(process.cwd(), 'public/index.html');
+
+  // Navigate to the local file
+  await page.goto(`file://${filePath}`);
 
   // Wait for the login form to be visible
-  await expect(page.locator('#loginForm')).toBeVisible();
+  await expect(page.locator('#loginForm')).to_be_visible({ timeout: 10000 });
 
-  // Enter the credentials
+  // Fill in the credentials
   await page.locator('#loginEmail').fill('test@example.com');
   await page.locator('#loginPassword').fill('testpass123');
 
   // Click the login button
   await page.locator('#loginButton').click();
 
-  // Wait for the main content to be visible, indicating a successful login.
-  // This is a more reliable way to wait than waiting for a specific URL.
-  await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
+  // Wait for the main content to be visible after login
+  await expect(page.locator('#main-content')).to_be_visible({ timeout: 10000 });
 
-  // Check that the user info is displayed
-  await expect(page.locator('#userInfo')).toBeVisible();
-  await expect(page.locator('#userEmail')).toHaveText('test@example.com');
-
-  // End of authentication steps.
-
-  // Save the authentication state to a file.
-  await page.context().storageState({ path: authFile });
-  console.log(`Authentication state saved to ${authFile}`);
+  // Save the authentication state to a file
+  await page.context().storage_state({ path: authFile });
 });

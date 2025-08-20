@@ -3,6 +3,7 @@
 // ================================================================
 
 import { showToast } from './ui.js';
+import { t } from './i18n.js';
 // ▼▼▼ import文に `db` を追加 ▼▼▼
 import { currentUserId, addRoastRecord, updateRoastRecord, deleteRoastRecord, db } from './firebaseService.js';
 // ▼▼▼ import文に `batchUpdateBeanStock` を追加 ▼▼▼
@@ -26,7 +27,7 @@ function _generateCustomId(roastDate) {
 function _prepareRoastDataForSave(rawFormData) {
     const roastData = { ...rawFormData };
     if (!roastData.beanId || !roastData.roastDate || !roastData.totalRoastTime) {
-        showToast("必須項目（豆の名前, 焙煎日, 総焙煎時間）を入力してください。", "error");
+        showToast(t('toast.roast.requiredFields'), "error");
         return null;
     }
     const numericFields = ['greenBeanWeight', 'roastedBeanWeight', 'chargingTemperature', 'turningPointTemp', 'endOfRoastTemp', 'roastWeatherTemp', 'roastWeatherHumidity'];
@@ -84,7 +85,7 @@ function _prepareRoastDataForSave(rawFormData) {
 // =======================================================
 export async function processAndSaveRoastData(formDataFromUI, editId, originalRoastData) {
     if (!currentUserId()) {
-        showToast("ログインしていません。", "error");
+        showToast(t('toast.roast.notLoggedIn'), "error");
         return { success: false, error: "User not logged in" };
     }
     
@@ -119,7 +120,7 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
             
             // バッチ処理を実行（焙煎記録と在庫を同時に更新）
             await batch.commit();
-            showToast("記録を更新しました。", "success");
+            showToast(t('toast.roast.updateSuccess'), "success");
             return { success: true };
 
         } else {
@@ -129,16 +130,16 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
             const usedAmount = roastDataToSave.greenBeanWeight;
 
             if (!beanId || !usedAmount || usedAmount <= 0) {
-                showToast("在庫更新のため、豆の選択と生豆重量の入力は必須です。", "error", 5000);
+                showToast(t('toast.roast.stockUpdateRequired'), "error", 5000);
                 return { success: false, error: "Bean ID or used amount is missing." };
             }
             const newDocId = await addRoastAndUpdateStock(roastDataToSave, beanId, usedAmount);
-            showToast("新しい焙煎を記録しました。", "success");
+            showToast(t('toast.roast.addSuccess'), "success");
             return { success: !!newDocId, docId: newDocId };
         }
     } catch (error) {
         console.error("Error saving roast data with stock update:", error);
-        showToast(`記録保存エラー: ${error.message}`, "error");
+        showToast(t('toast.roast.saveError', { message: error.message }), "error");
         return { success: false, error: error.message };
     }
 }
@@ -148,27 +149,27 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
 
 export async function processDeleteRoastData(roastId) {
     if (!roastId || !currentUserId()) {
-        showToast("削除処理の前提条件が満されていません。", "error");
+        showToast(t('toast.roast.deletePrereq'), "error");
         return false;
     }
     try {
         const success = await deleteRoastRecord(roastId);
         if (success) {
-            showToast("焙煎記録を削除しました。", "success");
+            showToast(t('toast.roast.deleteSuccess'), "success");
         } else {
-            showToast("記録の削除に失敗しました。", "error");
+            showToast(t('toast.roast.deleteFail'), "error");
         }
         return success;
     } catch (error) {
         console.error(`Error deleting record ${roastId}:`, error);
-        showToast(`記録削除エラー: ${error.message}`, "error");
+        showToast(t('toast.roast.deleteError', { message: error.message }), "error");
         return false;
     }
 }
 
 export async function processAndUpdateTemperatures(docId, newBeanTemps, newChamberTemps) {
     if (!docId || !currentUserId()) {
-        showToast("更新に必要な情報が不足しています。", "error");
+        showToast(t('toast.roast.updateTempPrereq'), "error");
         return false;
     }
     const newRorValues = [null];

@@ -25,13 +25,10 @@ let detailedChartInstance = null;
 let radarChartInstance = null;
 let isLogEditMode = false;
 
-const DATA_ROWS_CONFIG_PROFILE = [
-    { id: 'profile-log-row-bean', key: 'bean', label: '豆温度 (°C)' },
-    { id: 'profile-log-row-chamber', key: 'chamber', label: '庫内温度 (°C)' },
-    { id: 'profile-log-row-ror', key: 'ror', label: 'ROR (°C/min)' }
-];
-const RATING_DEFINITIONS = { flavor: 'フレーバー', bitterness: '苦味', acidity: '酸味', sweetness: '甘味', body: 'ボディ' };
-const RATING_CATEGORIES = Object.keys(RATING_DEFINITIONS);
+let DATA_ROWS_CONFIG_PROFILE;
+let RATING_DEFINITIONS;
+let RATING_CATEGORIES;
+
 
 // --- 内部ヘルパー関数 ---
 
@@ -93,7 +90,7 @@ function _renderTransposedLogTable(timeEntries, isEditMode = false) {
     const integerTimeEntries = timeEntries.filter(entry => Math.abs(entry.time - Math.round(entry.time)) < 0.01);
     
     if (integerTimeEntries.length === 0 && !isEditMode) {
-        transposedLogTableContainerElement.innerHTML = '<p class="text-xs text-gray-500 italic">表示する分単位のログデータがありません。</p>';
+        transposedLogTableContainerElement.innerHTML = `<p class="text-xs text-gray-500 italic">${t('profile.logTable.noData')}</p>`;
         return;
     }
     
@@ -106,7 +103,7 @@ function _renderTransposedLogTable(timeEntries, isEditMode = false) {
     const headRow = thead.insertRow();
     const firstHeaderCell = document.createElement('th');
     firstHeaderCell.className = 'px-3 py-2 text-left font-semibold text-gray-600 border border-gray-300 sticky left-0 bg-gray-100 z-20';
-    firstHeaderCell.textContent = '項目＼時間(分)';
+    firstHeaderCell.textContent = t('profile.logTable.header');
     headRow.appendChild(firstHeaderCell);
 
     const tbody = table.createTBody();
@@ -179,7 +176,7 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
     const finalChartData = {
         datasets: [
             {
-                label: '豆温度 (°C)',
+                label: t('profile.logTable.beanTemp'),
                 data: sortedTimeEntries.map(p => ({x:p.time, y:p.bean})),
                 borderColor: beanTempBorderColor,
                 yAxisID: 'yTemp',
@@ -194,7 +191,7 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
                 pointBackgroundColor: beanTempBorderColor,
             },
             {
-                label: '庫内温度 (°C)',
+                label: t('profile.logTable.chamberTemp'),
                 data: sortedTimeEntries.map(p => ({x:p.time, y:p.chamber})),
                 borderColor: '#3b82f6',
                 yAxisID: 'yTemp',
@@ -205,7 +202,7 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
                 pointStyle: 'rect',
             },
             {
-                label: 'ROR (°C/分)',
+                label: t('profile.logTable.ror'),
                 data: sortedTimeEntries.map(p => ({x:p.time, y:p.ror})),
                 borderColor: '#16a34a',
                 yAxisID: 'yROR',
@@ -229,9 +226,9 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
             maintainAspectRatio: false,
             interaction: { mode: 'index', intersect: false },
             scales: {
-                x: { type: 'linear', title: { display: true, text: '時間 (分)' }, min: 0, max: chartMaxX },
-                yTemp: { type: 'linear', display: true, position: 'left', title: { display: true, text: '温度 (°C)' } },
-                yROR: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'ROR (°C/分)' }, grid: { drawOnChartArea: false } }
+                x: { type: 'linear', title: { display: true, text: t('comparison.chart.timeAxis') }, min: 0, max: chartMaxX },
+                yTemp: { type: 'linear', display: true, position: 'left', title: { display: true, text: t('comparison.chart.tempAxis') } },
+                yROR: { type: 'linear', display: true, position: 'right', title: { display: true, text: t('profile.logTable.ror') }, grid: { drawOnChartArea: false } }
             },
             plugins: {
                 legend: { position: 'top' },
@@ -262,7 +259,7 @@ function _renderChartOnly(sortedTimeEntries, roastData) {
         detailedChartInstance = new Chart(chartCanvasElement, chartConfig);
     } catch (e) {
         console.error("ProfileModalUI: Error creating detailed roast chart:", e);
-        if (messageElement) messageElement.textContent = 'グラフの生成中にエラーが発生しました。';
+        if (messageElement) messageElement.textContent = t('profile.chart.error');
     }
 }
 
@@ -304,7 +301,7 @@ function _renderRadarChart(ratingsData) {
         radarChartInstance = new Chart(radarChartCanvasElement, chartConfig);
     } catch(e) {
         console.error("ProfileModalUI: Error creating radar chart:", e);
-        radarChartSectionElement.innerHTML = '<p class="text-red-500">レーダーチャートの表示に失敗しました。</p>';
+        radarChartSectionElement.innerHTML = `<p class="text-red-500">${t('profile.radar.error')}</p>`;
     }
 }
 
@@ -312,7 +309,7 @@ export function showProfileModal(roastData) {
     if (!modalElement) return;
 
     currentRoastDataForCopy = roastData;
-    titleElement.textContent = `${roastData.beanName || '詳細不明'} の焙煎プロファイル`;
+    titleElement.textContent = t('profile.titleWithBean', { beanName: roastData.beanName || t('text.unknown') });
     
     const timeDataMap = new Map();
     const addDataPoint = (time, bean, chamber, ror) => {
@@ -452,12 +449,12 @@ export function initializeProfileModalUI() {
     if (getAiAnalysisButton) {
         getAiAnalysisButton.addEventListener('click', async () => {
             if (!currentRoastDataForCopy) {
-                showToast("分析対象のデータがありません。", "error");
+                showToast(t('profile.ai.noData'), "error");
                 return;
             }
 
             getAiAnalysisButton.disabled = true;
-            getAiAnalysisButton.textContent = '分析中...';
+            getAiAnalysisButton.textContent = t('profile.ai.analyzing');
             if (profileAiNotesSectionElement) profileAiNotesSectionElement.style.display = 'block';
             if (profileAiNotesElement) profileAiNotesElement.style.display = 'none';
             if (aiAnalysisSpinnerElement) aiAnalysisSpinnerElement.style.display = 'block';
@@ -469,14 +466,14 @@ export function initializeProfileModalUI() {
                         profileAiNotesElement.textContent = result.analysis;
                         profileAiNotesElement.style.display = 'block';
                     }
-                    showToast("AIによる分析が完了しました。", "success");
+                    showToast(t('profile.ai.success'), "success");
                 }
             } catch(error) {
-                showToast(`AI分析エラー: ${error.message}`, "error", 5000);
+                showToast(t('profile.ai.error', { message: error.message }), "error", 5000);
                 if (profileAiNotesSectionElement) profileAiNotesSectionElement.style.display = 'none';
             } finally {
                 getAiAnalysisButton.disabled = false;
-                getAiAnalysisButton.textContent = '🤖 AIに評価を依頼';
+                getAiAnalysisButton.textContent = t('profile.ai.requestButton');
                 if (aiAnalysisSpinnerElement) aiAnalysisSpinnerElement.style.display = 'none';
             }
         });
@@ -486,13 +483,29 @@ export function initializeProfileModalUI() {
         copyJsonButtonElement.addEventListener('click', () => {
             if (currentRoastDataForCopy) {
                 navigator.clipboard.writeText(JSON.stringify(currentRoastDataForCopy, null, 2))
-                    .then(() => showToast("プロファイルデータをクリップボードにコピーしました。", "success"))
-                    .catch(err => showToast(`コピーに失敗: ${err.message}`, "error"));
+                    .then(() => showToast(t('profile.copy.success'), "success"))
+                    .catch(err => showToast(t('profile.copy.fail', { message: err.message }), "error"));
             }
         });
     }
 
     eventBus.on('ui:show-profile-modal', showProfileModal);
     
+    // --- 初期化時に翻訳が必要な定数を設定 ---
+    RATING_DEFINITIONS = {
+        flavor: t('profile.ratingDefinitions.flavor'),
+        bitterness: t('profile.ratingDefinitions.bitterness'),
+        acidity: t('profile.ratingDefinitions.acidity'),
+        sweetness: t('profile.ratingDefinitions.sweetness'),
+        body: t('profile.ratingDefinitions.body')
+    };
+    RATING_CATEGORIES = Object.keys(RATING_DEFINITIONS);
+
+    DATA_ROWS_CONFIG_PROFILE = [
+        { id: 'profile-log-row-bean', key: 'bean', label: t('profile.logTable.beanTemp') },
+        { id: 'profile-log-row-chamber', key: 'chamber', label: t('profile.logTable.chamberTemp') },
+        { id: 'profile-log-row-ror', key: 'ror', label: t('profile.logTable.ror') }
+    ];
+
     console.log("✅ ProfileModalUI initialized.");
 }

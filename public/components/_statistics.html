@@ -1,32 +1,30 @@
 <div id="update-notification-bar" class="hidden mb-4 p-4 bg-teal-50 dark:bg-teal-900/50 border-l-4 border-teal-500 dark:border-teal-400 text-teal-800 dark:text-teal-200">
     <div class="flex justify-between items-center">
         <div>
-            <h4 class="font-bold">データ更新のお知らせ</h4>
-            <p class="text-sm">過去の焙煎記録を、最新の統計表示に対応させるための更新が可能です。</p>
+            <h4 class="font-bold" data-i18n-key="stats.update.title"></h4>
+            <p class="text-sm" data-i18n-key="stats.update.message"></p>
         </div>
         <div>
-            <button id="run-update-button" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500">
-                更新を実行する
+            <button id="run-update-button" class="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500" data-i18n-key="stats.update.button">
             </button>
             <button id="close-update-bar-button" class="ml-2 text-2xl font-light leading-none hover:text-teal-900">&times;</button>
         </div>
     </div>
 </div>
 <div class="mb-8 p-6 bg-[var(--bg-primary)] rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold text-[var(--text-primary)] mb-4">統計・分析</h2>
-    <p class="text-sm text-[var(--text-secondary)]">
-        蓄積された焙煎記録から、あなたの焙煎の傾向や成果を可視化します。
+    <h2 class="text-2xl font-bold text-[var(--text-primary)] mb-4" data-i18n-key="stats.title"></h2>
+    <p class="text-sm text-[var(--text-secondary)]" data-i18n-key="stats.subtitle">
     </p>
 </div>
 
 <div class="space-y-8">
     <div class="p-6 bg-[var(--bg-primary)] rounded-lg shadow-md">
         <div class="flex flex-wrap justify-between items-center gap-y-2 mb-4">
-            <h3 class="text-xl font-semibold text-[var(--text-primary)]">月別投資額</h3>
+            <h3 class="text-xl font-semibold text-[var(--text-primary)]" data-i18n-key="stats.cost.title"></h3>
             <div id="period-selector" class="flex items-center space-x-2">
                 <div class="flex space-x-1 bg-[var(--bg-secondary)] p-1 rounded-lg">
-                    <button data-period="6" class="px-3 py-1 text-sm rounded-md transition-colors text-[var(--text-primary)]">6ヶ月</button>
-                    <button data-period="12" class="px-3 py-1 text-sm rounded-md transition-colors bg-[var(--bg-primary)] shadow text-[var(--text-primary)]">12ヶ月</button>
+                    <button data-period="6" class="px-3 py-1 text-sm rounded-md transition-colors text-[var(--text-primary)]" data-i18n-key="stats.cost.period6m"></button>
+                    <button data-period="12" class="px-3 py-1 text-sm rounded-md transition-colors bg-[var(--bg-primary)] shadow text-[var(--text-primary)]" data-i18n-key="stats.cost.period12m"></button>
                 </div>
                 <select id="year-selector" class="text-sm border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] rounded-lg shadow-sm focus:ring-amber-500 focus:border-amber-500"></select>
             </div>
@@ -37,15 +35,15 @@
     </div>
 
     <div class="p-6 bg-[var(--bg-primary)] rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-4">豆ごとの平均総合評価ランキング</h3>
+        <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-4" data-i18n-key="stats.ranking.title"></h3>
         <div class="overflow-x-auto">
             <table class="min-w-full">
                 <thead class="bg-[var(--bg-secondary)]">
                     <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">順位</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">豆の名前</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">平均評価</th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider">焙煎回数</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider" data-i18n-key="stats.ranking.header.rank"></th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider" data-i18n-key="stats.ranking.header.beanName"></th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider" data-i18n-key="stats.ranking.header.avgRating"></th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-[var(--text-secondary)] uppercase tracking-wider" data-i18n-key="stats.ranking.header.roastCount"></th>
                     </tr>
                 </thead>
                 <tbody id="beanRankingTableBody" class="bg-[var(--bg-primary)] divide-y divide-[var(--border-color)]">
@@ -55,18 +53,17 @@
     </div>
 
     <div class="p-6 bg-[var(--bg-primary)] rounded-lg shadow-md">
-        <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-4">相関分析</h3>
-        <p class="text-sm text-[var(--text-secondary)] mb-4">
-            2つの指標の関係性を見て、焙煎のヒントを探しましょう。
+        <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-4" data-i18n-key="stats.correlation.title"></h3>
+        <p class="text-sm text-[var(--text-secondary)] mb-4" data-i18n-key="stats.correlation.subtitle">
         </p>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-                <label for="scatterXAxisSelect" class="block text-sm font-medium text-[var(--text-secondary)]">X軸（横軸）</label>
+                <label for="scatterXAxisSelect" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="stats.correlation.xAxisLabel"></label>
                 <select id="scatterXAxisSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md"></select>
             </div>
             <div>
-                <label for="scatterYAxisSelect" class="block text-sm font-medium text-[var(--text-secondary)]">Y軸（縦軸）</label>
+                <label for="scatterYAxisSelect" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="stats.correlation.yAxisLabel"></label>
                 <select id="scatterYAxisSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md"></select>
             </div>
         </div>
@@ -77,20 +74,19 @@
     </div>
 
     <div class="p-6 bg-[var(--bg-primary)] rounded-lg shadow-md mt-8">
-        <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-4">生豆別・フレーバープロファイル分析</h3>
-        <p class="text-sm text-[var(--text-secondary)] mb-4">
-            特定の豆について、各フレーバーがどのような焙煎条件で現れやすいかを分析します。
+        <h3 class="text-xl font-semibold text-[var(--text-primary)] mb-4" data-i18n-key="stats.flavor.title"></h3>
+        <p class="text-sm text-[var(--text-secondary)] mb-4" data-i18n-key="stats.flavor.subtitle">
         </p>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-                <label for="flavorAnalysisBeanSelect" class="block text-sm font-medium text-[var(--text-secondary)]">分析する豆を選択</label>
+                <label for="flavorAnalysisBeanSelect" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="stats.flavor.selectBeanLabel"></label>
                 <select id="flavorAnalysisBeanSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
-                    <option value="">まず豆を選んでください</option>
+                    <option value="" data-i18n-key="selectBeanFirst"></option>
                 </select>
             </div>
             <div>
-                <label for="flavorAnalysisParamSelect" class="block text-sm font-medium text-[var(--text-secondary)]">比較する焙煎指標</label>
+                <label for="flavorAnalysisParamSelect" class="block text-sm font-medium text-[var(--text-secondary)]" data-i18n-key="stats.flavor.selectParamLabel"></label>
                 <select id="flavorAnalysisParamSelect" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm rounded-md">
                     </select>
             </div>

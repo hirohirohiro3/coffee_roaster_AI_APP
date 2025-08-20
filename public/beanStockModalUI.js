@@ -1,4 +1,5 @@
 import { eventBus } from './EventBus.js';
+import { t } from './i18n.js';
 
 // --- DOM要素 ---
 let modalElement, closeButtonElement, addNewBeanButtonElement;
@@ -27,7 +28,7 @@ function renderBeanList({ beans, editHandler }) {
     listContainerElement.innerHTML = '';
 
     if (beans.length === 0) {
-        listContainerElement.innerHTML = '<p class="text-sm text-gray-500 italic p-2">該当する生豆はありません。</p>';
+        listContainerElement.innerHTML = `<p class="text-sm text-gray-500 italic p-2">${t('beanStock.noBeansFound')}</p>`;
         return;
     }
 
@@ -48,7 +49,7 @@ function renderBeanList({ beans, editHandler }) {
             </div>
             <div class="mt-2">
                 <div class="flex justify-between items-center text-xs text-gray-600 mb-1">
-                    <span>残り: ${remaining.toFixed(3)}kg</span>
+                    <span>${t('beanStock.remainingLabel')} ${remaining.toFixed(3)}kg</span>
                     <span>${percentage.toFixed(0)}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-1.5">
@@ -67,7 +68,7 @@ function clearAndShowBeanForm({ isEdit, data }) {
     formElement.reset();
     
     if (isEdit) {
-        formTitleElement.textContent = '生豆の情報を編集';
+        formTitleElement.textContent = t('beanStock.formTitleEdit');
         addNewBeanButtonElement.classList.remove('hidden');
         deleteBeanButtonElement.classList.remove('hidden');
         beanIdInputElement.value = data.id || '';
@@ -75,7 +76,7 @@ function clearAndShowBeanForm({ isEdit, data }) {
             if (formElement.elements[key]) formElement.elements[key].value = data[key];
         });
     } else {
-        formTitleElement.textContent = '新規生豆を登録';
+        formTitleElement.textContent = t('beanStock.formTitleNew');
         addNewBeanButtonElement.classList.add('hidden');
         deleteBeanButtonElement.classList.add('hidden');
         beanIdInputElement.value = '';
@@ -89,9 +90,9 @@ function _updateUnitPriceDisplay() {
     const price = parseFloat(priceInputElement.value);
     if (!isNaN(amount) && !isNaN(price) && amount > 0) {
         const unitPrice = price / amount;
-        unitPriceDisplayElement.textContent = `${unitPrice.toFixed(1)} 円/kg`;
+        unitPriceDisplayElement.textContent = `${unitPrice.toFixed(1)} ${t('beanStock.unitPriceUnit')}`;
     } else {
-        unitPriceDisplayElement.textContent = '- 円/kg';
+        unitPriceDisplayElement.textContent = `- ${t('beanStock.unitPriceUnit')}`;
     }
 }
 

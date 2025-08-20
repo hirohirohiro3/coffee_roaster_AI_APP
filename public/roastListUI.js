@@ -57,7 +57,7 @@ function createStarRatingDisplay(rating) {
             stars += emptyStar;
         }
     }
-    return `<div class="flex items-center" title="評価: ${numRating.toFixed(1)} / 5.0">${stars}</div>`;
+    return `<div class="flex items-center" title="${t('roastList.ratingTitle', { rating: numRating.toFixed(1) })}">${stars}</div>`;
 }
 
 
@@ -102,18 +102,18 @@ function renderRoastList({ roasts, keyword }) {
 
     if (!roasts || roasts.length === 0) {
         if (keyword) {
-            listElement.innerHTML = `<p class="text-center text-gray-500 py-8">検索結果に一致する記録はありません。</p>`;
+            listElement.innerHTML = `<p class="text-center text-gray-500 py-8">${t('noSearchResults')}</p>`;
         } else {
             listElement.innerHTML = `
             <div class="text-center py-12 px-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4M4 7s0 4 8 4 8-4 8-4m-8 8c0 2.21-3.582 4-8 4" />
                 </svg>
-                <h3 class="mt-2 text-lg font-medium text-gray-900">まだ焙煎記録がありません</h3>
-                <p class="mt-1 text-sm text-gray-500">最初の焙煎を記録して、分析を始めましょう。</p>
+                <h3 class="mt-2 text-lg font-medium text-gray-900" data-i18n-key="roastList.empty.title">${t('roastList.empty.title')}</h3>
+                <p class="mt-1 text-sm text-gray-500" data-i18n-key="roastList.empty.message">${t('roastList.empty.message')}</p>
                 <div class="mt-6">
-                    <button type="button" id="addNewRoastButtonEmpty" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700">
-                        最初の焙煎を記録する
+                    <button type="button" id="addNewRoastButtonEmpty" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700" data-i18n-key="roastList.empty.button">
+                        ${t('roastList.empty.button')}
                     </button>
                 </div>
             </div>`;
@@ -139,7 +139,7 @@ function renderRoastList({ roasts, keyword }) {
             }
         }
         
-        const beanNameToDisplay = roast.beanName || '豆の名前がありません';
+        const beanNameToDisplay = roast.beanName || t('beanNameMissing');
 
         // ▼▼▼ [修正] お気に入りボタンのアイコンを星からハートに変更 ▼▼▼
         const heartIcon = roast.isFavorite
@@ -153,7 +153,7 @@ function renderRoastList({ roasts, keyword }) {
             </div>
 
             <div class="flex-grow cursor-pointer view-profile-trigger" data-id="${roast.id}">
-                <p class="text-sm text-gray-500">${roast.roastDate || '日付不明'}</p>
+                <p class="text-sm text-gray-500">${roast.roastDate || t('dateUnknown')}</p>
                 <h3 class="text-xl font-bold text-gray-800 truncate">${beanNameToDisplay}</h3>
                 <p class="text-sm text-gray-600">${roast.roastLevel || t('roastLevelUnset')} | ${t('totalTime')}: ${roast.totalRoastTime || '--:--'}</p>
                 ${createFlavorTagsDisplay(roast.flavorProfile)}
