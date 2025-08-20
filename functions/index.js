@@ -11,6 +11,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // AI評価用の関数 (onCallを使用)
 export const getRoastAnalysis = onCall({
+  enforceAppCheck: true, // This line enables App Check
   region: "asia-northeast1", // 東京リージョン
   secrets: ["GEMINI_API_KEY"], // 環境変数を安全に利用するための設定
 }, async (request) => {
