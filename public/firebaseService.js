@@ -18,6 +18,7 @@ let app;
 let auth;
 export let db;
 export let functions;
+let appCheck = null;
 let currentUserIdInternal = null;
 let unsubscribes = [];
 let beansCache = new Map();
@@ -64,11 +65,11 @@ export function initializeFirebase() {
 
         // App Checkの初期化を環境に関わらず実行
         try {
-            const appCheck = initializeAppCheck(app, {
+            appCheck = initializeAppCheck(app, {
                 provider: new ReCaptchaV3Provider(recaptchaSiteKey),
                 isTokenAutoRefreshEnabled: true
             });
-            console.log("✅ Firebase App Check initialization SUCCESSFUL.", appCheck);
+            console.log("✅ Firebase App Check initialization SUCCESSFUL.");
         } catch (error) {
             console.error("❌ Firebase App Check initialization FAILED:", error);
         }
@@ -82,17 +83,36 @@ export function initializeFirebase() {
             connectFirestoreEmulator(db, 'localhost', 8080);
         }
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             currentUserIdInternal = user ? user.uid : null;
-            eventBus.emit('auth:state-changed', user);
+
             if (user) {
-                listenToAllData(user.uid);
+                if (!appCheck) {
+                    // App Checkが初期化に失敗した場合など
+                    console.warn("App Check not available. Proceeding without token check.");
+                    eventBus.emit('auth:state-changed', user);
+                    listenToAllData(user.uid);
+                    return;
+                }
+                try {
+                    // App Check トークンを待ってからイベントを発行
+                    await appCheck.getToken();
+                    console.log("App Check token ready, proceeding with auth state change.");
+                    eventBus.emit('auth:state-changed', user);
+                    listenToAllData(user.uid);
+                } catch (error) {
+                    console.error("Failed to get App Check token. Proceeding without it.", error);
+                    // トークンが取得できなくても、UIにはログイン状態を通知する
+                    eventBus.emit('auth:state-changed', user);
+                }
             } else {
+                // ログアウト時
                 unsubscribes.forEach(unsub => unsub());
                 unsubscribes = [];
                 beansCache.clear();
                 eventBus.emit('data:roasts-updated', []);
                 eventBus.emit('beans:updated-for-roast-form', []);
+                eventBus.emit('auth:state-changed', null);
             }
         });
     } catch (error) {
