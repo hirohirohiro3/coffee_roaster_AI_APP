@@ -96,7 +96,7 @@ export function initializeFirebase() {
                 }
                 try {
                     // App Check トークンを待ってからイベントを発行
-                    await appCheck.getToken();
+                    await appCheck.INTERNAL.getToken();
                     console.log("App Check token ready, proceeding with auth state change.");
                     eventBus.emit('auth:state-changed', user);
                     listenToAllData(user.uid);
