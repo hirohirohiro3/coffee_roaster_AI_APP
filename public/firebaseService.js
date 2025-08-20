@@ -61,21 +61,21 @@ export function initializeFirebase() {
     try {
         if (app) return;
         app = initializeApp(firebaseConfig);
+
+        // App Checkの初期化を環境に関わらず実行
+        try {
+            const appCheck = initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+                isTokenAutoRefreshEnabled: true
+            });
+            console.log("✅ Firebase App Check initialization SUCCESSFUL.", appCheck);
+        } catch (error) {
+            console.error("❌ Firebase App Check initialization FAILED:", error);
+        }
+
         auth = getAuth(app);
         db = getFirestore(app);
         functions = getFunctions(app);
-
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            try {
-                const appCheck = initializeAppCheck(app, {
-                    provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-                    isTokenAutoRefreshEnabled: true
-                });
-                console.log("✅ Firebase App Check initialization SUCCESSFUL.", appCheck);
-            } catch (error) {
-                console.error("❌ Firebase App Check initialization FAILED:", error);
-            }
-        }
         
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
             connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
