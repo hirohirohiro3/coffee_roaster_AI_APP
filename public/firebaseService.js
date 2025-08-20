@@ -1,6 +1,6 @@
 import { firebaseConfig, recaptchaSiteKey } from './firebaseConfig.js'; 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { initializeAppCheck, ReCaptchaV3Provider, getAppCheck, getToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
 import {
     getAuth, onAuthStateChanged, createUserWithEmailAndPassword,
     signInWithEmailAndPassword, sendPasswordResetEmail, signOut,
@@ -82,30 +82,17 @@ export function initializeFirebase() {
             connectFirestoreEmulator(db, 'localhost', 8080);
         }
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             currentUserIdInternal = user ? user.uid : null;
-
+            eventBus.emit('auth:state-changed', user);
             if (user) {
-                try {
-                    // App Check トークンを待ってからイベントを発行
-                    const appCheck = getAppCheck(app);
-                    await getToken(appCheck);
-                    console.log("App Check token ready, proceeding with auth state change.");
-                    eventBus.emit('auth:state-changed', user);
-                    listenToAllData(user.uid);
-                } catch (error) {
-                    console.error("Failed to get App Check token.", error);
-                    // トークンが取得できなくても、UIにはログイン状態を通知する
-                    eventBus.emit('auth:state-changed', user);
-                }
+                listenToAllData(user.uid);
             } else {
-                // ログアウト時
                 unsubscribes.forEach(unsub => unsub());
                 unsubscribes = [];
                 beansCache.clear();
                 eventBus.emit('data:roasts-updated', []);
                 eventBus.emit('beans:updated-for-roast-form', []);
-                eventBus.emit('auth:state-changed', null);
             }
         });
     } catch (error) {
