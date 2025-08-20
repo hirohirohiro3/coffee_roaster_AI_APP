@@ -62,57 +62,41 @@ export function initializeFirebase() {
     try {
         if (app) return;
         app = initializeApp(firebaseConfig);
-
-        // App Checkの初期化を環境に関わらず実行
-        try {
-            appCheck = initializeAppCheck(app, {
-                provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-                isTokenAutoRefreshEnabled: true
-            });
-            console.log("✅ Firebase App Check initialization SUCCESSFUL.");
-        } catch (error) {
-            console.error("❌ Firebase App Check initialization FAILED:", error);
-        }
-
         auth = getAuth(app);
         db = getFirestore(app);
         functions = getFunctions(app);
-        
+
+        // App Checkの初期化
+        // 開発環境 (localhost) ではデバッグプロバイダーを使用し、本番環境でのみreCAPTCHAを使用する
         if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+            // ローカル環境でのエミュレータ接続
             connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
             connectFirestoreEmulator(db, 'localhost', 8080);
+            console.log("✅ Using Firebase Emulators.");
+        } else {
+            // 本番環境でのApp Check初期化
+            try {
+                initializeAppCheck(app, {
+                    provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+                    isTokenAutoRefreshEnabled: true
+                });
+                console.log("✅ Firebase App Check initialization SUCCESSFUL.");
+            } catch (error) {
+                console.error("❌ Firebase App Check initialization FAILED:", error);
+            }
         }
 
-        onAuthStateChanged(auth, async (user) => {
+        onAuthStateChanged(auth, (user) => {
             currentUserIdInternal = user ? user.uid : null;
-
+            eventBus.emit('auth:state-changed', user);
             if (user) {
-                if (!appCheck) {
-                    // App Checkが初期化に失敗した場合など
-                    console.warn("App Check not available. Proceeding without token check.");
-                    eventBus.emit('auth:state-changed', user);
-                    listenToAllData(user.uid);
-                    return;
-                }
-                try {
-                    // App Check トークンを待ってからイベントを発行
-                    await appCheck.INTERNAL.getToken();
-                    console.log("App Check token ready, proceeding with auth state change.");
-                    eventBus.emit('auth:state-changed', user);
-                    listenToAllData(user.uid);
-                } catch (error) {
-                    console.error("Failed to get App Check token. Proceeding without it.", error);
-                    // トークンが取得できなくても、UIにはログイン状態を通知する
-                    eventBus.emit('auth:state-changed', user);
-                }
+                listenToAllData(user.uid);
             } else {
-                // ログアウト時
                 unsubscribes.forEach(unsub => unsub());
                 unsubscribes = [];
                 beansCache.clear();
                 eventBus.emit('data:roasts-updated', []);
                 eventBus.emit('beans:updated-for-roast-form', []);
-                eventBus.emit('auth:state-changed', null);
             }
         });
     } catch (error) {
