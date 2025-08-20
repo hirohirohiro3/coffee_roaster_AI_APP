@@ -5,16 +5,19 @@ service cloud.firestore {
 
     // ユーザーは自身のユーザー情報ドキュメントを読み取ることができる
     match /users/{userId} {
-      allow get: if request.auth != null && request.auth.uid == userId;
+      // App Checkの検証を追加 (request.app != null)
+      allow get: if request.auth != null && request.auth.uid == userId && request.app != null;
 
       // ユーザーは自身の焙煎記録(roasts)を読み書きできる
       match /roasts/{roastId} {
-        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+        // App Checkの検証を追加 (request.app != null)
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId && request.app != null;
       }
 
       // ユーザーは自身の生豆在庫(beans)を読み書きできる
       match /beans/{beanId} {
-        allow read, write, delete: if request.auth != null && request.auth.uid == userId;
+        // App Checkの検証を追加 (request.app != null)
+        allow read, write, delete: if request.auth != null && request.auth.uid == userId && request.app != null;
       }
     }
   }
