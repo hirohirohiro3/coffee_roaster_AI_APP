@@ -1,3 +1,4 @@
+import { t } from './i18n.js';
 import { eventBus } from './EventBus.js';
 import { showToast } from './ui.js';
 import * as FirebaseService from './firebaseService.js';
