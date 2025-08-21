@@ -1,7 +1,7 @@
 import { t } from './i18n.js';
 import { eventBus } from './EventBus.js';
 import { showToast } from './ui.js';
-import * as FirebaseService from './firebaseService.js';
+import * as FirestoreService from './services/firestoreService.js';
 import {
     timeToSeconds,
     calculateDTR,
@@ -461,7 +461,7 @@ export function initializeProfileModalUI() {
             if (aiAnalysisSpinnerElement) aiAnalysisSpinnerElement.style.display = 'block';
 
             try {
-                const result = await FirebaseService.getRoastAnalysisFromAI(currentRoastDataForCopy);
+                const result = await FirestoreService.getRoastAnalysisFromAI(currentRoastDataForCopy);
                 if (result && result.analysis) {
                     if (profileAiNotesElement) {
                         profileAiNotesElement.textContent = result.analysis;

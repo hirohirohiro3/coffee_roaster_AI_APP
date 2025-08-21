@@ -3,7 +3,8 @@ import {
     orderBy, serverTimestamp, writeBatch, increment
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { eventBus } from './EventBus.js';
-import * as FirebaseService from './firebaseService.js';
+import { currentUserId, db } from './services/authService.js';
+import * as FirestoreService from './services/firestoreService.js';
 import { t } from './i18n.js';
 
 let unsubscribeBeans = null;
@@ -12,7 +13,7 @@ let unsubscribeBeans = null;
  * Firestoreの生豆データの変更をリッスンし、更新があればイベントを発行します。
  */
 function listenToBeans() {
-    const userId = FirebaseService.currentUserId();
+    const userId = currentUserId();
     if (!userId) {
         if (unsubscribeBeans) unsubscribeBeans();
         eventBus.emit('data:beans-updated', []);
@@ -21,7 +22,7 @@ function listenToBeans() {
 
     if (unsubscribeBeans) unsubscribeBeans();
 
-    const beansRef = collection(FirebaseService.db, `users/${userId}/beans`);
+    const beansRef = collection(db, `users/${userId}/beans`);
     const q = query(beansRef, orderBy("purchaseDate", "desc"));
     
     unsubscribeBeans = onSnapshot(q, (querySnapshot) => {
@@ -51,36 +52,36 @@ export function initializeBeanService() {
 // --- データ操作関数 ---
 
 export async function addBean(beanData) {
-    const userId = FirebaseService.currentUserId();
+    const userId = currentUserId();
     if (!userId) { console.error("beanService: User not logged in."); return null; }
-    return await FirebaseService.addBean(beanData);
+    return await FirestoreService.addBean(beanData);
 }
 
 export async function updateBean(beanId, beanData) {
-    const userId = FirebaseService.currentUserId();
+    const userId = currentUserId();
     if (!userId) { console.error("beanService: User not logged in."); return false; }
-    return await FirebaseService.updateBean(beanId, beanData);
+    return await FirestoreService.updateBean(beanId, beanData);
 }
 
 export async function deleteBean(beanId) {
-    const userId = FirebaseService.currentUserId();
+    const userId = currentUserId();
     if (!userId) {
         console.error("beanService: User not logged in.");
         return false;
     }
-    return await FirebaseService.deleteBean(beanId);
+    return await FirestoreService.deleteBean(beanId);
 }
 
 export async function addRoastAndUpdateStock(roastData, beanId, usedAmount) {
-    const userId = FirebaseService.currentUserId();
+    const userId = currentUserId();
     if (!userId || !beanId || !usedAmount) {
         console.error("beanService: Invalid data for stock update.");
         return null;
     }
-    const roastRef = doc(collection(FirebaseService.db, `users/${userId}/roasts`));
-    const beanRef = doc(FirebaseService.db, `users/${userId}/beans`, beanId);
+    const roastRef = doc(collection(db, `users/${userId}/roasts`));
+    const beanRef = doc(db, `users/${userId}/beans`, beanId);
     try {
-        const batch = writeBatch(FirebaseService.db);
+        const batch = writeBatch(db);
         batch.set(roastRef, { ...roastData, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
         batch.update(beanRef, { remainingAmount: increment(-usedAmount), updatedAt: serverTimestamp() });
         await batch.commit();
@@ -98,12 +99,12 @@ export async function addRoastAndUpdateStock(roastData, beanId, usedAmount) {
  * @param {number} amount - 在庫の変動量。増やす場合は正、減らす場合は負の数。
  */
 export function batchUpdateBeanStock(batch, beanId, amount) {
-    const userId = FirebaseService.currentUserId();
+    const userId = currentUserId();
     if (!userId || !beanId || !amount || typeof amount !== 'number') {
         console.error("beanService: Invalid data for batch stock update.", { userId, beanId, amount });
         return;
     }
-    const beanRef = doc(FirebaseService.db, `users/${userId}/beans`, beanId);
+    const beanRef = doc(db, `users/${userId}/beans`, beanId);
     batch.update(beanRef, {
         remainingAmount: increment(amount),
         updatedAt: serverTimestamp()

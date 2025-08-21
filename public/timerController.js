@@ -1,5 +1,7 @@
 import { eventBus } from './EventBus.js';
-import { predictTimeToTarget } from './roastUtils.js';
+import { predictTimeToTarget, formatTime } from './roastUtils.js';
+import { showToast, setFormFieldValue, speak } from './ui.js';
+import { t } from './i18n.js';
 
 // --- モジュールスコープの変数 ---
 let timerInterval = null;
@@ -85,9 +87,65 @@ function resetTimer() {
 
 // --- 公開関数 ---
 
+function handleLogEventTime(targetFieldId) {
+    const timeValue = getCurrentElapsedTimeInSeconds();
+    const formattedTime = formatTime(timeValue);
+
+    if (!targetFieldId || targetFieldId.trim() === '') {
+        showToast(t('noEventToRecordSelected'), "warning");
+        return;
+    }
+
+    const targetInput = document.getElementById(targetFieldId);
+    if (!targetInput) {
+        console.error(`timerController.js: Target form field with ID '${targetFieldId}' not found.`);
+        return;
+    }
+
+    const existingTime = targetInput.value;
+    const eventButton = document.querySelector(`.log-event-btn[data-event-type="${targetFieldId}"]`);
+    const eventName = eventButton ? eventButton.textContent.split(' ')[0] : targetFieldId;
+
+    if (existingTime && existingTime.trim() !== '') {
+        if (!window.confirm(t('confirmOverwriteEventTime', { eventName, existingTime, newTime: formattedTime }))) {
+            return;
+        }
+    }
+
+    if (timeValue >= 0) {
+        setFormFieldValue(targetFieldId, formattedTime);
+        speak(t('eventTimeRecorded', { eventName, time: formattedTime }));
+
+        if (targetFieldId === 'turningPointTime') {
+            const turningPointTemp = document.getElementById('turningPointTempInput').value;
+            if (turningPointTemp) {
+                setFormFieldValue('turningPointTemp', turningPointTemp);
+            }
+        }
+
+        eventBus.emit('ui:update-event-button-state', {
+            eventType: targetFieldId,
+            time: formattedTime
+        });
+
+        if (targetFieldId === 'firstCrackTime' || targetFieldId === 'secondCrackTime') {
+            recordCrackTime(targetFieldId);
+        }
+        if (targetFieldId === 'totalRoastTime') {
+            if (getIsTimerRunning()) {
+                eventBus.emit('ui:timer:start-pause-clicked');
+            }
+            setTimeout(() => {
+                eventBus.emit('form:submit-by-timer');
+            }, 100);
+        }
+    }
+}
+
 export function initializeTimerController() {
     eventBus.on('ui:timer:start-pause-clicked', handleStartPauseTimerClick);
     eventBus.on('ui:timer:reset-clicked', handleResetTimerClick);
+    eventBus.on('ui:log-event-time', handleLogEventTime);
     
     resetTimer();
     console.log("✅ TimerController initialized.");
