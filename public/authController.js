@@ -3,9 +3,7 @@
 // ================================================================
 
 import { eventBus } from './EventBus.js';
-// firebaseService.jsからエクスポートされた全ての関数を、
-// FirebaseServiceという名前のオブジェクトとしてインポートします。
-import * as FirebaseService from './firebaseService.js';
+import * as AuthService from './services/authService.js';
 
 /**
  * ログイン処理を試みます。UIから'auth:login-attempt'イベントで呼び出されます。
@@ -16,8 +14,7 @@ async function handleLoginAttempt({ email, password }) {
         console.error("Login attempt with empty email or password.");
         return;
     }
-    // ▼▼▼ 修正点1: "And"を削除 ▼▼▼
-    await FirebaseService.signInUserWithEmailPassword(email, password);
+    await AuthService.signInUserWithEmailPassword(email, password);
 }
 
 /**
@@ -29,15 +26,14 @@ async function handleSignUpAttempt({ email, password }) {
         console.error("Sign up attempt with empty email or password.");
         return;
     }
-    // ▼▼▼ 修正点2: "And"を追加 ▼▼▼
-    await FirebaseService.signUpWithEmailAndPassword(email, password);
+    await AuthService.signUpWithEmailAndPassword(email, password);
 }
 
 /**
  * ログアウト処理を実行します。'auth:request-logout'イベントで呼び出されます。
  */
 function handleLogoutRequest() {
-    FirebaseService.firebaseSignOut()
+    AuthService.firebaseSignOut()
         .catch(error => {
             console.error("authController.js: Logout failed:", error);
         });

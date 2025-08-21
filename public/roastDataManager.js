@@ -4,9 +4,8 @@
 
 import { showToast } from './ui.js';
 import { t } from './i18n.js';
-// ▼▼▼ import文に `db` を追加 ▼▼▼
-import { currentUserId, addRoastRecord, updateRoastRecord, deleteRoastRecord, db } from './firebaseService.js';
-// ▼▼▼ import文に `batchUpdateBeanStock` を追加 ▼▼▼
+import { currentUserId, db } from './services/authService.js';
+import { addRoastRecord, updateRoastRecord, deleteRoastRecord } from './services/firestoreService.js';
 import { addRoastAndUpdateStock, batchUpdateBeanStock } from './beanService.js';
 import { getGraphLogsForSaving } from './graphController.js';
 // ▼▼▼ Firestore SDKから直接 `writeBatch` と `doc` をインポート ▼▼▼

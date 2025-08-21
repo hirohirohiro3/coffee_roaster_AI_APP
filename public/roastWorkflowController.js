@@ -2,8 +2,7 @@ import { eventBus } from './EventBus.js';
 import * as RoastDataManager from './roastDataManager.js';
 import { t } from './i18n.js';
 import * as RoastUtils from './roastUtils.js';
-import * as FirebaseService from './firebaseService.js';
-import { getRoastRecord } from './firebaseService.js';
+import { getRoastRecord, updateFavoriteStatus } from './services/firestoreService.js';
 
 let localRoastsCache = [];
 let currentSearchKeyword = '';
@@ -165,7 +164,7 @@ export async function handleToggleFavorite(roastId) {
         return;
     }
     const newFavoriteStatus = !roast.isFavorite;
-    await FirebaseService.updateFavoriteStatus(roastId, newFavoriteStatus);
+    await updateFavoriteStatus(roastId, newFavoriteStatus);
 }
 
 function _escapeCsvCell(cellData) {
