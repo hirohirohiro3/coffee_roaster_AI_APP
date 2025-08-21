@@ -3,22 +3,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ユーザーは自身のユーザー情報ドキュメントを読み取ることができる
-    match /users/{userId} {
-      // App Checkの検証を追加 (request.app != null)
-      allow get: if request.auth != null && request.auth.uid == userId && request.app != null;
-
-      // ユーザーは自身の焙煎記録(roasts)を読み書きできる
-      match /roasts/{roastId} {
-        // App Checkの検証を追加 (request.app != null)
-        allow read, write, delete: if request.auth != null && request.auth.uid == userId && request.app != null;
-      }
-
-      // ユーザーは自身の生豆在庫(beans)を読み書きできる
-      match /beans/{beanId} {
-        // App Checkの検証を追加 (request.app != null)
-        allow read, write, delete: if request.auth != null && request.auth.uid == userId && request.app != null;
-      }
+    // Allow users to read and write only their own data.
+    // The {userId} wildcard captures the user's ID from the path.
+    // It is checked against the `request.auth.uid` which is the ID of the logged-in user.
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
 }
