@@ -25,7 +25,7 @@ export async function setLanguage(lang) {
   const validLang = ['ja', 'en'].includes(lang) ? lang : 'ja';
 
   try {
-    const response = await fetch(`./locales/${validLang}.json`);
+    const response = await fetch(`../../locales/${validLang}.json`);
     if (!response.ok) throw new Error('Language file not found');
     translations = await response.json();
 

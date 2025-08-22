@@ -1,4 +1,4 @@
-import { eventBus } from './EventBus.js';
+import { eventBus } from '../modules/core/EventBus.js';
 
 const pages = {};
 let navListLink, navStatsLink;

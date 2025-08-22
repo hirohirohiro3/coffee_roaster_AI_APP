@@ -1,6 +1,6 @@
-import { eventBus } from './EventBus.js';
-import { formatTime } from './roastUtils.js';
-import { t } from './i18n.js';
+import { eventBus } from '../core/EventBus.js';
+import { formatTime } from '../../utils/roastUtils.js';
+import { t } from '../core/i18n.js';
 
 // --- DOM要素 ---
 let timerDisplayElement, firstCrackDevTimeElement, secondCrackDevTimeElement, predictionContainer, predictionDisplay;

@@ -4,7 +4,7 @@
 // このファイルは、フォームの入力イベントを送信するだけの、シンプルな役割になります。
 // 表示の切り替えは全て、uiManager.jsに任せます。
 
-import { eventBus } from './EventBus.js';
+import { eventBus } from '../modules/core/EventBus.js';
 
 // ★ 関数名を役割に合わせて変更
 export function initializeAuthForms() {

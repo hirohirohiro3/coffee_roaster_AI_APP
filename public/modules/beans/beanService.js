@@ -2,10 +2,10 @@ import {
     collection, addDoc, doc, updateDoc, onSnapshot, query,
     orderBy, serverTimestamp, writeBatch, increment
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { eventBus } from './EventBus.js';
-import { currentUserId, db } from './services/authService.js';
-import * as FirestoreService from './services/firestoreService.js';
-import { t } from './i18n.js';
+import { eventBus } from '../core/EventBus.js';
+import { currentUserId, db } from '../../services/authService.js';
+import * as FirestoreService from '../../services/firestoreService.js';
+import { t } from '../core/i18n.js';
 
 let unsubscribeBeans = null;
 

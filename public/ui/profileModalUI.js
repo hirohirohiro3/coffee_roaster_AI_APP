@@ -1,7 +1,7 @@
-import { t } from './i18n.js';
-import { eventBus } from './EventBus.js';
+import { t } from '../modules/core/i18n.js';
+import { eventBus } from '../modules/core/EventBus.js';
 import { showToast } from './ui.js';
-import * as FirestoreService from './services/firestoreService.js';
+import * as FirestoreService from '../services/firestoreService.js';
 import {
     timeToSeconds,
     calculateDTR,
@@ -9,7 +9,7 @@ import {
     parseLogStringToArray,
     convertTimeStringToMinutes,
     formatTime
-} from './roastUtils.js';
+} from '../utils/roastUtils.js';
 
 // --- DOM要素 ---
 let modalElement, titleElement, messageElement, chartCanvasElement, closeButtonElement, copyJsonButtonElement;

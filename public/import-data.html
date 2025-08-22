@@ -35,8 +35,8 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
         import { getFirestore, writeBatch, doc, Timestamp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore.js";
 
-        // Import the configuration from the local project file, mirroring firebaseService.js
-        import { firebaseConfig } from './firebaseConfig.js';
+        // Import the configuration from the local project file
+        import { firebaseConfig } from './services/firebaseConfig.js';
 
         const importButton = document.getElementById('importButton');
         const jsonDataEl = document.getElementById('jsonData');
