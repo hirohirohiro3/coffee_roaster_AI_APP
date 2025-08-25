@@ -18,9 +18,11 @@ export default class App {
     async start() {
         initI18n();
         console.log("Application starting...");
+        window.updateDebugStatus("App starting...");
 
         const onMainViewReady = () => {
             if (this.mainAppInitialized) return;
+            window.updateDebugStatus("OK. Initializing main modules...");
             console.log("app.js: 'ui:main-view-ready' event received. Initializing main app modules...");
             initializeMainAppModules();
             this.mainAppInitialized = true;

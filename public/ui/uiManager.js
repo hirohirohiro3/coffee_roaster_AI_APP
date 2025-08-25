@@ -18,6 +18,7 @@ function updateAuthViewState(user) {
 
     if (user) {
         // --- ▼▼▼ ログイン時の処理 ▼▼▼ ---
+        window.updateDebugStatus("OK. Main UI display process started.");
         // ログインフォーム全体を隠し、メインコンテンツを表示
         emailAuthFormsContainer.style.display = 'none';
         mainContent.style.display = 'block';
@@ -32,7 +33,10 @@ function updateAuthViewState(user) {
             eventBus.emit('auth:request-logout');
         });
 
-        eventBus.emit('ui:main-view-ready');
+        setTimeout(() => {
+            window.updateDebugStatus("Dispatching 'ui:main-view-ready' event (after timeout).");
+            eventBus.emit('ui:main-view-ready');
+        }, 0);
 
     } else {
         // --- ▼▼▼ ログアウト時の処理 ▼▼▼ ---

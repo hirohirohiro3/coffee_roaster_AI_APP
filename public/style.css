@@ -340,3 +340,15 @@ select:focus {
         opacity: 1;
     }
 }
+
+#debug-panel {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 5px;
+    font-size: 12px;
+    z-index: 9999;
+    font-family: monospace;
+}

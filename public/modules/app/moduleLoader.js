@@ -78,6 +78,7 @@ export async function initializeCoreModules() {
     initializeConfirmModal();
 
     console.log("✅ Core modules initialized.");
+    window.updateDebugStatus("Core modules initialized.");
 }
 
 export function initializeMainAppModules() {
@@ -105,4 +106,5 @@ export function initializeMainAppModules() {
     registerPages();
     initializePageNavigation();
     console.log("✅ Main application modules initialized.");
+    window.updateDebugStatus("Main modules initialized. App is ready.");
 }
