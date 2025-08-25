@@ -2,7 +2,7 @@
 // --- FILE: public/authController.js (修正版) ---
 // ================================================================
 
-import { eventBus } from './EventBus.js';
+import { eventBus } from './modules/core/EventBus.js';
 import * as AuthService from './services/authService.js';
 
 /**

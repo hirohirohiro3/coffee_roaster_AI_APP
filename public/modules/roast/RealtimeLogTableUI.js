@@ -3,8 +3,8 @@
 // ================================================================
 // このブロックの内容を、お手元の「RealtimeLogTableUI.js」に全てコピーしてください。
 
-import { eventBus } from './EventBus.js';
-import { timeToSeconds } from './roastUtils.js';
+import { eventBus } from '../core/EventBus.js';
+import { timeToSeconds } from '../../utils/roastUtils.js';
 
 let tableContainerElement = null;
 let tableHeadElement = null;

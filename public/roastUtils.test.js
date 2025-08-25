@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { formatTime, calculateDTR } from './roastUtils.js';
+import { formatTime, calculateDTR } from './utils/roastUtils.js';
 
 describe('formatTime', () => {
   it('should correctly format seconds into MM:SS format', () => {

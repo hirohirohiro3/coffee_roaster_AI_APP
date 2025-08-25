@@ -1,8 +1,8 @@
-import { eventBus } from './EventBus.js';
-import { getJoinedRoasts } from './dataService.js';
-import { timeToSeconds, formatTime, calculateDTR } from './roastUtils.js';
+import { eventBus } from './modules/core/EventBus.js';
+import { getJoinedRoasts } from './services/dataService.js';
+import { timeToSeconds, formatTime, calculateDTR } from './utils/roastUtils.js';
 import { updateRoastRecord } from './services/firestoreService.js';
-import { t } from './i18n.js';
+import { t } from './modules/core/i18n.js';
 
 // --- モジュールスコープの変数 ---
 let monthlyChartInstance = null;

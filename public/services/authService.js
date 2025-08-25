@@ -1,4 +1,4 @@
-import { firebaseConfig, recaptchaSiteKey } from '../firebaseConfig.js';
+import { firebaseConfig, recaptchaSiteKey } from './firebaseConfig.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app-check.js";
 import {
@@ -10,8 +10,8 @@ import {
     getFirestore, collection, onSnapshot, query, orderBy, connectFirestoreEmulator
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getFunctions } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
-import { eventBus } from '../EventBus.js';
-import { t } from '../i18n.js';
+import { eventBus } from '../modules/core/EventBus.js';
+import { t } from '../modules/core/i18n.js';
 
 let app;
 export let auth;

@@ -1,7 +1,7 @@
-import { eventBus } from './EventBus.js';
-import { predictTimeToTarget, formatTime } from './roastUtils.js';
-import { showToast, setFormFieldValue, speak } from './ui.js';
-import { t } from './i18n.js';
+import { eventBus } from '../core/EventBus.js';
+import { predictTimeToTarget, formatTime } from '../../utils/roastUtils.js';
+import { showToast, setFormFieldValue, speak } from '../../ui/ui.js';
+import { t } from '../core/i18n.js';
 
 // --- モジュールスコープの変数 ---
 let timerInterval = null;

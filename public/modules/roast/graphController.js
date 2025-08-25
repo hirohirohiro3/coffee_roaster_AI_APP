@@ -1,5 +1,5 @@
-import { eventBus } from './EventBus.js';
-import { calculateBeanROR, formatTime, predictTimeToTarget } from './roastUtils.js';
+import { eventBus } from '../core/EventBus.js';
+import { calculateBeanROR, formatTime, predictTimeToTarget } from '../../utils/roastUtils.js';
 import { getCurrentElapsedTimeInSeconds, updatePrediction } from './timerController.js';
 
 // --- モジュールスコープの変数 ---
