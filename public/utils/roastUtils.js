@@ -1,4 +1,4 @@
-import { t } from './i18n.js';
+import { t } from '../modules/core/i18n.js';
 
 /**
  * 秒数を MM:SS 形式の文字列に変換します。

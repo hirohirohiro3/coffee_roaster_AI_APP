@@ -1,4 +1,4 @@
-import { eventBus } from './EventBus.js';
+import { eventBus } from '../core/EventBus.js';
 
 // ▼▼▼ tempInputForm を追加 ▼▼▼
 let container, beanTempInput, chamberTempInput, logButton, fixLastTempButton, tempInputForm;

@@ -1,4 +1,4 @@
-import { eventBus } from './EventBus.js';
+import { eventBus } from '../modules/core/EventBus.js';
 
 /**
  * ユーザーの認証状態をUIに反映します。

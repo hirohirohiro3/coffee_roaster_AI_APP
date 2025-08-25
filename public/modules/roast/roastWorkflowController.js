@@ -1,8 +1,8 @@
-import { eventBus } from './EventBus.js';
+import { eventBus } from '../core/EventBus.js';
 import * as RoastDataManager from './roastDataManager.js';
-import { t } from './i18n.js';
-import * as RoastUtils from './roastUtils.js';
-import { getRoastRecord, updateFavoriteStatus } from './services/firestoreService.js';
+import { t } from '../core/i18n.js';
+import * as RoastUtils from '../../utils/roastUtils.js';
+import { getRoastRecord, updateFavoriteStatus } from '../../services/firestoreService.js';
 
 let localRoastsCache = [];
 let currentSearchKeyword = '';

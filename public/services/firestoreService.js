@@ -4,7 +4,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
 import { db, auth, functions, currentUserId } from './authService.js';
-import { t } from '../i18n.js';
+import { t } from '../modules/core/i18n.js';
 
 // --- Roasts ---
 export function addRoastRecord(data) {

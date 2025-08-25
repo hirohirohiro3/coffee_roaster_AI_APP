@@ -1,5 +1,5 @@
-import { eventBus } from './EventBus.js';
-import { t } from './i18n.js';
+import { eventBus } from '../core/EventBus.js';
+import { t } from '../core/i18n.js';
 
 // --- DOM要素 ---
 let modalElement, closeButtonElement, addNewBeanButtonElement;

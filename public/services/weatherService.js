@@ -1,4 +1,4 @@
-import { t } from './i18n.js';
+import { t } from '../modules/core/i18n.js';
 
 /**
  * ユーザーの現在の位置情報を取得します。

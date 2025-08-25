@@ -1,12 +1,12 @@
-import { initI18n, setLanguage, t } from './i18n.js';
-import { updateUIText } from './uiTranslator.js';
-import { loadAllComponents } from './htmlLoader.js';
-import { eventBus } from './EventBus.js';
-import { fetchCurrentWeatherForRoast } from './weatherService.js';
-import { handleAddNewRoast } from './roastWorkflowController.js';
-import { getCurrentElapsedTimeInSeconds, getIsTimerRunning, recordCrackTime } from './timerController.js';
-import { showToast, setFormFieldValue, speak } from './ui.js';
-import { formatTime } from './roastUtils.js';
+import { initI18n, setLanguage, t } from './modules/core/i18n.js';
+import { updateUIText } from './modules/core/uiTranslator.js';
+import { loadAllComponents } from './modules/core/htmlLoader.js';
+import { eventBus } from './modules/core/EventBus.js';
+import { fetchCurrentWeatherForRoast } from './services/weatherService.js';
+import { handleAddNewRoast } from './modules/roast/roastWorkflowController.js';
+import { getCurrentElapsedTimeInSeconds, getIsTimerRunning, recordCrackTime } from './modules/roast/timerController.js';
+import { showToast, setFormFieldValue, speak } from './ui/ui.js';
+import { formatTime } from './utils/roastUtils.js';
 import { initializeAllModules } from './modules/app/moduleLoader.js';
 
 export default class App {

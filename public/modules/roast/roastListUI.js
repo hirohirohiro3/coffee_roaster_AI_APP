@@ -1,5 +1,5 @@
-import { eventBus } from './EventBus.js';
-import { t } from './i18n.js';
+import { eventBus } from '../core/EventBus.js';
+import { t } from '../core/i18n.js';
 
 // DOM Elements
 let roastLogDiv, searchInput, searchButton, exportCsvButton, sortSelect, filterFavoritesCheckbox;

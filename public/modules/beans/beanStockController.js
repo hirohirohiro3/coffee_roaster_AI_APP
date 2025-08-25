@@ -1,6 +1,6 @@
-import { eventBus } from './EventBus.js';
+import { eventBus } from '../core/EventBus.js';
 import * as BeanService from './beanService.js';
-import { t, getCurrentLanguage } from './i18n.js';
+import { t, getCurrentLanguage } from '../core/i18n.js';
 
 let localBeansCache = [];
 let showEmptyBeans = false;

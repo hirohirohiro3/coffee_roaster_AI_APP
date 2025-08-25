@@ -1,8 +1,8 @@
-import { eventBus } from './EventBus.js';
-import * as RoastUtils from './roastUtils.js';
-import { showToast } from './ui.js';
-import { t } from './i18n.js';
-import { createStarRating, createTagSelector } from './ui-utils.js';
+import { eventBus } from '../core/EventBus.js';
+import * as RoastUtils from '../../utils/roastUtils.js';
+import { showToast } from '../../ui/ui.js';
+import { t } from '../core/i18n.js';
+import { createStarRating, createTagSelector } from '../../ui-utils.js';
 
 // --- Module Scope Variables ---
 let formSection, form, formTitle, editRoastIdInput, saveButton, cancelButton;
