@@ -19,12 +19,14 @@ export default class App {
         initI18n();
         console.log("Application starting...");
 
-        eventBus.once('auth:login-success', () => {
+        const onLoginSuccess = () => {
             if (this.mainAppInitialized) return;
             console.log("app.js: 'auth:login-success' event received. Initializing main app modules...");
             initializeMainAppModules();
             this.mainAppInitialized = true;
-        });
+            eventBus.off('auth:login-success', onLoginSuccess);
+        };
+        eventBus.on('auth:login-success', onLoginSuccess);
 
         eventBus.on('html:loaded', async () => {
             console.log("app.js: 'html:loaded' event received. Initializing core modules...");
