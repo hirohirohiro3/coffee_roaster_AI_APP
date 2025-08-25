@@ -19,14 +19,14 @@ export default class App {
         initI18n();
         console.log("Application starting...");
 
-        const onLoginSuccess = () => {
+        const onMainViewReady = () => {
             if (this.mainAppInitialized) return;
-            console.log("app.js: 'auth:login-success' event received. Initializing main app modules...");
+            console.log("app.js: 'ui:main-view-ready' event received. Initializing main app modules...");
             initializeMainAppModules();
             this.mainAppInitialized = true;
-            eventBus.off('auth:login-success', onLoginSuccess);
+            eventBus.off('ui:main-view-ready', onMainViewReady);
         };
-        eventBus.on('auth:login-success', onLoginSuccess);
+        eventBus.on('ui:main-view-ready', onMainViewReady);
 
         eventBus.on('html:loaded', async () => {
             console.log("app.js: 'html:loaded' event received. Initializing core modules...");
@@ -54,7 +54,6 @@ export default class App {
             if (user) {
                 console.log(`Auth state changed: Logged in as ${user.email}`);
                 listenToAllData(user.uid);
-                eventBus.emit('auth:login-success');
             } else {
                 console.log("Auth state changed: Logged out");
                 clearAllDataListeners();
