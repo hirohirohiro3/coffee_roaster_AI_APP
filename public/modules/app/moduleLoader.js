@@ -59,13 +59,12 @@ function registerPages() {
     registerPage('stats', document.getElementById('statistics-page'));
 }
 
-export function initializeAllModules() {
+export async function initializeCoreModules() {
     initializeThemeManager();
 
     // Core Services
-    initializeFirebase();
+    await initializeFirebase();
     initializeDataService();
-    initializeBeanService();
 
     // UI Management
     initializeUIManager();
@@ -73,6 +72,19 @@ export function initializeAllModules() {
 
     // Controllers
     initializeAuthController();
+
+    // UI Modules
+    initializeAuthForms();
+    initializeConfirmModal();
+
+    console.log("✅ Core modules initialized.");
+}
+
+export function initializeMainAppModules() {
+    // Services that depend on auth
+    initializeBeanService();
+
+    // Controllers
     initializeRoastWorkflowController();
     initializeBeanStockController();
     initializeTimerController();
@@ -80,11 +92,9 @@ export function initializeAllModules() {
     initializeStatisticsController();
 
     // UI Modules
-    initializeAuthForms();
     initializeRoastFormUI();
     initializeRoastListUI();
     initializeTimerDisplayUI();
-    initializeConfirmModal();
     initializeProfileModalUI();
     initializeBeanStockModalUI();
     initializeComparisonModalUI(getRoastDetailsByIds);
@@ -94,4 +104,5 @@ export function initializeAllModules() {
     // Initialize navigation and page registration last
     registerPages();
     initializePageNavigation();
+    console.log("✅ Main application modules initialized.");
 }
