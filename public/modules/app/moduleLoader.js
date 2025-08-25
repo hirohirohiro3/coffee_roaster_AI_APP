@@ -1,4 +1,4 @@
-import { initializeFirebase } from '../../services/authService.js';
+import { initializeFirebase, db } from '../../services/authService.js';
 import { initializeDataService } from '../../services/dataService.js';
 import { initializeBeanService } from '../beans/beanService.js';
 import { initializeUIManager } from '../../ui/uiManager.js';
@@ -83,7 +83,7 @@ export async function initializeCoreModules() {
 
 export function initializeMainAppModules() {
     // Services that depend on auth
-    initializeBeanService();
+    initializeBeanService(db);
 
     // Controllers
     initializeRoastWorkflowController();

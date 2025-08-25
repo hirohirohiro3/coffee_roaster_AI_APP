@@ -36,7 +36,7 @@ function updateAuthViewState(user) {
         setTimeout(() => {
             window.updateDebugStatus("Dispatching 'ui:main-view-ready' event (after timeout).");
             eventBus.emit('ui:main-view-ready');
-        }, 0);
+        }, 100);
 
     } else {
         // --- ▼▼▼ ログアウト時の処理 ▼▼▼ ---
