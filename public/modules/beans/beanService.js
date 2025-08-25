@@ -3,10 +3,11 @@ import {
     orderBy, serverTimestamp, writeBatch, increment
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { eventBus } from '../core/EventBus.js';
-import { currentUserId, db } from '../../services/authService.js';
+import { currentUserId } from '../../services/authService.js';
 import * as FirestoreService from '../../services/firestoreService.js';
 import { t } from '../core/i18n.js';
 
+let dbInstance = null;
 let unsubscribeBeans = null;
 
 /**
@@ -14,7 +15,7 @@ let unsubscribeBeans = null;
  */
 function listenToBeans() {
     const userId = currentUserId();
-    if (!userId) {
+    if (!userId || !dbInstance) {
         if (unsubscribeBeans) unsubscribeBeans();
         eventBus.emit('data:beans-updated', []);
         return;
@@ -22,7 +23,7 @@ function listenToBeans() {
 
     if (unsubscribeBeans) unsubscribeBeans();
 
-    const beansRef = collection(db, `users/${userId}/beans`);
+    const beansRef = collection(dbInstance, `users/${userId}/beans`);
     const q = query(beansRef, orderBy("purchaseDate", "desc"));
     
     unsubscribeBeans = onSnapshot(q, (querySnapshot) => {
@@ -41,7 +42,8 @@ function listenToBeans() {
 /**
  * ログイン/ログアウトを監視して、生豆データのリッスンを開始/停止します。
  */
-export function initializeBeanService() {
+export function initializeBeanService(db) {
+    dbInstance = db;
     eventBus.on('auth:state-changed', (user) => {
         listenToBeans();
     });
