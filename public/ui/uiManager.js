@@ -32,6 +32,8 @@ function updateAuthViewState(user) {
             eventBus.emit('auth:request-logout');
         });
 
+        eventBus.emit('ui:main-view-ready');
+
     } else {
         // --- ▼▼▼ ログアウト時の処理 ▼▼▼ ---
         // ログインフォーム全体を表示し、メインコンテンツを隠す
