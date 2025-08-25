@@ -5,10 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  testDir: './', // Scan from the project root
-
-  // Explicitly ignore the vitest files
-  testIgnore: '**/roastUtils.test.js',
+  testDir: './tests-e2e',
 
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -16,23 +13,14 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
 
-  projects: [
-    // Setup project
-    {
-      name: 'setup',
-      testMatch: /jules-scratch\/verification\/auth\.setup\.js/,
-    },
+  use: {
+    trace: 'on-first-retry',
+  },
 
+  projects: [
     {
       name: 'chromium',
-      // Only run the spec files in the verification folder
-      testMatch: /jules-scratch\/verification\/.*\.spec\.js/,
-      use: {
-        ...devices['Desktop Chrome'],
-        // Use prepared auth state.
-        storageState: 'jules-scratch/verification/auth.json',
-      },
-      dependencies: ['setup'],
+      use: { ...devices['Desktop Chrome'] },
     },
   ],
 

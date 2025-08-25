@@ -4,30 +4,39 @@ import { loadAllComponents } from './modules/core/htmlLoader.js';
 import { eventBus } from './modules/core/EventBus.js';
 import { fetchCurrentWeatherForRoast } from './services/weatherService.js';
 import { handleAddNewRoast } from './modules/roast/roastWorkflowController.js';
-import { getCurrentElapsedTimeInSeconds, getIsTimerRunning, recordCrackTime } from './modules/roast/timerController.js';
+import { auth, listenToAllData, clearAllDataListeners } from './services/authService.js';
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { showToast, setFormFieldValue, speak } from './ui/ui.js';
 import { formatTime } from './utils/roastUtils.js';
-import { initializeAllModules } from './modules/app/moduleLoader.js';
+import { initializeCoreModules, initializeMainAppModules } from './modules/app/moduleLoader.js';
 
 export default class App {
     constructor() {
-        // constructor is empty
+        this.mainAppInitialized = false;
     }
 
     async start() {
-        initI18n(); // Initialize i18n
+        initI18n();
         console.log("Application starting...");
 
-        eventBus.on('html:loaded', () => {
-            console.log("app.js: 'html:loaded' event received. Initializing modules...");
+        eventBus.once('auth:login-success', () => {
+            if (this.mainAppInitialized) return;
+            console.log("app.js: 'auth:login-success' event received. Initializing main app modules...");
+            initializeMainAppModules();
+            this.mainAppInitialized = true;
+        });
+
+        eventBus.on('html:loaded', async () => {
+            console.log("app.js: 'html:loaded' event received. Initializing core modules...");
             
-            initializeAllModules();
+            await initializeCoreModules();
             this._setupGlobalEventListeners();
+            this._setupAuthListener();
             
             updateUIText();
 
             eventBus.emit('app:ready');
-            console.log("Application is ready!");
+            console.log("Application is ready for auth state check.");
         });
         
         try {
@@ -35,6 +44,21 @@ export default class App {
         } catch (error) {
             console.error("FATAL: Application failed to start during component loading.", error);
         }
+    }
+
+    _setupAuthListener() {
+        onAuthStateChanged(auth, (user) => {
+            eventBus.emit('auth:state-changed', user);
+            if (user) {
+                console.log(`Auth state changed: Logged in as ${user.email}`);
+                listenToAllData(user.uid);
+                eventBus.emit('auth:login-success');
+            } else {
+                console.log("Auth state changed: Logged out");
+                clearAllDataListeners();
+                this.mainAppInitialized = false;
+            }
+        });
     }
 
     async _loadComponents() {

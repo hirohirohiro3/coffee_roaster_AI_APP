@@ -25,7 +25,8 @@ let beansCache = new Map();
 export function getCurrentUser() { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
-function listenToAllData(userId) {
+export function listenToAllData(userId) {
+    currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
     beansCache.clear();
@@ -56,46 +57,49 @@ function listenToAllData(userId) {
     unsubscribes.push(unsubBeans);
 }
 
+export function clearAllDataListeners() {
+    currentUserIdInternal = null;
+    unsubscribes.forEach(unsub => unsub());
+    unsubscribes = [];
+    beansCache.clear();
+    eventBus.emit('data:roasts-updated', []);
+    eventBus.emit('beans:updated-for-roast-form', []);
+}
+
 export function initializeFirebase() {
-    try {
-        if (app) return;
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-        functions = getFunctions(app);
-
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-            connectFirestoreEmulator(db, 'localhost', 8080);
-            console.log("✅ Using Firebase Emulators.");
-        } else {
-            try {
-                initializeAppCheck(app, {
-                    provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-                    isTokenAutoRefreshEnabled: true
-                });
-                console.log("✅ Firebase App Check initialization SUCCESSFUL.");
-            } catch (error) {
-                console.error("❌ Firebase App Check initialization FAILED:", error);
-            }
+    return new Promise((resolve, reject) => {
+        if (app) {
+            resolve();
+            return;
         }
+        try {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            functions = getFunctions(app);
 
-        onAuthStateChanged(auth, (user) => {
-            currentUserIdInternal = user ? user.uid : null;
-            eventBus.emit('auth:state-changed', user);
-            if (user) {
-                listenToAllData(user.uid);
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+                connectFirestoreEmulator(db, 'localhost', 8080);
+                console.log("✅ Using Firebase Emulators.");
             } else {
-                unsubscribes.forEach(unsub => unsub());
-                unsubscribes = [];
-                beansCache.clear();
-                eventBus.emit('data:roasts-updated', []);
-                eventBus.emit('beans:updated-for-roast-form', []);
+                try {
+                    initializeAppCheck(app, {
+                        provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+                        isTokenAutoRefreshEnabled: true
+                    });
+                    console.log("✅ Firebase App Check initialization SUCCESSFUL.");
+                } catch (error) {
+                    console.error("❌ Firebase App Check initialization FAILED:", error);
+                }
             }
-        });
-    } catch (error) {
-        console.error("Firebase initialization error:", error);
-    }
+            console.log("✅ Firebase Core services initialized.");
+            resolve();
+        } catch (error) {
+            console.error("❌ Firebase initialization error:", error);
+            reject(error);
+        }
+    });
 }
 
 export async function signUpWithEmailAndPassword(email, password) {
