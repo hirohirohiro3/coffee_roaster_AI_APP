@@ -16,6 +16,7 @@
     <script src="https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY_HERE"></script>
     </head>
 <body class="is-auth-page">
+    <div id="debug-panel"></div>
     <div class="container mx-auto p-4 sm:p-6 lg:p-8 max-w-5xl">
         
         <div id="authSection">
@@ -48,6 +49,21 @@
     <div id="modals-container"></div>
     <div id="toast-container" class="fixed bottom-5 right-5 z-[2001] space-y-2"></div>
 
+    <script>
+        window.updateDebugStatus = (message) => {
+            const panel = document.getElementById('debug-panel');
+            if (panel) {
+                const timestamp = new Date().toLocaleTimeString();
+                const newMessage = document.createElement('div');
+                newMessage.textContent = `[${timestamp}] ${message}`;
+                panel.prepend(newMessage);
+                // Keep the panel from getting too long
+                while (panel.children.length > 10) {
+                    panel.removeChild(panel.lastChild);
+                }
+            }
+        };
+    </script>
     <script type="module">
         import App from './app.js';
         
