@@ -4,7 +4,7 @@
 
 import { showToast } from '../../ui/ui.js';
 import { t } from '../core/i18n.js';
-import { currentUserId, db } from '../../services/authService.js';
+import { currentUserId, getDbInstance } from '../../services/authService.js';
 import { addRoastRecord, updateRoastRecord, deleteRoastRecord } from '../../services/firestoreService.js';
 import { addRoastAndUpdateStock, batchUpdateBeanStock } from '../beans/beanService.js';
 import { getGraphLogsForSaving } from './graphController.js';
@@ -104,6 +104,7 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
             const weightDifference = newWeight - oldWeight;
 
             // バッチ処理を開始
+            const db = getDbInstance();
             const batch = writeBatch(db);
 
             // 1. 焙煎記録の更新をバッチに追加
