@@ -3,13 +3,14 @@ import {
     serverTimestamp
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-functions.js";
-import { db, auth, functions, currentUserId } from './authService.js';
+import { getDbInstance, getAuthInstance, getFunctionsInstance, currentUserId } from './authService.js';
 import { t } from '../modules/core/i18n.js';
 
 // --- Roasts ---
 export function addRoastRecord(data) {
     const userId = currentUserId();
     if (!userId) return Promise.reject(new Error("User not logged in."));
+    const db = getDbInstance();
     const dataToSave = { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
     return addDoc(collection(db, `users/${userId}/roasts`), dataToSave);
 }
@@ -17,6 +18,7 @@ export function addRoastRecord(data) {
 export function updateRoastRecord(docId, data) {
     const userId = currentUserId();
     if (!userId) return Promise.reject(new Error("User not logged in."));
+    const db = getDbInstance();
     const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
     return updateDoc(roastDocRef, { ...data, updatedAt: serverTimestamp() });
 }
@@ -28,6 +30,7 @@ export async function deleteRoastRecord(docId) {
         return false;
     }
     try {
+        const db = getDbInstance();
         const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
         await deleteDoc(roastDocRef);
         return true;
@@ -41,6 +44,7 @@ export async function getRoastRecord(docId) {
     const userId = currentUserId();
     if (!userId) return null;
     try {
+        const db = getDbInstance();
         const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
         const roastDoc = await getDoc(roastDocRef);
         if (roastDoc.exists()) {
@@ -58,6 +62,7 @@ export async function getRoastRecord(docId) {
 export async function updateFavoriteStatus(docId, isFavorite) {
     const userId = currentUserId();
     if (!userId) return Promise.reject(new Error("User not logged in."));
+    const db = getDbInstance();
     const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
     try {
         await updateDoc(roastDocRef, { isFavorite: isFavorite });
@@ -72,6 +77,7 @@ export async function updateFavoriteStatus(docId, isFavorite) {
 export async function addBean(beanData) {
     const userId = currentUserId();
     if (!userId) return null;
+    const db = getDbInstance();
     try {
         const docRef = await addDoc(collection(db, `users/${userId}/beans`), { ...beanData, createdAt: serverTimestamp() });
         return docRef.id;
@@ -84,6 +90,7 @@ export async function addBean(beanData) {
 export async function updateBean(beanId, beanData) {
     const userId = currentUserId();
     if (!userId) return null;
+    const db = getDbInstance();
     try {
         const beanDocRef = doc(db, `users/${userId}/beans`, beanId);
         await updateDoc(beanDocRef, { ...beanData, updatedAt: serverTimestamp() });
@@ -97,6 +104,7 @@ export async function updateBean(beanId, beanData) {
 export async function deleteBean(beanId) {
     const userId = currentUserId();
     if (!userId) return null;
+    const db = getDbInstance();
     try {
         const beanDocRef = doc(db, `users/${userId}/beans`, beanId);
         await deleteDoc(beanDocRef);
@@ -109,6 +117,8 @@ export async function deleteBean(beanId) {
 
 // --- Gemini API ---
 export async function getRoastAnalysisFromAI(roastPlan) {
+    const auth = getAuthInstance();
+    const functions = getFunctionsInstance();
     if (!auth.currentUser) {
         throw new Error(t('firebase.authRequired'));
     }
