@@ -14,13 +14,18 @@ import { eventBus } from '../modules/core/EventBus.js';
 import { t } from '../modules/core/i18n.js';
 
 let app;
-export let auth;
-export let db;
-export let functions;
+let auth;
+let db;
+let functions;
 let appCheck = null;
 let currentUserIdInternal = null;
 let unsubscribes = [];
 let beansCache = new Map();
+
+// Firebaseサービスへの安全なアクセスのためのゲッター
+export const getAuthInstance = () => auth;
+export const getDbInstance = () => db;
+export const getFunctionsInstance = () => functions;
 
 export function getCurrentUser() { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
@@ -30,6 +35,7 @@ export function listenToAllData(userId) {
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
     beansCache.clear();
+    const db = getDbInstance();
     const beansRef = collection(db, `users/${userId}/beans`);
     const roastsRef = collection(db, `users/${userId}/roasts`);
     const unsubBeans = onSnapshot(beansRef, (beanSnapshot) => {
@@ -80,8 +86,8 @@ export function initializeFirebase() {
 
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
                 connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
-                connectFirestoreEmulator(db, 'localhost', 8080);
-                console.log("✅ Using Firebase Emulators.");
+                connectFirestoreEmulator(db, 'localhost', 8081);
+                console.log("✅ Using Firebase Emulators on Auth:9099 and Firestore:8081.");
             } else {
                 try {
                     initializeAppCheck(app, {
@@ -104,6 +110,7 @@ export function initializeFirebase() {
 
 export async function signUpWithEmailAndPassword(email, password) {
     try {
+        const auth = getAuthInstance();
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         return { user: userCredential.user, error: null };
     } catch (error) {
@@ -113,6 +120,7 @@ export async function signUpWithEmailAndPassword(email, password) {
 
 export async function signInUserWithEmailPassword(email, password) {
     try {
+        const auth = getAuthInstance();
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         return { user: userCredential.user, error: null };
     } catch (error) {
@@ -121,5 +129,6 @@ export async function signInUserWithEmailPassword(email, password) {
 }
 
 export function firebaseSignOut() {
+    const auth = getAuthInstance();
     return signOut(auth);
 }

@@ -2,8 +2,11 @@ import { eventBus } from '../core/EventBus.js';
 import { predictTimeToTarget, formatTime } from '../../utils/roastUtils.js';
 import { showToast, setFormFieldValue, speak } from '../../ui/ui.js';
 import { t } from '../core/i18n.js';
+import { initializeRealtimeGraphUI } from './realtimeGraphUI.js';
+import { initializeRealtimeLogTableUI } from './RealtimeLogTableUI.js';
 
 // --- モジュールスコープの変数 ---
+let isRealtimeUIInitialized = false;
 let timerInterval = null;
 let elapsedTimeInSeconds = 0;
 let isTimerRunningInternal = false;
@@ -25,6 +28,13 @@ function startTimer() {
     eventBus.emit('ui:toggle-graph-area', true);
     eventBus.emit('ui:toggle-log-table', true);
     eventBus.emit('ui:toggle-temp-input', true);
+
+    if (!isRealtimeUIInitialized) {
+        initializeRealtimeGraphUI();
+        initializeRealtimeLogTableUI();
+        isRealtimeUIInitialized = true;
+    }
+
     eventBus.emit('graph:initialize-realtime-chart');
     
     const startTime = Date.now() - elapsedTimeInSeconds * 1000;

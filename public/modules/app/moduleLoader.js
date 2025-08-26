@@ -99,8 +99,8 @@ export function initializeMainAppModules() {
     initializeProfileModalUI();
     initializeBeanStockModalUI();
     initializeComparisonModalUI(getRoastDetailsByIds);
-    initializeRealtimeGraphUI();
-    initializeRealtimeLogTableUI();
+    // initializeRealtimeGraphUI();
+    // initializeRealtimeLogTableUI();
 
     // Initialize navigation and page registration last
     registerPages();
