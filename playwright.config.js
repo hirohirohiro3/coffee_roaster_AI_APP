@@ -28,7 +28,7 @@ export default defineConfig({
   webServer: {
     command: 'python -m http.server 8080',
     cwd: 'public',
-    url: 'http://127.0.0.1:8080',
+    url: 'http://localhost:8080',
     reuseExistingServer: !process.env.CI,
     stdout: 'pipe',
     stderr: 'pipe',
