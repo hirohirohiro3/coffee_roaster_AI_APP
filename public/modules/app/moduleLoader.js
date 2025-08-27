@@ -1,5 +1,5 @@
-import { initializeFirebase, getDbInstance } from '/services/authService.js';
-import { initializeDataService } from '/services/dataService.js';
+import { initializeFirebase, getDbInstance } from '../../services/authService.js';
+import { initializeDataService } from '../../services/dataService.js';
 import { initializeBeanService } from '../beans/beanService.js';
 import { initializeUIManager } from '../../ui/uiManager.js';
 import { initializeUITranslator } from '../../modules/core/uiTranslator.js';
