@@ -33,27 +33,29 @@ export function registerPage(pageName, element) {
 }
 
 export function initializePageNavigation() {
-    navListLink = document.getElementById('nav-list');
-    navStatsLink = document.getElementById('nav-stats');
-    if (!navListLink || !navStatsLink) {
-        console.error("Page navigation links not found.");
-        return;
-    }
-    navListLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.hash = '/list';
-        showPage('list');
-    });
-    navStatsLink.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.location.hash = '/stats';
-        showPage('stats');
-    });
-    window.addEventListener('popstate', () => {
-        const pageName = window.location.hash.substring(2) || 'list';
-        showPage(pageName);
-    });
-    const initialPage = window.location.hash.substring(2) || 'list';
-    showPage(initialPage);
-    console.log("✅ PageNavigation initialized.");
+    setTimeout(() => {
+        navListLink = document.getElementById('nav-list');
+        navStatsLink = document.getElementById('nav-stats');
+        if (!navListLink || !navStatsLink) {
+            console.error("Page navigation links not found.");
+            return;
+        }
+        navListLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.hash = '/list';
+            showPage('list');
+        });
+        navStatsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            window.location.hash = '/stats';
+            showPage('stats');
+        });
+        window.addEventListener('popstate', () => {
+            const pageName = window.location.hash.substring(2) || 'list';
+            showPage(pageName);
+        });
+        const initialPage = window.location.hash.substring(2) || 'list';
+        showPage(initialPage);
+        console.log("✅ PageNavigation initialized.");
+    }, 0);
 }
