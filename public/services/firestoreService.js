@@ -7,30 +7,24 @@ import { getDbInstance, getAuthInstance, getFunctionsInstance, currentUserId } f
 import { t } from '../modules/core/i18n.js';
 
 // --- Roasts ---
-export function addRoastRecord(data) {
-    const userId = currentUserId();
+export function addRoastRecord(db, userId, data) {
     if (!userId) return Promise.reject(new Error("User not logged in."));
-    const db = getDbInstance();
     const dataToSave = { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
     return addDoc(collection(db, `users/${userId}/roasts`), dataToSave);
 }
 
-export function updateRoastRecord(docId, data) {
-    const userId = currentUserId();
+export function updateRoastRecord(db, userId, docId, data) {
     if (!userId) return Promise.reject(new Error("User not logged in."));
-    const db = getDbInstance();
     const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
     return updateDoc(roastDocRef, { ...data, updatedAt: serverTimestamp() });
 }
 
-export async function deleteRoastRecord(docId) {
-    const userId = currentUserId();
+export async function deleteRoastRecord(db, userId, docId) {
     if (!userId) {
         console.error("deleteRoastRecord: User not logged in.");
         return false;
     }
     try {
-        const db = getDbInstance();
         const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
         await deleteDoc(roastDocRef);
         return true;
@@ -40,11 +34,9 @@ export async function deleteRoastRecord(docId) {
     }
 }
 
-export async function getRoastRecord(docId) {
-    const userId = currentUserId();
+export async function getRoastRecord(db, userId, docId) {
     if (!userId) return null;
     try {
-        const db = getDbInstance();
         const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
         const roastDoc = await getDoc(roastDocRef);
         if (roastDoc.exists()) {
@@ -59,10 +51,8 @@ export async function getRoastRecord(docId) {
     }
 }
 
-export async function updateFavoriteStatus(docId, isFavorite) {
-    const userId = currentUserId();
+export async function updateFavoriteStatus(db, userId, docId, isFavorite) {
     if (!userId) return Promise.reject(new Error("User not logged in."));
-    const db = getDbInstance();
     const roastDocRef = doc(db, `users/${userId}/roasts`, docId);
     try {
         await updateDoc(roastDocRef, { isFavorite: isFavorite });
@@ -74,10 +64,8 @@ export async function updateFavoriteStatus(docId, isFavorite) {
 }
 
 // --- Beans ---
-export async function addBean(beanData) {
-    const userId = currentUserId();
+export async function addBean(db, userId, beanData) {
     if (!userId) return null;
-    const db = getDbInstance();
     try {
         const docRef = await addDoc(collection(db, `users/${userId}/beans`), { ...beanData, createdAt: serverTimestamp() });
         return docRef.id;
@@ -87,10 +75,8 @@ export async function addBean(beanData) {
     }
 }
 
-export async function updateBean(beanId, beanData) {
-    const userId = currentUserId();
+export async function updateBean(db, userId, beanId, beanData) {
     if (!userId) return null;
-    const db = getDbInstance();
     try {
         const beanDocRef = doc(db, `users/${userId}/beans`, beanId);
         await updateDoc(beanDocRef, { ...beanData, updatedAt: serverTimestamp() });
@@ -101,10 +87,8 @@ export async function updateBean(beanId, beanData) {
     }
 }
 
-export async function deleteBean(beanId) {
-    const userId = currentUserId();
+export async function deleteBean(db, userId, beanId) {
     if (!userId) return null;
-    const db = getDbInstance();
     try {
         const beanDocRef = doc(db, `users/${userId}/beans`, beanId);
         await deleteDoc(beanDocRef);
@@ -116,9 +100,7 @@ export async function deleteBean(beanId) {
 }
 
 // --- Gemini API ---
-export async function getRoastAnalysisFromAI(roastPlan) {
-    const auth = getAuthInstance();
-    const functions = getFunctionsInstance();
+export async function getRoastAnalysisFromAI(auth, functions, roastPlan) {
     if (!auth.currentUser) {
         throw new Error(t('firebase.authRequired'));
     }

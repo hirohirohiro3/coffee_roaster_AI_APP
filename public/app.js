@@ -4,7 +4,7 @@ import { loadAllComponents } from './modules/core/htmlLoader.js';
 import { eventBus } from './modules/core/EventBus.js';
 import { fetchCurrentWeatherForRoast } from './services/weatherService.js';
 import { handleAddNewRoast } from './modules/roast/roastWorkflowController.js';
-import { getAuthInstance, listenToAllData, clearAllDataListeners } from './services/authService.js';
+import { initializeFirebase, listenToAllData, clearAllDataListeners } from './services/authService.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { showToast, setFormFieldValue, speak } from './ui/ui.js';
 import { formatTime } from './utils/roastUtils.js';
@@ -13,50 +13,53 @@ import { initializeCoreModules, initializeMainAppModules } from './modules/app/m
 export default class App {
     constructor() {
         this.mainAppInitialized = false;
+        this.firebaseServices = null;
     }
 
     async start() {
-        initI18n();
-        console.log("Application starting...");
-        window.updateDebugStatus("App starting...");
-
-        const onMainViewReady = () => {
-            if (this.mainAppInitialized) return;
-            window.updateDebugStatus("OK. Initializing main modules...");
-            console.log("app.js: 'ui:main-view-ready' event received. Initializing main app modules...");
-            initializeMainAppModules();
-            this.mainAppInitialized = true;
-            eventBus.off('ui:main-view-ready', onMainViewReady);
-        };
-        eventBus.on('ui:main-view-ready', onMainViewReady);
-
-        eventBus.on('html:loaded', async () => {
-            console.log("app.js: 'html:loaded' event received. Initializing core modules...");
-            
-            await initializeCoreModules();
-            this._setupGlobalEventListeners();
-            this._setupAuthListener();
-            
-            updateUIText();
-
-            eventBus.emit('app:ready');
-            console.log("Application is ready for auth state check.");
-        });
-        
         try {
+            initI18n();
+            console.log("Application starting...");
+            window.updateDebugStatus("App starting...");
+
+            const onMainViewReady = () => {
+                if (this.mainAppInitialized || !this.firebaseServices) return;
+                window.updateDebugStatus("OK. Initializing main modules...");
+                console.log("app.js: 'ui:main-view-ready' event received. Initializing main app modules...");
+                initializeMainAppModules(this.firebaseServices);
+                this.mainAppInitialized = true;
+                eventBus.off('ui:main-view-ready', onMainViewReady);
+            };
+            eventBus.on('ui:main-view-ready', onMainViewReady);
+
+            eventBus.on('html:loaded', async () => {
+                console.log("app.js: 'html:loaded' event received. Initializing Firebase and core modules...");
+
+                this.firebaseServices = await initializeFirebase();
+
+                initializeCoreModules(this.firebaseServices);
+
+                this._setupGlobalEventListeners();
+                this._setupAuthListener();
+
+                updateUIText();
+
+                eventBus.emit('app:ready');
+                console.log("Application is ready for auth state check.");
+            });
+
             await this._loadComponents();
         } catch (error) {
-            console.error("FATAL: Application failed to start during component loading.", error);
+            console.error("FATAL: Application failed to start.", error);
         }
     }
 
     _setupAuthListener() {
-        const auth = getAuthInstance();
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(this.firebaseServices.auth, (user) => {
             eventBus.emit('auth:state-changed', user);
             if (user) {
                 console.log(`Auth state changed: Logged in as ${user.email}`);
-                listenToAllData(user.uid);
+                listenToAllData(user.uid, this.firebaseServices.db);
             } else {
                 console.log("Auth state changed: Logged out");
                 clearAllDataListeners();

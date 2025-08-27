@@ -5,6 +5,8 @@
 import { eventBus } from './modules/core/EventBus.js';
 import * as AuthService from './services/authService.js';
 
+let auth;
+
 /**
  * ログイン処理を試みます。UIから'auth:login-attempt'イベントで呼び出されます。
  * @param {object} credentials - { email, password }
@@ -14,7 +16,7 @@ async function handleLoginAttempt({ email, password }) {
         console.error("Login attempt with empty email or password.");
         return;
     }
-    await AuthService.signInUserWithEmailPassword(email, password);
+    await AuthService.signInUserWithEmailPassword(auth, email, password);
 }
 
 /**
@@ -26,14 +28,14 @@ async function handleSignUpAttempt({ email, password }) {
         console.error("Sign up attempt with empty email or password.");
         return;
     }
-    await AuthService.signUpWithEmailAndPassword(email, password);
+    await AuthService.signUpWithEmailAndPassword(auth, email, password);
 }
 
 /**
  * ログアウト処理を実行します。'auth:request-logout'イベントで呼び出されます。
  */
 function handleLogoutRequest() {
-    AuthService.firebaseSignOut()
+    AuthService.firebaseSignOut(auth)
         .catch(error => {
             console.error("authController.js: Logout failed:", error);
         });
@@ -42,7 +44,8 @@ function handleLogoutRequest() {
 /**
  * 認証関連のロジックを初期化し、UIからのイベントを待ち受けます。
  */
-export function initializeAuthController() {
+export function initializeAuthController(authInstance) {
+    auth = authInstance;
     eventBus.on('auth:login-attempt', handleLoginAttempt);
     eventBus.on('auth:signup-attempt', handleSignUpAttempt);
     // ログアウトボタンからのイベント名を'auth:request-logout'に統一
