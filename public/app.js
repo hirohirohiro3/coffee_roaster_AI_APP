@@ -4,7 +4,7 @@ import { loadAllComponents } from './modules/core/htmlLoader.js';
 import { eventBus } from './modules/core/EventBus.js';
 import { fetchCurrentWeatherForRoast } from './services/weatherService.js';
 import { handleAddNewRoast } from './modules/roast/roastWorkflowController.js';
-import { getAuthInstance, listenToAllData, clearAllDataListeners } from './services/authService.js';
+import { getAuthInstance, getDbInstance, listenToAllData, clearAllDataListeners } from './services/authService.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { showToast, setFormFieldValue, speak } from './ui/ui.js';
 import { formatTime } from './utils/roastUtils.js';
@@ -52,11 +52,12 @@ export default class App {
 
     _setupAuthListener() {
         const auth = getAuthInstance();
+        const db = getDbInstance();
         onAuthStateChanged(auth, (user) => {
             eventBus.emit('auth:state-changed', user);
             if (user) {
                 console.log(`Auth state changed: Logged in as ${user.email}`);
-                listenToAllData(user.uid);
+                listenToAllData(user.uid, db);
             } else {
                 console.log("Auth state changed: Logged out");
                 clearAllDataListeners();

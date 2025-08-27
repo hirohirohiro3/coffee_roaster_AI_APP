@@ -30,12 +30,11 @@ export const getFunctionsInstance = () => functions;
 export function getCurrentUser() { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
-export function listenToAllData(userId) {
+export function listenToAllData(userId, db) {
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
     beansCache.clear();
-    const db = getDbInstance();
     const beansRef = collection(db, `users/${userId}/beans`);
     const roastsRef = collection(db, `users/${userId}/roasts`);
     const unsubBeans = onSnapshot(beansRef, (beanSnapshot) => {
