@@ -21,7 +21,7 @@ let beansCache = new Map();
 export function getCurrentUser(auth) { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
-export function listenToAllData(userId) {
+export function listenToAllData(userId, db) {
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
