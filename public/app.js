@@ -4,7 +4,7 @@ import { loadAllComponents } from './modules/core/htmlLoader.js';
 import { eventBus } from './modules/core/EventBus.js';
 import { fetchCurrentWeatherForRoast } from './services/weatherService.js';
 import { handleAddNewRoast } from './modules/roast/roastWorkflowController.js';
-import { getAuthInstance, getDbInstance, listenToAllData, clearAllDataListeners } from './services/authService.js';
+import { getAuthInstance, getDbInstance, listenToAllData, clearAllDataListeners } from '/services/authService.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { showToast, setFormFieldValue, speak } from './ui/ui.js';
 import { formatTime } from './utils/roastUtils.js';
@@ -53,7 +53,6 @@ export default class App {
     _setupAuthListener() {
         const auth = getAuthInstance();
         const db = getDbInstance();
-        console.log('DEBUG: app.js -> _setupAuthListener. db instance is:', db);
         onAuthStateChanged(auth, (user) => {
             eventBus.emit('auth:state-changed', user);
             if (user) {

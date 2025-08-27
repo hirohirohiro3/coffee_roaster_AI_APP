@@ -3,7 +3,7 @@
 // ================================================================
 
 import { eventBus } from './modules/core/EventBus.js';
-import * as AuthService from './services/authService.js';
+import * as AuthService from '/services/authService.js';
 
 /**
  * ログイン処理を試みます。UIから'auth:login-attempt'イベントで呼び出されます。
