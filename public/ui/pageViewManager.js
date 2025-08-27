@@ -34,6 +34,7 @@ export function registerPage(pageName, element) {
 
 export function initializePageNavigation() {
     setTimeout(() => {
+        console.log('--- DOM SNAPSHOT ---', document.getElementById('header-container')?.innerHTML);
         navListLink = document.getElementById('nav-list');
         navStatsLink = document.getElementById('nav-stats');
         if (!navListLink || !navStatsLink) {
