@@ -3,8 +3,8 @@ import {
     orderBy, serverTimestamp, writeBatch, increment
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { eventBus } from '../core/EventBus.js';
-import { currentUserId } from '/services/authService.js';
-import * as FirestoreService from '/services/firestoreService.js';
+import { currentUserId } from '../../services/authService.js';
+import * as FirestoreService from '../../services/firestoreService.js';
 import { t } from '../core/i18n.js';
 
 let dbInstance = null;
