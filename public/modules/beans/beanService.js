@@ -80,10 +80,10 @@ export async function addRoastAndUpdateStock(roastData, beanId, usedAmount) {
         console.error("beanService: Invalid data for stock update.");
         return null;
     }
-    const roastRef = doc(collection(db, `users/${userId}/roasts`));
-    const beanRef = doc(db, `users/${userId}/beans`, beanId);
+    const roastRef = doc(collection(dbInstance, `users/${userId}/roasts`));
+    const beanRef = doc(dbInstance, `users/${userId}/beans`, beanId);
     try {
-        const batch = writeBatch(db);
+        const batch = writeBatch(dbInstance);
         batch.set(roastRef, { ...roastData, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
         batch.update(beanRef, { remainingAmount: increment(-usedAmount), updatedAt: serverTimestamp() });
         await batch.commit();
@@ -106,7 +106,7 @@ export function batchUpdateBeanStock(batch, beanId, amount) {
         console.error("beanService: Invalid data for batch stock update.", { userId, beanId, amount });
         return;
     }
-    const beanRef = doc(db, `users/${userId}/beans`, beanId);
+    const beanRef = doc(dbInstance, `users/${userId}/beans`, beanId);
     batch.update(beanRef, {
         remainingAmount: increment(amount),
         updatedAt: serverTimestamp()
