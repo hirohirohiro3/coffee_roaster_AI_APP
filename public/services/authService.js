@@ -31,6 +31,7 @@ export function getCurrentUser() { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
 export function listenToAllData(userId, db) {
+    console.log('DEBUG: listenToAllData received db. App name from DB:', db.app.name);
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
@@ -79,8 +80,10 @@ export function initializeFirebase() {
         }
         try {
             app = initializeApp(firebaseConfig);
+            console.log('DEBUG: Firebase App Initialized. App name:', app.name);
             auth = getAuth(app);
             db = getFirestore(app);
+            console.log('DEBUG: Firestore DB created. App name from DB:', db.app.name);
             functions = getFunctions(app);
 
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
