@@ -26,7 +26,6 @@ export function listenToAllData(userId) {
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
     beansCache.clear();
-    const db = getDbInstance();
     const beansRef = collection(db, `users/${userId}/beans`);
     const roastsRef = collection(db, `users/${userId}/roasts`);
     const unsubBeans = onSnapshot(beansRef, (beanSnapshot) => {
