@@ -22,6 +22,10 @@ export function getCurrentUser(auth) { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
 export function listenToAllData(userId, db) {
+    if (!db || typeof db.app === 'undefined') {
+        console.error("listenToAllData called with an invalid 'db' instance. Aborting data listening.", { db });
+        return;
+    }
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
@@ -62,10 +66,12 @@ export function clearAllDataListeners() {
     eventBus.emit('beans:updated-for-roast-form', []);
 }
 
+let firebaseServices = null;
+
 export function initializeFirebase() {
     return new Promise((resolve, reject) => {
-        if (app) {
-            resolve();
+        if (firebaseServices) {
+            resolve(firebaseServices);
             return;
         }
         try {
@@ -89,8 +95,10 @@ export function initializeFirebase() {
                     console.error("❌ Firebase App Check initialization FAILED:", error);
                 }
             }
+
+            firebaseServices = { auth, db, functions };
             console.log("✅ Firebase Core services initialized.");
-            resolve({ auth, db, functions });
+            resolve(firebaseServices);
         } catch (error) {
             console.error("❌ Firebase initialization error:", error);
             reject(error);

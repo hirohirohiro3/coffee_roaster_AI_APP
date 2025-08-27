@@ -33,10 +33,11 @@ function updateAuthViewState(user) {
             eventBus.emit('auth:request-logout');
         });
 
-        setTimeout(() => {
-            window.updateDebugStatus("Dispatching 'ui:main-view-ready' event (after timeout).");
-            eventBus.emit('ui:main-view-ready');
-        }, 100);
+        // The 100ms timeout was causing a race condition.
+        // The DOM manipulation should be complete before this event is emitted.
+        // The event handler for 'ui:main-view-ready' can use its own microtask/macrotask if it needs to wait for rendering.
+        window.updateDebugStatus("Dispatching 'ui:main-view-ready' event.");
+        eventBus.emit('ui:main-view-ready');
 
     } else {
         // --- ▼▼▼ ログアウト時の処理 ▼▼▼ ---
