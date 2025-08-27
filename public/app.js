@@ -53,6 +53,7 @@ export default class App {
     _setupAuthListener() {
         const auth = getAuthInstance();
         const db = getDbInstance();
+        console.log('DEBUG: app.js -> _setupAuthListener. db instance is:', db);
         onAuthStateChanged(auth, (user) => {
             eventBus.emit('auth:state-changed', user);
             if (user) {
