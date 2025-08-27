@@ -3,7 +3,6 @@ import {
     orderBy, serverTimestamp, writeBatch, increment
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { eventBus } from '../core/EventBus.js';
-import { currentUserId } from '../../services/authService.js';
 import * as FirestoreService from '../../services/firestoreService.js';
 import { t } from '../core/i18n.js';
 
@@ -13,8 +12,7 @@ let unsubscribeBeans = null;
 /**
  * Firestoreの生豆データの変更をリッスンし、更新があればイベントを発行します。
  */
-function listenToBeans() {
-    const userId = currentUserId();
+function listenToBeans(userId) {
     if (!userId || !dbInstance) {
         if (unsubscribeBeans) unsubscribeBeans();
         eventBus.emit('data:beans-updated', []);
@@ -45,7 +43,7 @@ function listenToBeans() {
 export function initializeBeanService(db) {
     dbInstance = db;
     eventBus.on('auth:state-changed', (user) => {
-        listenToBeans();
+        listenToBeans(user ? user.uid : null);
     });
     console.log("✅ BeanService initialized and listening for auth changes.");
 }
@@ -53,37 +51,33 @@ export function initializeBeanService(db) {
 
 // --- データ操作関数 ---
 
-export async function addBean(beanData) {
-    const userId = currentUserId();
-    if (!userId) { console.error("beanService: User not logged in."); return null; }
-    return await FirestoreService.addBean(beanData);
+export async function addBean(db, userId, beanData) {
+    if (!userId) { console.error("beanService: User not logged in for addBean."); return null; }
+    return await FirestoreService.addBean(db, userId, beanData);
 }
 
-export async function updateBean(beanId, beanData) {
-    const userId = currentUserId();
+export async function updateBean(db, userId, beanId, beanData) {
     if (!userId) { console.error("beanService: User not logged in."); return false; }
-    return await FirestoreService.updateBean(beanId, beanData);
+    return await FirestoreService.updateBean(db, userId, beanId, beanData);
 }
 
-export async function deleteBean(beanId) {
-    const userId = currentUserId();
+export async function deleteBean(db, userId, beanId) {
     if (!userId) {
         console.error("beanService: User not logged in.");
         return false;
     }
-    return await FirestoreService.deleteBean(beanId);
+    return await FirestoreService.deleteBean(db, userId, beanId);
 }
 
-export async function addRoastAndUpdateStock(roastData, beanId, usedAmount) {
-    const userId = currentUserId();
+export async function addRoastAndUpdateStock(db, userId, roastData, beanId, usedAmount) {
     if (!userId || !beanId || !usedAmount) {
         console.error("beanService: Invalid data for stock update.");
         return null;
     }
-    const roastRef = doc(collection(dbInstance, `users/${userId}/roasts`));
-    const beanRef = doc(dbInstance, `users/${userId}/beans`, beanId);
+    const roastRef = doc(collection(db, `users/${userId}/roasts`));
+    const beanRef = doc(db, `users/${userId}/beans`, beanId);
     try {
-        const batch = writeBatch(dbInstance);
+        const batch = writeBatch(db);
         batch.set(roastRef, { ...roastData, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
         batch.update(beanRef, { remainingAmount: increment(-usedAmount), updatedAt: serverTimestamp() });
         await batch.commit();
@@ -100,13 +94,12 @@ export async function addRoastAndUpdateStock(roastData, beanId, usedAmount) {
  * @param {string} beanId - 対象の生豆ID
  * @param {number} amount - 在庫の変動量。増やす場合は正、減らす場合は負の数。
  */
-export function batchUpdateBeanStock(batch, beanId, amount) {
-    const userId = currentUserId();
+export function batchUpdateBeanStock(db, userId, batch, beanId, amount) {
     if (!userId || !beanId || !amount || typeof amount !== 'number') {
         console.error("beanService: Invalid data for batch stock update.", { userId, beanId, amount });
         return;
     }
-    const beanRef = doc(dbInstance, `users/${userId}/beans`, beanId);
+    const beanRef = doc(db, `users/${userId}/beans`, beanId);
     batch.update(beanRef, {
         remainingAmount: increment(amount),
         updatedAt: serverTimestamp()

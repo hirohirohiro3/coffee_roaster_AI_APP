@@ -1,4 +1,3 @@
-import { initializeFirebase, getDbInstance } from '../../services/authService.js';
 import { initializeDataService } from '../../services/dataService.js';
 import { initializeBeanService } from '../beans/beanService.js';
 import { initializeUIManager } from '../../ui/uiManager.js';
@@ -59,11 +58,10 @@ function registerPages() {
     registerPage('stats', document.getElementById('statistics-page'));
 }
 
-export async function initializeCoreModules() {
+export function initializeCoreModules(firebaseServices) {
     initializeThemeManager();
 
     // Core Services
-    await initializeFirebase();
     initializeDataService();
 
     // UI Management
@@ -71,7 +69,7 @@ export async function initializeCoreModules() {
     initializeUITranslator();
 
     // Controllers
-    initializeAuthController();
+    initializeAuthController(firebaseServices.auth);
 
     // UI Modules
     initializeAuthForms();
@@ -81,13 +79,13 @@ export async function initializeCoreModules() {
     window.updateDebugStatus("Core modules initialized.");
 }
 
-export function initializeMainAppModules() {
+export function initializeMainAppModules(firebaseServices) {
     // Services that depend on auth
-    initializeBeanService(getDbInstance());
+    initializeBeanService(firebaseServices.db);
 
     // Controllers
-    initializeRoastWorkflowController();
-    initializeBeanStockController();
+    initializeRoastWorkflowController(firebaseServices);
+    initializeBeanStockController(firebaseServices);
     initializeTimerController();
     initializeGraphController();
     initializeStatisticsController();

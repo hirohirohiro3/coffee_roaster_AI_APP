@@ -4,6 +4,7 @@ import { t, getCurrentLanguage } from '../core/i18n.js';
 
 let localBeansCache = [];
 let showEmptyBeans = false;
+let auth, db;
 
 function applyFiltersAndRender() {
     let beansToDisplay = localBeansCache;
@@ -62,18 +63,19 @@ async function handleSaveBean({ formData, beanId }) {
 
     let success = false;
     let toastMessage = "";
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
 
     if (beanId) {
         if (dataToSave.remainingAmount === null) {
             delete dataToSave.remainingAmount;
         }
-        success = await BeanService.updateBean(beanId, dataToSave);
+        success = await BeanService.updateBean(db, userId, beanId, dataToSave);
         toastMessage = success ? t('toast.beanUpdateSuccess') : t('toast.beanUpdateFail');
     } else {
         if (dataToSave.remainingAmount === null) {
             dataToSave.remainingAmount = dataToSave.purchaseAmount || 0;
         }
-        const newId = await BeanService.addBean(dataToSave);
+        const newId = await BeanService.addBean(db, userId, dataToSave);
         success = !!newId;
         toastMessage = success ? t('toast.beanAddSuccess') : t('toast.beanAddFail');
     }
@@ -86,12 +88,13 @@ async function handleSaveBean({ formData, beanId }) {
 
 async function handleDeleteBean({ beanId }) {
     if (!beanId) return;
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
 
     const beanToDelete = localBeansCache.find(b => b.id === beanId);
     const confirmDelete = window.confirm(t('confirm.deleteBean', { beanName: beanToDelete?.beanName || t('text.deletedBeanFallback') }));
 
     if (confirmDelete) {
-        const success = await BeanService.deleteBean(beanId);
+        const success = await BeanService.deleteBean(db, userId, beanId);
         const toastMessage = success ? t('toast.beanDeleteSuccess') : t('toast.beanDeleteFail');
         eventBus.emit('ui:show-toast', { message: toastMessage, type: success ? "success" : "error" });
         if (success) {
@@ -101,7 +104,9 @@ async function handleDeleteBean({ beanId }) {
 }
 
 
-export function initializeBeanStockController() {
+export function initializeBeanStockController(firebaseServices) {
+    auth = firebaseServices.auth;
+    db = firebaseServices.db;
     eventBus.on('data:beans-updated', handleBeansUpdate);
     eventBus.on('ui:bean-stock:add-new', handleAddNewBeanClick);
     eventBus.on('ui:bean-stock:toggle-show-empty', handleToggleShowEmpty);

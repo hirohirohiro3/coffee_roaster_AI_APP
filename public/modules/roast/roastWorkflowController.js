@@ -4,6 +4,7 @@ import { t } from '../core/i18n.js';
 import * as RoastUtils from '../../utils/roastUtils.js';
 import { getRoastRecord, updateFavoriteStatus } from '../../services/firestoreService.js';
 
+let auth, db;
 let localRoastsCache = [];
 let currentSearchKeyword = '';
 let currentRoastIdToDeleteForConfirmation = null;
@@ -24,7 +25,9 @@ function _calculateAverageRating(roast) {
     return -1;
 }
 
-export function initializeRoastWorkflowController() {
+export function initializeRoastWorkflowController(firebaseServices) {
+    auth = firebaseServices.auth;
+    db = firebaseServices.db;
     eventBus.on('data:roasts-updated', handleDataUpdate);
     eventBus.on('profile:save-temperatures', handleSaveTemperatures);
     eventBus.on('ui:view-profile-clicked', handleViewProfileButtonClick);
@@ -83,7 +86,8 @@ function handleDataUpdate(updatedRoasts) {
 }
 
 async function handleSaveTemperatures({ docId, newBeanTemps, newChamberTemps }) {
-    const success = await RoastDataManager.processAndUpdateTemperatures(docId, newBeanTemps, newChamberTemps);
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+    const success = await RoastDataManager.processAndUpdateTemperatures(db, userId, docId, newBeanTemps, newChamberTemps);
     if (success) {
         handleViewProfileButtonClick(docId);
     }
@@ -126,7 +130,8 @@ export function handleDeleteButtonClick(roastId, beanName) {
 
 export async function handleConfirmDelete() {
     if (currentRoastIdToDeleteForConfirmation) {
-        await RoastDataManager.processDeleteRoastData(currentRoastIdToDeleteForConfirmation);
+        const userId = auth.currentUser ? auth.currentUser.uid : null;
+        await RoastDataManager.processDeleteRoastData(db, userId, currentRoastIdToDeleteForConfirmation);
         currentRoastIdToDeleteForConfirmation = null;
     }
     eventBus.emit('ui:close-confirm-modal');
@@ -151,8 +156,9 @@ export async function handleRoastFormSubmit(formData, editId) {
     };
     
     const originalData = editId ? localRoastsCache.find(r => r.id === editId) : null;
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
 
-    const result = await RoastDataManager.processAndSaveRoastData(dataToSave, editId, originalData);
+    const result = await RoastDataManager.processAndSaveRoastData(db, userId, dataToSave, editId, originalData);
     
     return result;
 }
@@ -164,7 +170,8 @@ export async function handleToggleFavorite(roastId) {
         return;
     }
     const newFavoriteStatus = !roast.isFavorite;
-    await updateFavoriteStatus(roastId, newFavoriteStatus);
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
+    await updateFavoriteStatus(db, userId, roastId, newFavoriteStatus);
 }
 
 function _escapeCsvCell(cellData) {
@@ -183,9 +190,10 @@ export function getRoastsByIds(ids) {
 
 export async function getRoastDetailsByIds(ids) {
     if (!ids || ids.length === 0) return [];
+    const userId = auth.currentUser ? auth.currentUser.uid : null;
 
     try {
-        const roastPromises = ids.map(id => getRoastRecord(id));
+        const roastPromises = ids.map(id => getRoastRecord(db, userId, id));
         const detailedRoasts = await Promise.all(roastPromises);
 
         const validRoasts = detailedRoasts.filter(Boolean);

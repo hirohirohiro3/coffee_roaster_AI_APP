@@ -4,7 +4,6 @@
 
 import { showToast } from '../../ui/ui.js';
 import { t } from '../core/i18n.js';
-import { currentUserId, getDbInstance } from '../../services/authService.js';
 import { addRoastRecord, updateRoastRecord, deleteRoastRecord } from '../../services/firestoreService.js';
 import { addRoastAndUpdateStock, batchUpdateBeanStock } from '../beans/beanService.js';
 import { getGraphLogsForSaving } from './graphController.js';
@@ -82,8 +81,8 @@ function _prepareRoastDataForSave(rawFormData) {
 // =======================================================
 // ▼▼▼ この関数が修正されました (課題対応) ▼▼▼
 // =======================================================
-export async function processAndSaveRoastData(formDataFromUI, editId, originalRoastData) {
-    if (!currentUserId()) {
+export async function processAndSaveRoastData(db, userId, formDataFromUI, editId, originalRoastData) {
+    if (!userId) {
         showToast(t('toast.roast.notLoggedIn'), "error");
         return { success: false, error: "User not logged in" };
     }
@@ -104,18 +103,17 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
             const weightDifference = newWeight - oldWeight;
 
             // バッチ処理を開始
-            const db = getDbInstance();
             const batch = writeBatch(db);
 
             // 1. 焙煎記録の更新をバッチに追加
-            const roastRef = doc(db, `users/${currentUserId()}/roasts`, editId);
+            const roastRef = doc(db, `users/${userId}/roasts`, editId);
             batch.update(roastRef, finalDataToUpdate);
             
             // 2. 在庫変動があれば、在庫更新もバッチに追加
             if (weightDifference !== 0 && finalDataToUpdate.beanId) {
                 // 在庫の調整量を計算（例：20g→25gなら、在庫は-5g）
                 const stockAdjustment = -weightDifference;
-                batchUpdateBeanStock(batch, finalDataToUpdate.beanId, stockAdjustment);
+                batchUpdateBeanStock(db, userId, batch, finalDataToUpdate.beanId, stockAdjustment);
             }
             
             // バッチ処理を実行（焙煎記録と在庫を同時に更新）
@@ -133,7 +131,7 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
                 showToast(t('toast.roast.stockUpdateRequired'), "error", 5000);
                 return { success: false, error: "Bean ID or used amount is missing." };
             }
-            const newDocId = await addRoastAndUpdateStock(roastDataToSave, beanId, usedAmount);
+            const newDocId = await addRoastAndUpdateStock(db, userId, roastDataToSave, beanId, usedAmount);
             showToast(t('toast.roast.addSuccess'), "success");
             return { success: !!newDocId, docId: newDocId };
         }
@@ -147,13 +145,13 @@ export async function processAndSaveRoastData(formDataFromUI, editId, originalRo
 // ▲▲▲ 修正完了 ▲▲▲
 // =======================================================
 
-export async function processDeleteRoastData(roastId) {
-    if (!roastId || !currentUserId()) {
+export async function processDeleteRoastData(db, userId, roastId) {
+    if (!roastId || !userId) {
         showToast(t('toast.roast.deletePrereq'), "error");
         return false;
     }
     try {
-        const success = await deleteRoastRecord(roastId);
+        const success = await deleteRoastRecord(db, userId, roastId);
         if (success) {
             showToast(t('toast.roast.deleteSuccess'), "success");
         } else {
@@ -167,8 +165,8 @@ export async function processDeleteRoastData(roastId) {
     }
 }
 
-export async function processAndUpdateTemperatures(docId, newBeanTemps, newChamberTemps) {
-    if (!docId || !currentUserId()) {
+export async function processAndUpdateTemperatures(db, userId, docId, newBeanTemps, newChamberTemps) {
+    if (!docId || !userId) {
         showToast(t('toast.roast.updateTempPrereq'), "error");
         return false;
     }
@@ -188,5 +186,5 @@ export async function processAndUpdateTemperatures(docId, newBeanTemps, newChamb
         chamberTempLog: formatForSave(newChamberTemps),
         rorLog: formatForSave(newRorValues),
     };
-    return await updateRoastRecord(docId, dataToUpdate);
+    return await updateRoastRecord(db, userId, docId, dataToUpdate);
 }
