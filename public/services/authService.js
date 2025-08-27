@@ -30,12 +30,12 @@ export const getFunctionsInstance = () => functions;
 export function getCurrentUser() { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
-export function listenToAllData(userId, db) {
-    console.log('DEBUG: listenToAllData received db. App name from DB:', db.app.name);
+export function listenToAllData(userId) {
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
     beansCache.clear();
+    const db = getDbInstance();
     const beansRef = collection(db, `users/${userId}/beans`);
     const roastsRef = collection(db, `users/${userId}/roasts`);
     const unsubBeans = onSnapshot(beansRef, (beanSnapshot) => {
@@ -80,10 +80,8 @@ export function initializeFirebase() {
         }
         try {
             app = initializeApp(firebaseConfig);
-            console.log('DEBUG: Firebase App Initialized. App name:', app.name);
             auth = getAuth(app);
             db = getFirestore(app);
-            console.log('DEBUG: Firestore DB created. App name from DB:', db.app.name);
             functions = getFunctions(app);
 
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
