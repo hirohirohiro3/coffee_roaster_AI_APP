@@ -39,7 +39,6 @@ export function listenToAllData(userId) {
     const beansRef = collection(db, `users/${userId}/beans`);
     const roastsRef = collection(db, `users/${userId}/roasts`);
     const unsubBeans = onSnapshot(beansRef, (beanSnapshot) => {
-        console.log('DEBUG: Beans snapshot callback entered.');
         beansCache.clear();
         beanSnapshot.forEach(doc => {
             beansCache.set(doc.id, { ...doc.data(), id: doc.id });
@@ -47,7 +46,6 @@ export function listenToAllData(userId) {
         eventBus.emit('data:beans-updated', Array.from(beansCache.values()));
 
         if (unsubscribes.length < 2) {
-            console.log('DEBUG: Setting up nested roasts listener. The db object is:', db);
             const roastsQuery = query(roastsRef, orderBy("roastDate", "desc"), orderBy("createdAt", "desc"));
             const unsubRoasts = onSnapshot(roastsQuery, (roastSnapshot) => {
                 const roasts = roastSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -81,13 +79,20 @@ export function initializeFirebase() {
             return;
         }
         try {
+            console.log("DEBUG: Calling initializeApp...");
             app = initializeApp(firebaseConfig);
+            console.log("DEBUG: initializeApp SUCCEEDED. Calling getAuth...");
             auth = getAuth(app);
+            console.log("DEBUG: getAuth SUCCEEDED. Calling getFirestore...");
             db = getFirestore(app);
+            console.log("DEBUG: getFirestore SUCCEEDED. Calling getFunctions...");
             functions = getFunctions(app);
+            console.log("DEBUG: getFunctions SUCCEEDED. Checking hostname for emulators...");
 
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                console.log("DEBUG: Hostname is localhost. Calling connectAuthEmulator...");
                 connectAuthEmulator(auth, 'http://localhost:9099', { disableWarnings: true });
+                console.log("DEBUG: connectAuthEmulator SUCCEEDED. Calling connectFirestoreEmulator...");
                 connectFirestoreEmulator(db, 'localhost', 8081);
                 console.log("✅ Using Firebase Emulators on Auth:9099 and Firestore:8081.");
             } else {
