@@ -24,17 +24,13 @@ let beansCache = new Map();
 
 // Firebaseサービスへの安全なアクセスのためのゲッター
 export const getAuthInstance = () => auth;
-export const getDbInstance = () => {
-    console.log('DEBUG: getDbInstance() called. Returning db object:', db);
-    return db;
-};
+export const getDbInstance = () => db;
 export const getFunctionsInstance = () => functions;
 
 export function getCurrentUser() { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
 export function listenToAllData(userId, db) {
-    console.log('DEBUG: listenToAllData() called with db object:', db);
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
@@ -85,7 +81,6 @@ export function initializeFirebase() {
             app = initializeApp(firebaseConfig);
             auth = getAuth(app);
             db = getFirestore(app);
-            console.log('DEBUG: Firebase DB Initialized in initializeFirebase(). DB Object:', db);
             functions = getFunctions(app);
 
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
