@@ -60,7 +60,7 @@ export default class App {
             if (user) {
                 console.log(`Auth state changed: Logged in as ${user.email}`);
                 console.log('--- FIREBASE SNAPSHOT ---', { db_instance: this.firebaseServices.db });
-                listenToAllData(user.uid, this.firebaseServices.db);
+                listenToAllData(user.uid, this.firebaseServices.auth, this.firebaseServices.db);
             } else {
                 console.log("Auth state changed: Logged out");
                 clearAllDataListeners();

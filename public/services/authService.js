@@ -21,7 +21,14 @@ let beansCache = new Map();
 export function getCurrentUser(auth) { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
-export function listenToAllData(userId, db) {
+export function listenToAllData(userId, auth, db) {
+    console.log('--- DETAILED FIREBASE SNAPSHOT ---', {
+        userId: userId,
+        db_instance_valid: !!db,
+        auth_instance_valid: !!auth,
+        currentUser_uid: auth?.currentUser?.uid
+    });
+
     if (!db || typeof db.app === 'undefined') {
         console.error("listenToAllData called with an invalid 'db' instance. Aborting data listening.", { db });
         return;
