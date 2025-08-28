@@ -59,7 +59,8 @@ export default class App {
             eventBus.emit('auth:state-changed', user);
             if (user) {
                 console.log(`Auth state changed: Logged in as ${user.email}`);
-                listenToAllData(user.uid);
+                const { db, collection, onSnapshot, query, orderBy } = this.firebaseServices;
+                listenToAllData(user.uid, db, { collection, onSnapshot, query, orderBy });
             } else {
                 console.log("Auth state changed: Logged out");
                 clearAllDataListeners();
