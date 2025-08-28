@@ -21,13 +21,7 @@ let beansCache = new Map();
 export function getCurrentUser(auth) { return auth ? auth.currentUser : null; }
 export function currentUserId() { return currentUserIdInternal; }
 
-export function listenToAllData(userId) {
-    if (!firebaseServices) {
-        console.error("listenToAllData called before Firebase was initialized. Aborting.");
-        return;
-    }
-    const { auth, db } = firebaseServices;
-
+export function listenToAllData(userId, db, { collection, onSnapshot, query, orderBy }) {
     currentUserIdInternal = userId;
     unsubscribes.forEach(unsub => unsub());
     unsubscribes = [];
@@ -98,7 +92,7 @@ export function initializeFirebase() {
                 }
             }
 
-            firebaseServices = { auth, db, functions };
+            firebaseServices = { auth, db, functions, collection, onSnapshot, query, orderBy };
             console.log("✅ Firebase Core services initialized.");
             resolve(firebaseServices);
         } catch (error) {
