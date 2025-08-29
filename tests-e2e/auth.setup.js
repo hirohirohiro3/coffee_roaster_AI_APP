@@ -10,16 +10,28 @@ setup('authenticate', async ({ page }) => {
   // Wait for the login form to be visible
   await expect(page.locator('#loginForm')).toBeVisible({ timeout: 10000 });
 
-  // Fill in the credentials
-  await page.locator('#loginEmail').fill('test@example.com');
-  await page.locator('#loginPassword').fill('testpass123');
+  // Switch to the sign-up form
+  await page.locator('#showSignUpFormButton').click();
+  await expect(page.locator('#signUpForm')).toBeVisible({ timeout: 10000 });
 
-  // Click the login button
-  await page.locator('#loginButton').click();
+  // Fill in the credentials for sign-up
+  const email = `test-${Date.now()}@example.com`;
+  await page.locator('#signUpEmail').fill(email);
+  await page.locator('#signUpPassword').fill('testpass123');
 
-  // Wait for the main content to be visible after login
+  // Click the sign-up button
+  await page.locator('#signUpButton').click();
+
+  // Wait for the app to fetch initial data from the Firestore emulator
+  await page.waitForResponse(res => res.url().includes(':8081/'), { timeout: 10000 });
+
+  // The main content container should become visible
   await expect(page.locator('#main-content')).toBeVisible({ timeout: 10000 });
 
+  // And as a final check, wait for the main app title to be there.
+  const heading = page.getByRole('heading', { name: 'コーヒー焙煎記録' });
+  await expect(heading).toBeVisible({ timeout: 10000 });
+
   // Save the authentication state to a file
-  await page.context().storage_state({ path: authFile });
+  await page.context().storageState({ path: authFile });
 });
