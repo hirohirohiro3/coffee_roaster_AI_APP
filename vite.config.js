@@ -1,9 +1,16 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  envDir: './',
-  envPrefix: [],
   define: {
     '__DEFINES__': {},
   },
+  envDir: './',
+  envPrefix: [],
+
+  // エントリーポイントを明示的に指定
+  build: {
+    rollupOptions: {
+      input: 'index.html'
+    }
+  }
 });
