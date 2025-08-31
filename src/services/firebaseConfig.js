@@ -1,13 +1,15 @@
-// このファイルに、あなたのプロジェクトの秘密の設定情報をすべて記述します。
+// This file reads the configuration from environment variables.
+// See the .env file for the values.
 
-// Firebaseプロジェクトの設定オブジェクト
+// Firebase project configuration object
 export const firebaseConfig = {
-     apiKey: "AIzaSyBDl3avV-PsWfKuBfItdNc6GhYe9ZyI9Zg",
-     authDomain: "coffee-roast-log2.firebaseapp.com",
-     projectId: "coffee-roast-log2",
-     storageBucket: "coffee-roast-log2.firebasestorage.app",
-     messagingSenderId: "605054909172",
-     appId: "1:605054909172:web:019feedf99a32a3805bca1"
+     apiKey: import.meta.env.VITE_API_KEY,
+     authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+     projectId: import.meta.env.VITE_PROJECT_ID,
+     storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+     messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+     appId: import.meta.env.VITE_APP_ID
 };
-// App Check用のreCAPTCHAサイトキー
-export const recaptchaSiteKey = '6LdCnpcrAAAAACO5PYfQmeZ7vJ0NrwcF9F1TNVJz';
+
+// reCAPTCHA site key for App Check
+export const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;

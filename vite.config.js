@@ -1,12 +1,6 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  define: {
-    '__DEFINES__': JSON.stringify({}),
-  },
-  envDir: './',
-  envPrefix: [],
-
   // エントリーポイントを明示的に指定
   build: {
     rollupOptions: {
