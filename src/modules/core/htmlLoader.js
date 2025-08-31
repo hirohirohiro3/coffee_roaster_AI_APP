@@ -2,8 +2,8 @@ import { eventBus } from './EventBus.js';
 
 async function loadComponent(url, containerId, append = false) {
     try {
-        // パスを修正: `./components/` から `components/` へ
-        const response = await fetch(`components/${url}`);
+        // パスを修正: Viteのルートからの絶対パスに修正
+        const response = await fetch(`/src/components/${url}`);
         if (!response.ok) {
             throw new Error(`Network response was not ok for ${url}: ${response.statusText}`);
         }
